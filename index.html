@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineSchedule PRO – Anmelden</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080810;--s1:#0f0f1a;--s2:#161624;--s3:#1e1e30;--border:#252538;--border2:#30304a;--accent:#f0c040;--green:#2ed87a;--red:#ff3355;--text:#e0e0f0;--muted:#606080;--muted2:#9090b0;--radius:8px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.wrap{width:400px;max-width:95vw;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:5px;color:var(--accent);text-align:center;margin-bottom:4px;}
+.logo em{color:var(--text);font-style:normal;}
+.sub{font-size:.62rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:36px;}
+.box{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:32px;}
+.box-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:var(--muted);margin-bottom:18px;text-align:center;}
+.sec-label{font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:block;}
+.rolle-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
+.rb{background:var(--s2);border:2px solid var(--border2);color:var(--muted2);padding:13px 16px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:600;text-align:left;transition:all .18s;display:flex;align-items:center;gap:12px;width:100%;}
+.rb:hover{border-color:var(--border2);background:var(--s3);color:var(--text);}
+.rb.active{background:rgba(240,192,64,.08);border-color:var(--accent);color:var(--accent);}
+.rb-icon{font-size:1.2rem;width:26px;text-align:center;flex-shrink:0;}
+.rb-info{display:flex;flex-direction:column;}
+.rb-name{font-size:.9rem;font-weight:700;}
+.rb-desc{font-size:.63rem;color:var(--muted);font-weight:400;margin-top:2px;}
+.rb.active .rb-desc{color:rgba(240,192,64,.55);}
+.pw-wrap{margin-bottom:16px;}
+.pw-input{background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:12px 13px;border-radius:6px;font-family:'Outfit',sans-serif;font-size:.95rem;width:100%;transition:border-color .2s;}
+.pw-input:focus{outline:none;border-color:var(--accent);}
+.btn-login{width:100%;padding:13px;background:var(--accent);color:#000;border:none;border-radius:6px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-login:hover{background:#f8d050;transform:translateY(-1px);}
+.btn-login:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.err{background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.3);border-radius:6px;padding:10px 14px;font-size:.82rem;color:var(--red);margin-top:12px;display:none;}
+.err.show{display:block;}
+.load{text-align:center;font-size:.8rem;color:var(--muted);margin-top:10px;display:none;}
+.version{text-align:center;font-size:.65rem;color:var(--muted);margin-top:20px;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Cine<em>Schedule</em></div>
+  <div class="sub">Mitarbeiter · Programm · Verwaltung</div>
+  <div class="box">
+    <div class="box-title">Wer bist du?</div>
+
+    <span class="sec-label">Gruppe wählen</span>
+    <div class="rolle-btns">
+      <button class="rb" id="rb-programmplanung" onclick="selectRolle('programmplanung')">
+        <span class="rb-icon">👑</span>
+        <div class="rb-info">
+          <span class="rb-name">Programmplanung</span>
+          <span class="rb-desc">Vollzugriff · Filme · Planung · Einstellungen</span>
+        </div>
+      </button>
+      <button class="rb" id="rb-zeiten" onclick="selectRolle('zeiten')">
+        <span class="rb-icon">✏️</span>
+        <div class="rb-info">
+          <span class="rb-name">Zeitenbearbeitung</span>
+          <span class="rb-desc">Startzeiten und Werbezeiten anpassen</span>
+        </div>
+      </button>
+      <button class="rb" id="rb-druck" onclick="selectRolle('druck')">
+        <span class="rb-icon">🖨️</span>
+        <div class="rb-info">
+          <span class="rb-name">Druck</span>
+          <span class="rb-desc">Zeitleiste · Ansichten · Drucken</span>
+        </div>
+      </button>
+    </div>
+
+    <span class="sec-label">Passwort</span>
+    <div class="pw-wrap">
+      <input type="password" class="pw-input" id="pw" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">Anmelden →</button>
+    <div class="err" id="errMsg"></div>
+    <div class="load" id="loadMsg">Wird angemeldet…</div>
+  </div>
+  <div class="version">CineSchedule PRO v5.3</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bzoewjopqhdundcfwpww.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6b2V3am9wcWhkdW5kY2Z3cHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDk0OTQsImV4cCI6MjA5MjEyNTQ5NH0.gj-BCQ20LZLGQmch1WqWvHLVcO65LnAp96Kym4ZrNUs';
+
+// Rolle → Supabase E-Mail (intern, für den Benutzer unsichtbar)
+const ROLLE_EMAIL = {
+  programmplanung: 'programmplanung@cineschedule.local',
+  zeiten:          'zeiten@cineschedule.local',
+  druck:           'druck@cineschedule.local'
+};
+
+let selectedRolle = null;
+
+// Bereits eingeloggt?
+const existing = JSON.parse(localStorage.getItem('csp_session') || 'null');
+if (existing?.token && existing?.rolle) redirectToRole(existing.rolle);
+
+function selectRolle(rolle) {
+  selectedRolle = rolle;
+  document.querySelectorAll('.rb').forEach(b => b.classList.remove('active'));
+  document.getElementById('rb-' + rolle).classList.add('active');
+  document.getElementById('pw').focus();
+  document.getElementById('errMsg').classList.remove('show');
+}
+
+function redirectToRole(rolle) {
+  const map = { programmplanung: 'programm.html', zeiten: 'zeiten.html', druck: 'druck.html' };
+  window.location.href = map[rolle] || 'index.html';
+}
+
+async function doLogin() {
+  if (!selectedRolle) { showErr('Bitte zuerst eine Gruppe auswählen.'); return; }
+  const pw   = document.getElementById('pw').value;
+  const btn  = document.getElementById('loginBtn');
+  const load = document.getElementById('loadMsg');
+  if (!pw) { showErr('Bitte Passwort eingeben.'); return; }
+
+  document.getElementById('errMsg').classList.remove('show');
+  btn.disabled = true; load.style.display = 'block';
+
+  try {
+    const email = ROLLE_EMAIL[selectedRolle];
+    const authRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body:    JSON.stringify({ email, password: pw })
+    });
+    const auth = await authRes.json();
+    if (!authRes.ok) {
+      if (authRes.status === 400 || authRes.status === 401 || authRes.status === 422)
+        showErr('❌ Falsches Passwort. Bitte erneut versuchen.');
+      else if (authRes.status === 429)
+        showErr('⏳ Zu viele Versuche. Bitte kurz warten und nochmal versuchen.');
+      else
+        showErr('❌ Anmeldung fehlgeschlagen (Status ' + authRes.status + ')');
+      return;
+    }
+
+    const rolleRes = await fetch(`${SUPABASE_URL}/rest/v1/user_roles?id=eq.${auth.user.id}&select=rolle,name`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${auth.access_token}` }
+    });
+    const rolleData = await rolleRes.json();
+    if (!rolleData.length) { showErr('Keine Rolle zugewiesen. Bitte Administrator kontaktieren.'); return; }
+
+    const rolle = rolleData[0].rolle;
+    const name  = rolleData[0].name;
+
+    // ── Presence-Prüfung: Nur für Programmplanung ──────────────────────
+    if (rolle === 'programmplanung') {
+      try {
+        const presRes = await fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.${rolle}&select=rolle,user_name,expires_at,last_seen,ip`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${auth.access_token}` }
+        });
+        const presData = await presRes.json();
+        if (presData.length > 0) {
+          const p = presData[0];
+          const expires = new Date(p.expires_at);
+          const lastSeen = p.last_seen ? new Date(p.last_seen) : null;
+          const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+          // Nur sperren wenn: expires noch nicht abgelaufen UND last_seen in letzten 5 Min
+          const isActive = expires > new Date() && lastSeen && lastSeen > thirtyMinAgo;
+          if (isActive) {
+            const who  = p.user_name || rolle;
+            const until = expires.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+            const ipInfo = p.ip ? ` · IP: ${p.ip}` : '';
+            showErr(`⚠️ Programmplanung ist bereits eingeloggt (${who}${ipInfo}) · zuletzt aktiv: ${lastSeen.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}.\n\nBitte den anderen Nutzer bitten sich abzumelden.`);
+            return;
+          }
+        }
+        // IP-Adresse ermitteln (best-effort)
+        let userIp = '';
+        try {
+          const ipRes = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(2000) });
+          const ipData = await ipRes.json();
+          userIp = ipData.ip || '';
+        } catch(e) {}
+
+        // Presence setzen (30 Minuten gültig — wird bei Aktivität erneuert)
+        const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+        const lastSeen  = new Date().toISOString();
+        await fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${auth.access_token}`,
+            'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({ rolle, user_name: name || rolle, expires_at: expiresAt, last_seen: lastSeen, ip: userIp })
+        });
+      } catch(e) {
+        console.warn('Presence-Check fehlgeschlagen:', e);
+      }
+    }
+
+
+    localStorage.setItem('csp_session', JSON.stringify({
+      token:        auth.access_token,
+      refreshToken: auth.refresh_token,
+      userId:       auth.user.id,
+      email:        auth.user.email,
+      rolle,
+      name
+    }));
+
+    redirectToRole(rolle);
+  } catch (e) {
+    showErr('🌐 Verbindungsfehler. Bitte Internetverbindung prüfen und erneut versuchen.');
+  } finally {
+    btn.disabled = false; load.style.display = 'none';
+  }
+}
+
+function showErr(msg) {
+  const err = document.getElementById('errMsg');
+  err.textContent = msg; err.classList.add('show');
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loadMsg').style.display = 'none';
+}
+</script>
+</body>
+</html>

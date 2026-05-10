@@ -1,0 +1,2024 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineSchedule PRO – Import</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080810;--s1:#0f0f1a;--s2:#161624;--s3:#1e1e30;--border:#252538;--border2:#30304a;--accent:#f0c040;--green:#2ed87a;--red:#ff3355;--blue:#4a90ff;--text:#e0e0f0;--muted:#606080;--muted2:#9090b0;--radius:8px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:var(--s1);border-bottom:2px solid var(--accent);padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:300;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:4px;color:var(--accent);}
+.logo em{color:var(--text);font-style:normal;}
+main{padding:22px 26px;max-width:1200px;margin:0 auto;}
+.ptitle{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;color:var(--accent);margin-bottom:4px;}
+.psub{color:var(--muted);font-size:.78rem;letter-spacing:1px;margin-bottom:18px;}
+.btn{padding:7px 16px;border-radius:4px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;transition:all .2s;}
+.btn-p{background:var(--accent);color:#000;} .btn-p:hover{background:#f8d050;}
+.btn-s{background:transparent;border:1px solid var(--border2);color:var(--muted2);} .btn-s:hover{border-color:var(--accent);color:var(--accent);}
+.btn-g{background:rgba(46,216,122,.12);border:1px solid rgba(46,216,122,.3);color:var(--green);}
+.btn-d{background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.3);color:var(--red);}
+.btn-sm{padding:3px 10px;font-size:.72rem;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;}
+.ph{background:var(--s2);padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;border-radius:var(--radius) var(--radius) 0 0;}
+.ph h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--accent);}
+.pb{padding:14px;}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.field label{font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.field input,.field select{background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.85rem;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+/* Steps */
+.steps{display:flex;gap:0;margin-bottom:20px;}
+.step{flex:1;padding:10px 16px;background:var(--s2);border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .2s;}
+.step:first-child{border-radius:6px 0 0 6px;}
+.step:last-child{border-radius:0 6px 6px 0;}
+.step.active{background:rgba(240,192,64,.1);border-color:var(--accent);color:var(--accent);}
+.step.done{background:rgba(46,216,122,.08);border-color:rgba(46,216,122,.3);color:var(--green);}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;display:block;}
+.step-lbl{font-size:.62rem;letter-spacing:1px;text-transform:uppercase;color:inherit;}
+.step-content{display:none;} .step-content.active{display:block;}
+/* Upload */
+.upload-zone{border:2px dashed var(--border2);border-radius:8px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s2);}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(240,192,64,.05);}
+.upload-zone input{display:none;}
+.upload-icon{font-size:2.5rem;margin-bottom:12px;}
+/* Progress */
+.progress-wrap{background:var(--s2);border-radius:4px;height:8px;overflow:hidden;margin:10px 0;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),#f0a020);transition:width .4s;border-radius:4px;}
+/* Film-Tabelle */
+.import-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.import-table th{background:var(--s2);padding:7px 9px;text-align:left;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+.import-table td{padding:5px 9px;border-bottom:1px solid rgba(37,37,56,.4);vertical-align:top;}
+.import-table tr:hover td{background:rgba(240,192,64,.02);}
+.import-table input,.import-table select{background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:2px 6px;border-radius:3px;font-family:'Outfit',sans-serif;font-size:.76rem;width:100%;}
+.badge{font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;}
+.badge-new{background:rgba(46,216,122,.15);color:var(--green);border:1px solid rgba(46,216,122,.3);}
+.badge-upd{background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);}
+/* Vorschau Woche */
+.week-prev{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px;}
+.wp-day{background:var(--s2);border:1px solid var(--border);border-radius:5px;overflow:hidden;}
+.wp-head{background:var(--s3);padding:4px 7px;font-size:.62rem;letter-spacing:1px;color:var(--accent);border-bottom:1px solid var(--border);}
+.wp-body{padding:5px 6px;}
+.wp-saal{margin-bottom:4px;}
+.wp-snum{font-size:.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.wp-show{background:var(--s1);border-radius:3px;padding:2px 5px;margin-top:2px;}
+.wp-title{font-size:.62rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;}
+.wp-time{font-size:.58rem;color:var(--accent);}
+.toast{position:fixed;bottom:20px;right:20px;padding:8px 17px;border-radius:5px;font-weight:600;font-size:.82rem;z-index:999;transform:translateY(42px);opacity:0;transition:all .26s;pointer-events:none;}
+.toast.show{transform:none;opacity:1;}
+.toast.ok{background:var(--green);color:#000;}
+.toast.err{background:var(--red);color:#fff;}
+.toast.info{background:var(--accent);color:#000;}
+.loading-overlay{position:fixed;inset:0;background:rgba(8,8,16,.88);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.spinner{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Cine<em>Schedule</em> <span style="font-size:.82rem;letter-spacing:2px;color:var(--muted2)">PRO</span></div>
+    <div style="font-size:.54rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:1px;">Spielplan Import · v5.3</div>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <span id="userLabel" style="font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);">👑 Programmplanung</span>
+    <button class="btn btn-s btn-sm" onclick="sessionStorage.setItem('csp_goto','3');sessionStorage.setItem('csp_session_bak',localStorage.getItem('csp_session')||'');window.location.href='programm.html';">← Zeitleiste</button>
+    <button class="btn btn-s btn-sm" onclick="doLogout()">🔒 Abmelden</button>
+  </div>
+</header>
+
+<main>
+  <div class="ptitle">SPIELPLAN IMPORT</div>
+  <div class="psub">PDF oder CSV hochladen · Vorschau prüfen · In Supabase importieren</div>
+
+  <div class="steps">
+    <div class="step active" id="step-btn-1" onclick="goStep(1)"><span class="step-num">1</span><span class="step-lbl">Upload</span></div>
+    <div class="step" id="step-btn-2"><span class="step-num">2</span><span class="step-lbl">Vorschau</span></div>
+    <div class="step" id="step-btn-3"><span class="step-num">3</span><span class="step-lbl">Import</span></div>
+  </div>
+
+  <!-- STEP 1: UPLOAD -->
+  <div class="step-content active" id="step-1">
+    <div class="panel">
+      <div class="ph"><h3>Kinowoche</h3></div>
+      <div class="pb" style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="field">
+          <label>Starttag (Donnerstag) *</label>
+          <input type="date" id="weekStart">
+        </div>
+        <div class="field">
+          <label>Optionen</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.84rem;color:var(--text);letter-spacing:0;text-transform:none;cursor:pointer;">
+            <input type="checkbox" id="filmsOnly" style="width:15px;height:15px;accent-color:var(--accent);">
+            Nur Filmkatalog (keine Spieltage)
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph">
+        <h3>Daten eingeben</h3>
+        <div style="display:flex;gap:3px;margin-left:auto;">
+          <button class="btn btn-s btn-sm" id="tab-upload-btn" onclick="switchInputTab('upload')" style="border-color:var(--accent);color:var(--accent);">📄 Datei hochladen</button>
+          <button class="btn btn-s btn-sm" id="tab-paste-btn" onclick="switchInputTab('paste')">📋 Einfügen</button>
+          <button class="btn btn-s btn-sm" onclick="toggleRulesPanel()" style="border-color:var(--muted);color:var(--muted);">⚙ Parser Regeln</button>
+        </div>
+      </div>
+      <div class="pb">
+        <div style="background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:.78rem;color:var(--muted2);">
+          <strong style="color:var(--accent);">💡 Zwei Möglichkeiten:</strong><br>
+          <strong style="color:var(--text);">PDF:</strong> Dispoformular direkt hochladen<br>
+          <strong style="color:var(--text);">Einfügen:</strong> CSV-Inhalt direkt einfügen (aus Claude oder manuell)
+        </div>
+
+        <!-- TAB: CSV Upload -->
+        <div id="tab-upload">
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('pdfInput').click()"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="handleDrop(event)">
+            <input type="file" id="pdfInput" accept=".csv,.pdf" style="display:none;" onchange="handleFile(this.files[0])">
+            <div class="upload-icon">📄</div>
+            <div style="font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:6px;">PDF oder CSV hier ablegen</div>
+            <div style="font-size:.76rem;color:var(--muted);">Dispoformular als PDF · oder CSV-Datei</div>
+          </div>
+          <div id="fileInfo" style="display:none;margin-top:10px;background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:10px 14px;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">📄</span>
+            <div>
+              <div id="fileName" style="font-size:.84rem;font-weight:600;color:var(--text);"></div>
+              <div id="fileSize" style="font-size:.7rem;color:var(--muted);"></div>
+            </div>
+            <button class="btn btn-d btn-sm" style="margin-left:auto;" onclick="clearFile()">✕</button>
+          </div>
+        </div>
+
+        <!-- TAB: Text einfügen -->
+        <div id="tab-paste" style="display:none;">
+          <div style="font-size:.75rem;color:var(--muted2);margin-bottom:8px;">
+            CSV-Inhalt direkt einfügen — aus Claude kopieren oder manuell eingeben.<br>
+            Erste Zeile muss die Spaltenüberschriften enthalten: <span style="color:var(--accent);font-family:monospace;">Saal,Schiene,Filmtitel,SpW,FSK,Laenge</span>
+          </div>
+          <textarea id="pasteInput" placeholder="Saal,Schiene,Filmtitel,SpW,FSK,Laenge&#10;1,14-s 1710-s,IMAX Michael,1,6,128&#10;2,1930-mo-mi,Der Astronaut - Project Hail Mary,6,12,157&#10;..."
+            style="width:100%;height:220px;background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:10px;border-radius:4px;font-family:'Courier New',monospace;font-size:.76rem;resize:vertical;line-height:1.5;"
+            oninput="checkPasteInput()"></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+            <span id="pasteInfo" style="font-size:.72rem;color:var(--muted);"></span>
+            <button class="btn btn-s btn-sm" onclick="document.getElementById('pasteInput').value='';checkPasteInput();">✕ Leeren</button>
+          </div>
+        </div>
+
+        <!-- ── Parser Regeln Panel ───────────────────── -->
+        <div id="rulesPanel" style="display:none;margin-top:10px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:14px;">
+          <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1rem;color:var(--accent);margin-bottom:12px;">⚙ PARSER REGELN</div>
+
+          <!-- Tags -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:4px;">
+              🏷 Tags vor den Titel verschieben
+              <span style="font-weight:400;color:var(--muted);font-size:.66rem;margin-left:6px;">z.B. "Michael - IMAX" → "IMAX Michael"</span>
+            </div>
+            <div id="tagEditorInline" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input id="newTagInputInline" type="text" placeholder="Neuer Tag…" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:3px 8px;border-radius:4px;font-size:.75rem;width:120px;">
+              <button class="btn btn-s btn-sm" onclick="addTagInline()">+ Hinzufügen</button>
+              <button class="btn btn-s btn-sm" onclick="resetTagsInline()" style="color:var(--muted);border-color:var(--border2);">↺ Reset</button>
+              <button class="btn btn-p btn-sm" onclick="saveTagsInline()" style="margin-left:auto;">💾 Speichern</button>
+            </div>
+          </div>
+
+          <!-- Remove -->
+          <div style="border-top:1px solid var(--border);padding-top:12px;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:4px;">
+              🗑 Wörter aus Titel entfernen
+              <span style="font-weight:400;color:var(--muted);font-size:.66rem;margin-left:6px;">z.B. "Michael - Digital" → "Michael"</span>
+            </div>
+            <div id="removeEditorInline" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input id="newRemoveInputInline" type="text" placeholder="Neues Wort…" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:3px 8px;border-radius:4px;font-size:.75rem;width:120px;">
+              <button class="btn btn-s btn-sm" onclick="addRemoveInline()">+ Hinzufügen</button>
+              <button class="btn btn-s btn-sm" onclick="resetRemoveInline()" style="color:var(--muted);border-color:var(--border2);">↺ Reset</button>
+              <button class="btn btn-p btn-sm" onclick="saveRemoveInline()" style="margin-left:auto;">💾 Speichern</button>
+            </div>
+          </div>
+          <!-- Schienen Parser Regeln -->
+          <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:2px;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:8px;">
+              📅 Schienen-Syntax
+              <span style="font-weight:400;color:var(--muted);font-size:.66rem;margin-left:6px;">Wie Schienen-Tokens zu Wochentagen und Zeiten werden</span>
+            </div>
+
+            <!-- Syntax-Tabelle -->
+            <table style="width:100%;border-collapse:collapse;font-size:.7rem;margin-bottom:12px;">
+              <thead>
+                <tr style="background:var(--s3);">
+                  <th style="padding:5px 8px;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);">Syntax</th>
+                  <th style="padding:5px 8px;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);">Bedeutung</th>
+                  <th style="padding:5px 8px;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);">Beispiel</th>
+                  <th style="padding:5px 8px;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);">Ergebnis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">1430</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Alle 7 Tage</td>
+                  <td style="padding:4px 8px;color:var(--accent);">1430</td>
+                  <td style="padding:4px 8px;color:var(--text);">Do–Mi · 14:30</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">do1430</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Einzelner Tag</td>
+                  <td style="padding:4px 8px;color:var(--accent);">mi1430</td>
+                  <td style="padding:4px 8px;color:var(--text);">Mittwoch · 14:30</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">do>so1430</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Bereich Do bis So</td>
+                  <td style="padding:4px 8px;color:var(--accent);">fr>so2000</td>
+                  <td style="padding:4px 8px;color:var(--text);">Fr, Sa, So · 20:00</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">1430-mi</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Alle <b>außer</b> Mittwoch</td>
+                  <td style="padding:4px 8px;color:var(--accent);">1430-sa</td>
+                  <td style="padding:4px 8px;color:var(--text);">Do–Fr, So–Mi · 14:30</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">21-fr-mo>mi</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Alle außer Fr und Mo–Mi</td>
+                  <td style="padding:4px 8px;color:var(--accent);">21-fr-mo>mi</td>
+                  <td style="padding:4px 8px;color:var(--text);">Do, Sa, So · 21:00</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">alt>do1700</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Alternierend ab Do</td>
+                  <td style="padding:4px 8px;color:var(--accent);">alt>fr2020</td>
+                  <td style="padding:4px 8px;color:var(--text);">Fr, So, Di · 20:20</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">m1130</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Kürzel (editierbar)</td>
+                  <td style="padding:4px 8px;color:var(--accent);">m1130</td>
+                  <td style="padding:4px 8px;"><span id="kuerzel_m_preview" style="color:var(--text);">So · 11:30</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">s1330</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Kürzel (editierbar)</td>
+                  <td style="padding:4px 8px;color:var(--accent);">s1330</td>
+                  <td style="padding:4px 8px;"><span id="kuerzel_s_preview" style="color:var(--text);">Do, Fr, Sa · 13:30</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">we1800</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Kürzel (editierbar)</td>
+                  <td style="padding:4px 8px;color:var(--accent);">we1800</td>
+                  <td style="padding:4px 8px;"><span id="kuerzel_we_preview" style="color:var(--text);">Sa, So · 18:00</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:4px 8px;"><code style="color:var(--accent);">sn20</code></td>
+                  <td style="padding:4px 8px;color:var(--muted2);">Sneak → Titel wird ersetzt</td>
+                  <td style="padding:4px 8px;color:var(--accent);">sn20</td>
+                  <td style="padding:4px 8px;color:var(--text);">→ "Sneak KWxx"</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Kürzel editieren -->
+            <div style="font-size:.7rem;font-weight:700;color:var(--text);margin-bottom:6px;">Kürzel-Definitionen <span style="color:var(--muted);font-weight:400;">(welche Tage gehören zu welchem Kürzel)</span></div>
+            <div id="kuerzelEditor" style="display:flex;flex-direction:column;gap:6px;"></div>
+            <div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end;">
+              <button class="btn btn-s btn-sm" onclick="resetKuerzel()" style="color:var(--muted);border-color:var(--border2);">↺ Reset</button>
+              <button class="btn btn-p btn-sm" onclick="saveKuerzel()">💾 Speichern</button>
+            </div>
+          </div>
+        </div>
+        <!-- ── Ende Parser Regeln ─────────────────────── -->
+
+        <div style="margin-top:14px;display:flex;justify-content:flex-end;">
+          <button class="btn btn-p" id="analyzeBtn" disabled onclick="loadInput()">📊 Laden &amp; analysieren →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: VORSCHAU -->
+  <div class="step-content" id="step-2">
+    <div id="previewContent"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-s" onclick="goStep(1)">← Zurück</button>
+      <button class="btn btn-p" id="importBtn" onclick="goStep(3)" style="margin-left:auto;">Import durchführen →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: IMPORT -->
+  <div class="step-content" id="step-3">
+    <div class="panel">
+      <div class="ph"><h3>Import in Supabase</h3></div>
+      <div class="pb" id="importContent">
+        <div id="importSummary"></div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-p" id="doImportBtn" onclick="doImport()">✅ Jetzt importieren</button>
+        </div>
+        <div style="margin-top:12px;" id="importProgressWrap" style="display:none;">
+          <div class="progress-wrap"><div class="progress-bar" id="importBar" style="width:0%"></div></div>
+          <div id="importStatus" style="font-size:.75rem;color:var(--muted);margin-top:4px;"></div>
+        </div>
+        <div id="importResult" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGELN -->
+  <div class="step-content" id="step-rules">
+    <div class="panel">
+      <div class="ph"><h3>Kürzel-Definitionen</h3><span style="font-size:.68rem;color:var(--muted);margin-left:8px;">Welche Tage gehören zu welchem Kürzel?</span></div>
+      <div class="pb">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" id="kuerzelEditor"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-s btn-sm" onclick="resetKuerzel()">↺ Standard</button>
+          <button class="btn btn-g btn-sm" onclick="saveKuerzel()">💾 Speichern</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="ph"><h3>Titel-Bereinigung</h3><span style="font-size:.68rem;color:var(--muted);margin-left:8px;">Suffixe die verschoben oder entfernt werden</span></div>
+      <div class="pb">
+        <div style="font-size:.75rem;color:var(--muted2);margin-bottom:10px;">Qualitäts-Tags werden vom Ende des Titels nach vorne verschoben (z.B. „Michael - IMAX" → „IMAX Michael")</div>
+        <div id="tagEditor" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="newTagInput" placeholder="Neuen Tag eingeben z.B. 4K" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:5px 9px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.82rem;width:180px;">
+          <button class="btn btn-s btn-sm" onclick="addTag()">＋ Hinzufügen</button>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-s btn-sm" onclick="resetTags()">↺ Standard</button>
+          <button class="btn btn-g btn-sm" onclick="saveTags()">💾 Speichern</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="ph"><h3>Zu entfernende Wörter</h3><span style="font-size:.68rem;color:var(--muted);margin-left:8px;">Diese Wörter werden aus dem Filmtitel entfernt</span></div>
+      <div class="pb">
+        <div id="removeEditor" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="newRemoveInput" placeholder="z.B. Director's Cut" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:5px 9px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.82rem;width:200px;">
+          <button class="btn btn-s btn-sm" onclick="addRemove()">＋ Hinzufügen</button>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-s btn-sm" onclick="resetRemove()">↺ Standard</button>
+          <button class="btn btn-g btn-sm" onclick="saveRemove()">💾 Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toastEl"></div>
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
+  <div class="spinner"></div>
+  <div id="loadingMsg" style="color:var(--muted2);font-size:.84rem;letter-spacing:1px;">PDF wird analysiert…</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bzoewjopqhdundcfwpww.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6b2V3am9wcWhkdW5kY2Z3cHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDk0OTQsImV4cCI6MjA5MjEyNTQ5NH0.gj-BCQ20LZLGQmch1WqWvHLVcO65LnAp96Kym4ZrNUs';
+// PDF.js Analyse - kein API-Key benötigt
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// Kürzel-Definitionen
+
+const ALL_DAYS = ['do','fr','sa','so','mo','di','mi'];
+const DOW_MAP  = {mo:1,di:2,mi:3,do:4,fr:5,sa:6,so:0};
+const DOW_FULL = {do:'Donnerstag',fr:'Freitag',sa:'Samstag',so:'Sonntag',mo:'Montag',di:'Dienstag',mi:'Mittwoch'};
+
+
+// ── PARSING-REGELN ────────────────────────────────────────────────────────
+const DEFAULT_KUERZEL = { m:['so'], s:['do','fr','sa'], sn:['mo'], we:['sa','so'] };
+const DEFAULT_TAGS    = ['IMAX 3D','3D IMAX','IMAX OV','OV IMAX','IMAX OmU','OmU IMAX','IMAX OmeU','IMAX','3D','OmeU','OmU','OmdU','OMU','OV'];
+const DEFAULT_REMOVE  = ['Digital'];
+const ALL_DAYS_LIST   = ['do','fr','sa','so','mo','di','mi'];
+const DAY_LABELS      = {do:'Do',fr:'Fr',sa:'Sa',so:'So',mo:'Mo',di:'Di',mi:'Mi'};
+
+let _kuerzel = JSON.parse(localStorage.getItem('csp_import_kuerzel') || 'null') || JSON.parse(JSON.stringify(DEFAULT_KUERZEL));
+let _tags    = JSON.parse(localStorage.getItem('csp_import_tags')    || 'null') || [...DEFAULT_TAGS];
+let _remove  = JSON.parse(localStorage.getItem('csp_import_remove')  || 'null') || [...DEFAULT_REMOVE];
+
+function renderKuerzelEditor() {
+  const grid = document.getElementById('kuerzelEditor');
+  if (!grid) return;
+  const labels = {m:'m (Matinee)',s:'s (Spät)',sn:'sn (Sneak)',we:'we (Wochenende)'};
+  grid.innerHTML = Object.keys(_kuerzel).map(k => `
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:10px;">
+      <div style="font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:6px;">${labels[k]||k}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        ${ALL_DAYS_LIST.map(d=>`<label style="display:flex;align-items:center;gap:3px;font-size:.72rem;color:var(--muted2);cursor:pointer;">
+          <input type="checkbox" id="kd_${k}_${d}" ${(_kuerzel[k]||[]).includes(d)?'checked':''} style="accent-color:var(--accent);">
+          ${DAY_LABELS[d]}</label>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderTagEditor() {
+  const el = document.getElementById('tagEditor');
+  if (!el) return;
+  el.innerHTML = _tags.map((tag,i) => `
+    <div style="display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;">
+      <span style="font-size:.78rem;color:var(--text);">${tag}</span>
+      <button onclick="_tags.splice(${i},1);renderTagEditor();" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.8rem;padding:0 2px;">✕</button>
+    </div>`).join('');
+}
+
+function renderRemoveEditor() {
+  const el = document.getElementById('removeEditor');
+  if (!el) return;
+  el.innerHTML = _remove.map((w,i) => `
+    <div style="display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border2);border-radius:4px;padding:3px 8px;">
+      <span style="font-size:.78rem;color:var(--text);">${w}</span>
+      <button onclick="_remove.splice(${i},1);renderRemoveEditor();" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.8rem;padding:0 2px;">✕</button>
+    </div>`).join('');
+}
+
+function saveKuerzel() {
+  Object.keys(_kuerzel).forEach(k => {
+    _kuerzel[k] = ALL_DAYS_LIST.filter(d => document.getElementById('kd_'+k+'_'+d)?.checked);
+  });
+  localStorage.setItem('csp_import_kuerzel', JSON.stringify(_kuerzel));
+  toast('Kürzel gespeichert ✓','ok');
+}
+function resetKuerzel() { _kuerzel=JSON.parse(JSON.stringify(DEFAULT_KUERZEL)); localStorage.removeItem('csp_import_kuerzel'); renderKuerzelEditor(); toast('Kürzel zurückgesetzt','info'); }
+
+function addTag() { const v=document.getElementById('newTagInput').value.trim(); if(v&&!_tags.includes(v)){_tags.unshift(v);renderTagEditor();document.getElementById('newTagInput').value='';} }
+function saveTags() { localStorage.setItem('csp_import_tags',JSON.stringify(_tags)); toast('Tags gespeichert ✓','ok'); }
+function resetTags() { _tags=[...DEFAULT_TAGS]; localStorage.removeItem('csp_import_tags'); renderTagEditor(); toast('Tags zurückgesetzt','info'); }
+
+function addRemove() { const v=document.getElementById('newRemoveInput').value.trim(); if(v&&!_remove.includes(v)){_remove.push(v);renderRemoveEditor();document.getElementById('newRemoveInput').value='';} }
+function saveRemove() { localStorage.setItem('csp_import_remove',JSON.stringify(_remove)); toast('Entfernungsliste gespeichert ✓','ok'); }
+function resetRemove() { _remove=[...DEFAULT_REMOVE]; localStorage.removeItem('csp_import_remove'); renderRemoveEditor(); toast('Liste zurückgesetzt','info'); }
+
+// ── AUTH ─────────────────────────────────────────────────────────────────
+let session = null;
+function init() {
+  try {
+    // 1. Versuche Session aus URL-Parameter (Fallback für XAMPP)
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionParam = urlParams.get('session');
+    if (sessionParam) {
+      session = JSON.parse(decodeURIComponent(sessionParam));
+      // In localStorage speichern für spätere Nutzung
+      localStorage.setItem('csp_session', JSON.stringify(session));
+    } else {
+      // 2. Versuche aus localStorage
+      const raw = localStorage.getItem('csp_session');
+      if (raw) session = JSON.parse(raw);
+    }
+    if (!session || !session.token) {
+      window.location.href = 'programm.html'; return;
+    }
+  } catch(e) {
+    window.location.href = 'programm.html'; return;
+  }
+  document.getElementById('userLabel').textContent = '👑 ' + (session.name || session.rolle || 'Benutzer');
+  // Nächsten Donnerstag als Default
+  const td = new Date();
+  const dow = td.getDay(); // 0=So, 1=Mo, 4=Do
+  // Tage bis zum nächsten Donnerstag (wenn heute Do → nächste Woche Do)
+  const daysUntilThu = dow === 4 ? 7 : (4 - dow + 7) % 7 || 7;
+  const thu = new Date(td); thu.setDate(td.getDate() + daysUntilThu);
+  document.getElementById('weekStart').value =
+    `${thu.getFullYear()}-${String(thu.getMonth()+1).padStart(2,'0')}-${String(thu.getDate()).padStart(2,'0')}`;
+}
+async function doLogout() {
+  // Presence löschen falls Programmplanung
+  try {
+    const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+    if (sess?.token && sess?.rolle === 'programmplanung') {
+      await fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.${sess.rolle}`, {
+        method: 'DELETE',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${sess.token}` }
+      });
+    }
+  } catch(e) {}
+  localStorage.removeItem('csp_session');
+  window.location.href = 'index.html';
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const t = document.getElementById('toastEl');
+  t.innerHTML = msg; t.className = `toast ${type} show`;
+  clearTimeout(t._to); t._to = setTimeout(() => t.classList.remove('show'), 4000);
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function setLoading(show, msg) {
+  document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+  if (msg) document.getElementById('loadingMsg').textContent = msg;
+}
+
+// ── STEPS ─────────────────────────────────────────────────────────────────
+function goStep(n) {
+  // Wenn zurück zu Step 1 und Daten vorhanden → Hinweis anzeigen
+  if (n === 1 && parsedData) {
+    // Panels wechseln
+    [1,2,3].forEach(i => {
+      document.getElementById('step-'+i).classList.toggle('active', i===1);
+      const btn = document.getElementById('step-btn-'+i);
+      btn.classList.toggle('active', i===1);
+      if (i < 1) btn.classList.add('done'); else btn.classList.remove('done');
+    });
+    // Hinweis einblenden
+    let hint = document.getElementById('dataLoadedHint');
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.id = 'dataLoadedHint';
+      hint.style.cssText = 'margin:10px 0;padding:10px 14px;background:rgba(46,216,122,.1);border:1px solid rgba(46,216,122,.3);border-radius:6px;font-size:.8rem;color:var(--green);display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
+      hint.innerHTML = `✅ Vorschau bereits geladen —
+        <button onclick="goStep(2)" style="background:rgba(46,216,122,.2);border:1px solid rgba(46,216,122,.4);color:var(--green);border-radius:4px;padding:2px 10px;cursor:pointer;font-size:.78rem;">Zur Vorschau →</button>
+        <button onclick="parsedData=null;importPlan=null;document.getElementById('dataLoadedHint').remove();" style="background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.3);color:var(--red);border-radius:4px;padding:2px 10px;cursor:pointer;font-size:.78rem;margin-left:auto;">🗑 Neu laden</button>`;
+      const panel = document.getElementById('step-1');
+      panel.insertBefore(hint, panel.firstChild);
+    }
+    hint.style.display = 'flex';
+    return;
+  }
+  // Hint ausblenden wenn zu Step 2 oder 3
+  const hint = document.getElementById('dataLoadedHint');
+  if (hint) hint.style.display = 'none';
+
+  [1,2,3].forEach(i => {
+    document.getElementById('step-'+i).classList.toggle('active', i===n);
+    const btn = document.getElementById('step-btn-'+i);
+    btn.classList.toggle('active', i===n);
+    if (i < n) btn.classList.add('done'); else btn.classList.remove('done');
+  });
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────────────
+let pdfFile = null;
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+}
+
+function handleFile(file) {
+  if (!file || (!file.name.toLowerCase().endsWith('.csv') && !file.name.toLowerCase().endsWith('.pdf'))) { toast('Bitte eine CSV- oder PDF-Datei wählen!', 'err'); return; }
+  const info = document.getElementById('fileInfo');
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size/1024).toFixed(1) + ' KB';
+  info.style.display = 'flex';
+  pdfFile = file;
+  checkAnalyzeBtn();
+  toast('CSV geladen ✓', 'ok');
+}
+
+function clearFile() {
+  pdfFile = null;
+  document.getElementById('fileInfo').style.display = 'none';
+  document.getElementById('pdfInput').value = '';
+  pdfFile = null; checkAnalyzeBtn();
+}
+
+// ── PDF ANALYSE MIT CLAUDE API ────────────────────────────────────────────
+let parsedData = null;
+
+function parseCSV(text) {
+  // Erwarte Spalten: Saal,Schiene,Filmtitel,SpW,FSK,Laenge
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (!lines.length) return [];
+
+  // Header erkennen
+  const header = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF"]/g, ''));
+  const idx = {
+    saal:    header.findIndex(h => /saal/i.test(h)),
+    schiene: header.findIndex(h => /schiene/i.test(h)),
+    titel:   header.findIndex(h => /titel/i.test(h)),
+    spw:     header.findIndex(h => /spw/i.test(h)),
+    fsk:     header.findIndex(h => /fsk/i.test(h)),
+    laenge:  header.findIndex(h => /l.nge|laenge/i.test(h))
+  };
+
+  if (idx.saal < 0 || idx.schiene < 0 || idx.titel < 0) {
+    throw new Error('CSV-Spalten nicht erkannt. Erwartet: Saal, Schiene, Filmtitel, SpW, FSK, Laenge');
+  }
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',');
+    if (cols.length < 3) continue;
+    const get = (j) => j >= 0 ? (cols[j] || '').trim().replace(/^"|"$/g,'') : '';
+    const saal   = parseInt(get(idx.saal));
+    const sch    = get(idx.schiene).toLowerCase();
+    const titel  = get(idx.titel);
+    const spw    = parseInt(get(idx.spw)) || 1;
+    const fsk    = get(idx.fsk) !== '' ? parseInt(get(idx.fsk)) : -1;
+    const laenge = parseInt(get(idx.laenge)) || 90;
+    if (!saal || !sch || !titel || titel.length < 2) continue;
+    rows.push({ saal, schiene: sch, titel, spw, fsk: isNaN(fsk)?-1:fsk, laenge });
+  }
+  return rows;
+}
+
+// ── REGELN ANWENDEN ───────────────────────────────────────────────────────
+function applyRules(rows, weekStartIso) {
+  function getKW(iso) {
+    if (!iso) return 17;
+    const d = new Date(iso + 'T12:00:00');
+    const thu = new Date(d); thu.setDate(d.getDate() + (4 - (d.getDay()||7)));
+    const j = new Date(thu.getFullYear(), 0, 1);
+    return Math.ceil(((thu - j) / 86400000 + 1) / 7);
+  }
+
+  const tags   = (_tags   || DEFAULT_TAGS).slice();
+  const remove = (_remove || DEFAULT_REMOVE).slice();
+
+  // Regex-Escaper
+  function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  return rows.map(row => {
+    let t = (row.titel || '').trim();
+
+    // Sneak: Titel ersetzen
+    const isSneak = (row.schiene||'').split(/\s+/).some(s => /^sn/i.test(s));
+    if (isSneak) {
+      return { ...row, titel: 'Sneak KW' + String(getKW(weekStartIso)).padStart(2,'0') };
+    }
+
+    // "neu" + optionale Zahl entfernen — überall am Ende
+    // Grund: "neu 1" kommt aus SpW-Spalte und gehört NICHT zum Titel
+    t = t.replace(/\s+neu\s*\d*\s*$/i, '').trim();
+
+    // Iterativ: Entfernen + Tags verschieben
+    let changed = true, n = 0;
+    while (changed && n++ < 10) {
+      changed = false;
+
+      // Entfernen (z.B. "Digital")
+      for (const w of remove) {
+        const r = t.replace(new RegExp('\\s*-\\s*' + esc(w) + '\\s*$', 'i'), '').trim();
+        if (r !== t) { t = r; changed = true; }
+      }
+
+      // Kombinierte Tags zuerst (z.B. "IMAX OV", "IMAX 3D")
+      let found = false;
+      for (let a = 0; a < tags.length && !found; a++) {
+        for (let b = 0; b < tags.length && !found; b++) {
+          if (a === b) continue;
+          const combo = tags[a] + ' ' + tags[b];
+          const r = t.replace(new RegExp('\\s*-\\s*' + esc(combo) + '\\s*$', 'i'), '').trim();
+          if (r !== t) { t = combo + ' ' + r; changed = true; found = true; }
+        }
+      }
+
+      // Einzelne Tags
+      if (!found) {
+        for (const tag of tags) {
+          const r = t.replace(new RegExp('\\s*-\\s*' + esc(tag) + '\\s*$', 'i'), '').trim();
+          if (r !== t) { t = tag + ' ' + r; changed = true; break; }
+        }
+      }
+    }
+
+    return { ...row, titel: t.replace(/\s+/g, ' ').trim() };
+  });
+}
+
+
+
+
+
+// ── INPUT TABS (CSV Upload / Einfügen) ───────────────────────────────────
+function toggleRulesPanel() {
+  const panel = document.getElementById('rulesPanel');
+  const btn = event.target;
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  btn.style.borderColor = open ? 'var(--accent)' : 'var(--muted)';
+  btn.style.color = open ? 'var(--accent)' : 'var(--muted)';
+  if (open) { renderTagEditorInline(); renderRemoveEditorInline(); renderKuerzelEditor(); }
+}
+
+function renderTagEditorInline() {
+  const el = document.getElementById('tagEditorInline'); if (!el) return;
+  el.innerHTML = _tags.map((tag,i) =>
+    `<span style="background:var(--s3);border:1px solid var(--border2);border-radius:4px;padding:2px 8px;font-size:.72rem;color:var(--text);display:flex;align-items:center;gap:4px;">
+      ${esc(tag)}
+      <button onclick="_tags.splice(${i},1);renderTagEditorInline();" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.75rem;padding:0;line-height:1;">✕</button>
+    </span>`).join('');
+}
+
+function renderRemoveEditorInline() {
+  const el = document.getElementById('removeEditorInline'); if (!el) return;
+  el.innerHTML = _remove.map((w,i) =>
+    `<span style="background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.25);border-radius:4px;padding:2px 8px;font-size:.72rem;color:var(--red);display:flex;align-items:center;gap:4px;">
+      ${esc(w)}
+      <button onclick="_remove.splice(${i},1);renderRemoveEditorInline();" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.75rem;padding:0;line-height:1;">✕</button>
+    </span>`).join('');
+}
+
+function addTagInline() {
+  const inp = document.getElementById('newTagInputInline');
+  const v = inp.value.trim();
+  if (v && !_tags.includes(v)) { _tags.unshift(v); renderTagEditorInline(); inp.value=''; }
+}
+function saveTagsInline() {
+  localStorage.setItem('csp_import_tags', JSON.stringify(_tags));
+  toast('Tags gespeichert ✓','ok');
+}
+function resetTagsInline() {
+  _tags = [...DEFAULT_TAGS];
+  localStorage.removeItem('csp_import_tags');
+  renderTagEditorInline();
+  toast('Tags zurückgesetzt','info');
+}
+
+function addRemoveInline() {
+  const inp = document.getElementById('newRemoveInputInline');
+  const v = inp.value.trim();
+  if (v && !_remove.includes(v)) { _remove.push(v); renderRemoveEditorInline(); inp.value=''; }
+}
+function saveRemoveInline() {
+  localStorage.setItem('csp_import_remove', JSON.stringify(_remove));
+  toast('Entfernungsliste gespeichert ✓','ok');
+}
+function resetRemoveInline() {
+  _remove = [...DEFAULT_REMOVE];
+  localStorage.removeItem('csp_import_remove');
+  renderRemoveEditorInline();
+  toast('Liste zurückgesetzt','info');
+}
+
+
+function goToPlanung() {
+  // Session sichern bevor pagehide sie löschen kann
+  const sess = localStorage.getItem('csp_session');
+  if (sess) sessionStorage.setItem('csp_session_bak', sess);
+  sessionStorage.setItem('csp_goto', '2');
+  // Kurz warten damit sessionStorage geschrieben wird, dann navigieren
+  setTimeout(() => { window.location.href = 'programm.html'; }, 50);
+}
+
+function switchInputTab(tab) {
+  const isUpload = tab === 'upload';
+  document.getElementById('tab-upload').style.display = isUpload ? 'block' : 'none';
+  document.getElementById('tab-paste').style.display  = isUpload ? 'none' : 'block';
+  document.getElementById('tab-upload-btn').style.cssText =
+    isUpload ? 'border-color:var(--accent);color:var(--accent);' : '';
+  document.getElementById('tab-paste-btn').style.cssText =
+    isUpload ? '' : 'border-color:var(--accent);color:var(--accent);';
+  checkAnalyzeBtn();
+}
+
+function checkPasteInput() {
+  const txt = document.getElementById('pasteInput').value.trim();
+  const lines = txt.split('\n').filter(l => l.trim() && !l.startsWith('Saal')).length;
+  const info = document.getElementById('pasteInfo');
+  if (lines > 0) {
+    info.textContent = `${lines} Zeile${lines !== 1 ? 'n' : ''} erkannt`;
+    info.style.color = 'var(--green)';
+  } else {
+    info.textContent = '';
+  }
+  checkAnalyzeBtn();
+}
+
+function checkAnalyzeBtn() {
+  const uploadActive = document.getElementById('tab-upload').style.display !== 'none';
+  const hasFile  = uploadActive && pdfFile;
+  const hasPaste = !uploadActive && document.getElementById('pasteInput').value.trim().length > 10;
+  document.getElementById('analyzeBtn').disabled = !(hasFile || hasPaste);
+}
+
+async function loadInput() {
+  const weekStart = document.getElementById('weekStart').value;
+  if (!weekStart) { toast('Bitte Starttag wählen!', 'err'); return; }
+  const d = new Date(weekStart + 'T12:00:00');
+  if (d.getDay() !== 4) { toast('Bitte einen Donnerstag wählen!', 'err'); return; }
+
+  // Wenn bereits Daten vorhanden → bestätigen
+  if (parsedData && importPlan) {
+    if (!confirm('Es sind bereits Daten geladen. Neu laden und bisherige Daten verwerfen?')) {
+      goStep(2); // Zurück zur Vorschau
+      return;
+    }
+    // Reset
+    parsedData = null;
+    importPlan = null;
+  }
+
+  const uploadActive = document.getElementById('tab-upload').style.display !== 'none';
+
+  if (uploadActive) {
+    if (!pdfFile) { toast('Bitte Datei hochladen!', 'err'); return; }
+    const isCSV = pdfFile.name.toLowerCase().endsWith('.csv');
+
+    if (isCSV) {
+      // CSV direkt parsen
+      setLoading(true, 'CSV wird geladen…');
+      try {
+        const text = await pdfFile.text();
+        const rawRows = parseCSV(text);
+        if (!rawRows.length) throw new Error('Keine Filmdaten in der CSV gefunden.');
+        const rows = applyRules(rawRows, weekStart);
+        parsedData = { filme: rows };
+        setLoading(false);
+        renderPreview(parsedData, weekStart);
+        goStep(2);
+        toast(rows.length + ' Einträge geladen ✓', 'ok');
+      } catch(e) {
+        setLoading(false);
+        toast('CSV-Fehler: ' + e.message, 'err');
+      }
+    } else {
+      // PDF mit Claude API analysieren (über CORS-freien Proxy)
+      setLoading(true, '📄 PDF wird vorbereitet…');
+      try {
+        // PDF als Base64
+        const arrayBuffer = await pdfFile.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        let binary = '';
+        // Chunk-weise für große PDFs
+        const chunkSize = 8192;
+        for (let i = 0; i < bytes.byteLength; i += chunkSize) {
+          binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.byteLength)));
+        }
+        const base64 = btoa(binary);
+
+        setLoading(true, '🤖 Claude liest das Dispoformular…');
+
+        // Über Supabase Edge Function (kein API Key im Browser nötig)
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/pdf-to-json`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.token}`,
+              'apikey': SUPABASE_KEY,
+            },
+            body: JSON.stringify({ pdf_base64: base64 })
+          }
+        );
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error('Fehler: ' + (err.error || response.status));
+        }
+
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error || 'Unbekannter Fehler');
+
+        const rawRows = data.filme.map(r => ({
+          saal:    parseInt(r.saal) || 0,
+          schiene: (r.schiene || '').toLowerCase(),
+          titel:   (r.titel || '').trim(),
+          spw:     parseInt(r.spw) || 1,
+          fsk:     r.fsk === '?' || !r.fsk ? -1 : (parseInt(r.fsk) || -1),
+          laenge:  parseInt(r.laenge) || 90
+        })).filter(r => r.saal && r.titel && r.laenge >= 30);
+
+        if (!rawRows.length) throw new Error('Keine Filmdaten erkannt.');
+
+        const rows = applyRules(rawRows, weekStart);
+        parsedData = { filme: rows };
+        setLoading(false);
+        renderPreview(parsedData, weekStart);
+        goStep(2);
+        toast(rows.length + ' Einträge erkannt ✓', 'ok');
+
+      } catch(e) {
+        setLoading(false);
+        if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('Failed')) {
+          toast('❌ Verbindung zur API nicht möglich. Bitte CSV hochladen.', 'err');
+          document.getElementById('tab-paste-btn').click();
+          switchInputTab('paste');
+          document.getElementById('pasteInput').placeholder =
+            'PDF konnte nicht direkt verarbeitet werden.\n\nAlternative: PDF hier in Claude hochladen → Claude generiert CSV → CSV-Text hier einfügen.';
+        } else {
+          toast('Fehler: ' + e.message, 'err');
+        }
+        console.error(e);
+      }
+    }
+  } else {
+    // Text einfügen
+    const txt = document.getElementById('pasteInput').value.trim();
+    if (!txt) { toast('Bitte Text einfügen!', 'err'); return; }
+    setLoading(true, 'Daten werden verarbeitet…');
+    try {
+      const rawRows = parseCSV(txt);
+      if (!rawRows.length) throw new Error('Keine gültigen Daten gefunden. Bitte Format prüfen.');
+      const rows = applyRules(rawRows, weekStart);
+      parsedData = { filme: rows };
+      setLoading(false);
+      renderPreview(parsedData, weekStart);
+      goStep(2);
+      toast(rows.length + ' Einträge geladen ✓', 'ok');
+    } catch(e) {
+      setLoading(false);
+      toast('Fehler: ' + e.message, 'err');
+    }
+  }
+}
+
+
+
+// ── PDF PARSER — Kalibriert mit exakten Messwerten ─────────────────────
+// Aus pdfplumber-Analyse (Seite 595x842pt):
+// Header: Schiene x0=114, Filmtitel x0=193, SpW x0=263, FSK x0=363.9, Lä x0=396.6
+// Daten:  Schiene x0=105-143, Titel x0=167-261, SpW x0=261, FSK x0=368-371, Lä x0=395-399
+//
+// WICHTIG: PDF.js liefert gleiche Koordinaten wie pdfplumber (beide = PDF-Punkte)
+// Y-Achse: PDF.js = invertiert (0 unten), pdfplumber = normal (0 oben)
+// → PDF.js y = Seitenhöhe - pdfplumber.top
+// → Seitenhöhe = 842pt → PDF.js y für pdfplumber.top=168 → 842-168 = 674
+
+const COL = {
+  schiene: [100, 163],  // x0 105-143, Grenze bei 163 (Lücke bis Titel bei 167)
+  titel:   [163, 262],  // x0 167-261 (auch mehrzeilig: Galaxy=167, Project=169)
+  spw:     [258, 294],  // x0 261-272
+  fsk:     [360, 398],  // x0 363-371
+  lae:     [390, 432],  // x0 395-399
+};
+function inCol(x, col) { return x >= col[0] && x < col[1]; }
+
+function extractTextRows(items) {
+  // Y-Toleranz 4pt damit Kino-Zeile + Schienen-Tokens zusammengefasst werden
+  const yBuckets = [];
+  items.forEach(it => {
+    if (!it.str.trim()) return;
+    const y = it.transform[5]; // PDF.js y (von unten)
+    const x = it.transform[4];
+    let bucket = yBuckets.find(b => Math.abs(b.y - y) < 4);
+    if (!bucket) { bucket = { y, items: [] }; yBuckets.push(bucket); }
+    bucket.items.push({ x, t: it.str.trim() });
+  });
+  // Sortiere: oben nach unten (höchster y-Wert = oben in PDF.js)
+  return yBuckets
+    .sort((a, b) => b.y - a.y)
+    .map(b => b.items.sort((a, b) => a.x - b.x));
+}
+
+function parseDispo(textRows) {
+  const SAAL_RE  = /Kino\s+(\d+)/i;
+  const SKIP_RE  = /^(Fax|Spielplan|Seite\s|DISPOFORMULAR|UCI|Höpfl|2026|Bochum|Oskar|586\.|Dispo-Nr|RAUS|Saal\s+Plätze|\d{3}\.\d{3})/i;
+  const HEADER_RE = /^(Saal\s|Schiene|Filmtitel|SpW\s|Plätze)/i;
+
+  const results = [];
+  let currentSaal = null;
+  let buf = null;
+
+  function flush() {
+    if (!buf || !buf.lae) { buf = null; return; }
+    const sch = cleanSchiene(buf.sch.join(' '));
+    const tit = cleanTitel(buf.tit.join(' '));
+    if (sch && tit && tit.length >= 3 && buf.lae >= 30 && buf.lae <= 400) {
+      results.push({
+        saal:    currentSaal,
+        schiene: sch,
+        titel:   tit,
+        spw:     buf.spw || 1,
+        fsk:     buf.fsk != null ? buf.fsk : -1,
+        laenge:  buf.lae
+      });
+    }
+    buf = null;
+  }
+
+  for (const row of textRows) {
+    if (!row.length) continue;
+    const lineText = row.map(i => i.t).join(' ').trim();
+    if (!lineText || SKIP_RE.test(lineText) || HEADER_RE.test(lineText)) continue;
+    if (/^[.\s]*$/.test(lineText)) continue;
+
+    // Saal erkennen
+    const sm = lineText.match(SAAL_RE);
+    if (sm) {
+      flush();
+      currentSaal = parseInt(sm[1]);
+      // Saal-Zeile enthält bereits erste Schienen-Tokens → weiter parsen
+    }
+    if (!currentSaal) continue;
+
+    // Spalten extrahieren
+    const schItems = row.filter(i => inCol(i.x, COL.schiene)).map(i => i.t);
+    const titItems = row.filter(i => inCol(i.x, COL.titel)).map(i => i.t);
+    const spwItems = row.filter(i => inCol(i.x, COL.spw)).map(i => i.t);
+    const fskItem  = row.find(i => inCol(i.x, COL.fsk));
+    const laeItem  = row.find(i => inCol(i.x, COL.lae));
+
+    // Länge = Anker für neue Filmzeile
+    const lae = parseFloat(laeItem?.t || '');
+    const hasLae = !isNaN(lae) && lae >= 30 && lae <= 400;
+
+    if (hasLae) {
+      flush();
+      const fskRaw = fskItem?.t || '';
+      const fsk = (fskRaw && fskRaw !== '?') ? (parseInt(fskRaw) || 0) : -1;
+      const spwM = spwItems.join(' ').match(/\d+/);
+      buf = {
+        sch: [...schItems],
+        tit: [...titItems],
+        spw: spwM ? parseInt(spwM[0]) : 1,
+        fsk, lae
+      };
+    } else if (buf) {
+      // Fortsetzungszeile (mehrzeiliger Titel oder Schiene)
+      buf.sch.push(...schItems);
+      buf.tit.push(...titItems);
+    }
+  }
+  flush();
+  return results;
+}
+
+function cleanSchiene(raw) {
+  return (raw || '').toLowerCase().split(/\s+/).filter(t => {
+    if (!t) return false;
+    t = t.replace(/^\.+|\.+$/g, '');
+    // Gültige Schienen-Token-Muster
+    return /^(alt>|\w{2,3}>\w{2,3}\d)/.test(t) ||  // alt>do2020, do>so
+           /^\d{2,4}$/.test(t) ||                   // 14, 1300
+           /^\d{2,4}-[a-z]{1,3}/.test(t) ||         // 14-s, 1710-s, 1945-so
+           /^\d{2,4}(-[a-z]{2,3})+$/.test(t) ||     // 1930-mo-mi
+           /^(mo|di|mi|do|fr|sa|so)\d{2,4}/.test(t)||// di2020, so1430
+           /^(sn|we|m|s)\d{2,4}/.test(t);           // sn20, m1120, s1330
+  }).join(' ');
+}
+
+function cleanTitel(raw) {
+  return (raw || '')
+    .replace(/\s+(?:neu\s*)?\d+\s*$/, '')   // trailing SpW
+    .replace(/\s+\d+[,.]\d+%.*$/, '')        // trailing %akt
+    .replace(/\s+/g, ' ').trim();
+}
+
+// ── SCHIENEN PARSER ───────────────────────────────────────────────────────
+function parseTime(raw) {
+  const s = raw.replace(/[^0-9]/g,'');
+  if (!s) return null;
+  if (s.length <= 2) return s.padStart(2,'0') + ':00';
+  if (s.length === 3) return '0' + s[0] + ':' + s.slice(1);
+  if (s.length === 4) return s.slice(0,2) + ':' + s.slice(2);
+  return null;
+}
+
+function expandDays(raw) {
+  if (_kuerzel[raw]) return [..._kuerzel[raw]];
+  if (DEFAULT_KUERZEL[raw]) return [...DEFAULT_KUERZEL[raw]];
+  if (ALL_DAYS.includes(raw)) return [raw];
+  // Bereich mit > z.B. mo>mi oder fr>so
+  const rangeM = raw.match(/^([a-z]+)>([a-z]+)$/);
+  if (rangeM) {
+    const from = ALL_DAYS.indexOf(rangeM[1]), to = ALL_DAYS.indexOf(rangeM[2]);
+    if (from !== -1 && to !== -1 && from <= to) return ALL_DAYS.slice(from, to+1);
+    if (from !== -1 && to !== -1 && from > to) {
+      // Wrap-around z.B. fr>mi
+      return [...ALL_DAYS.slice(from), ...ALL_DAYS.slice(0, to+1)];
+    }
+  }
+  // Bereich mit - z.B. mo-mi (alter Stil)
+  const rm = raw.match(/^([a-z]+)-([a-z]+)$/);
+  if (rm) {
+    const from = ALL_DAYS.indexOf(rm[1]), to = ALL_DAYS.indexOf(rm[2]);
+    if (from !== -1 && to !== -1 && from <= to) return ALL_DAYS.slice(from, to+1);
+  }
+  return [];
+}
+
+function parseSchiene(raw) {
+  const results = [];
+  const tokens = raw.trim().split(/\s+/);
+  for (let tok of tokens) {
+    const altM = tok.match(/^alt>([a-z]+)(\d{2,4})(?:-(.+))?$/);
+    if (altM) {
+      const time = parseTime(altM[2]);
+      const excl = altM[3] ? expandDays(altM[3]) : [];
+      const si = ALL_DAYS.indexOf(altM[1]);
+      const days = [];
+      for (let d = si; d < ALL_DAYS.length; d += 2) if (!excl.includes(ALL_DAYS[d])) days.push(ALL_DAYS[d]);
+      if (time) results.push({ time, days }); continue;
+    }
+    const rangeM = tok.match(/^([a-z]+)>([a-z]+)(\d{2,4})$/);
+    if (rangeM) {
+      const time = parseTime(rangeM[3]);
+      const fi = ALL_DAYS.indexOf(rangeM[1]), ti = ALL_DAYS.indexOf(rangeM[2]);
+      if (time && fi !== -1 && ti !== -1) results.push({ time, days: ALL_DAYS.slice(fi, ti+1) }); continue;
+    }
+    const kM = tok.match(/^(sn|we|mo|di|mi|do|fr|sa|so|m|s)(\d{2,4})$/);
+    if (kM) {
+      const time = parseTime(kM[2]), days = expandDays(kM[1]);
+      if (time && days.length) { results.push({ time, days }); continue; }
+    }
+    // Kürzel+Zeit-Ausschluss z.B. s2230-do = s(Do,Fr,Sa) um 22:30 außer Do
+    const kExM = tok.match(/^(sn|we|mo|di|mi|do|fr|sa|so|m|s)(\d{2,4})-(.+)$/);
+    if (kExM) {
+      const time = parseTime(kExM[2]), baseDays = expandDays(kExM[1]);
+      let excl = []; kExM[3].split('-').forEach(p => { excl = excl.concat(expandDays(p)); });
+      const days = baseDays.filter(d => !excl.includes(d));
+      if (time && days.length) { results.push({ time, days }); continue; }
+    }
+    const teM = tok.match(/^(\d{2,4})-(.+)$/);
+    if (teM) {
+      const time = parseTime(teM[1]);
+      let excl = [];
+      teM[2].split('-').forEach(p => { excl = excl.concat(expandDays(p)); });
+      const days = ALL_DAYS.filter(d => !excl.includes(d));
+      if (time && days.length) { results.push({ time, days }); continue; }
+    }
+    const ptM = tok.match(/^(\d{2,4})$/);
+    if (ptM) { const time = parseTime(ptM[1]); if (time) results.push({ time, days: [...ALL_DAYS] }); }
+  }
+  return results;
+}
+
+function getWeekDates(startIso) {
+  const dates = {};
+  const base = new Date(startIso + 'T12:00:00');
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(base); d.setDate(base.getDate() + i);
+    dates[ALL_DAYS[((d.getDay() - 4 + 7) % 7 + 4) % 7]] = d.toISOString().slice(0,10);
+  }
+  // Map by dow name
+  const result = {};
+  ['do','fr','sa','so','mo','di','mi'].forEach((dow, i) => {
+    const d2 = new Date(base); d2.setDate(base.getDate() + i);
+    result[dow] = d2.toISOString().slice(0,10);
+  });
+  return result;
+}
+
+function buildPlan(filme, weekStartIso) {
+  const dates = getWeekDates(weekStartIso);
+  const plan = { films: [], schedule: {} };
+  ALL_DAYS.forEach(d => { plan.schedule[dates[d]] = {}; });
+
+  filme.forEach(row => {
+    const titel = (row.titel||'').trim();
+    const saal  = parseInt(row.saal)||0;
+    if (!titel || !saal) return;
+    if (!plan.films.find(f => f.titel.toLowerCase() === titel.toLowerCase()))
+      plan.films.push({ titel, spw: parseInt(row.spw)||1, fsk: parseInt(row.fsk), laenge: parseInt(row.laenge)||90 });
+    if (!row.schiene) return;
+    const showings = parseSchiene(row.schiene);
+    showings.forEach(({time, days}) => {
+      days.forEach(dow => {
+        const iso = dates[dow]; if (!iso) return;
+        if (!plan.schedule[iso][saal]) plan.schedule[iso][saal] = [];
+        if (!plan.schedule[iso][saal].find(s => s.titel === titel && s.time === time))
+          plan.schedule[iso][saal].push({ titel, time });
+      });
+    });
+  });
+  Object.values(plan.schedule).forEach(day =>
+    Object.keys(day).forEach(s => day[s].sort((a,b) => a.time.localeCompare(b.time)))
+  );
+  return plan;
+}
+
+// ── VORSCHAU RENDERN ──────────────────────────────────────────────────────
+let importPlan = null;
+
+// ── FILM-KLASSIFIZIERUNG ─────────────────────────────────────────────────
+// Vergleicht CSV-Filme mit vorhandenen DB-Filmen
+let _dbFilmsCache = null; // Wird beim ersten Aufruf geladen
+
+async function loadDBFilms() {
+  if (_dbFilmsCache) return _dbFilmsCache;
+  try {
+    console.log('loadDBFilms: session=', session?.token ? 'OK' : 'MISSING');
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main&select=data`, {
+      headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${session?.token || ''}`}
+    });
+    console.log('loadDBFilms: status=', r.status);
+    const rows = await r.json();
+    console.log('loadDBFilms: rows=', rows?.length);
+    _dbFilmsCache = rows[0]?.data || { films:[], days:{}, archive:{}, settings:{}, filmArchive:[] };
+    if (!_dbFilmsCache.films) _dbFilmsCache.films = [];
+    return _dbFilmsCache;
+  } catch(e) {
+    console.error('loadDBFilms ERROR:', e);
+    return { films:[], days:{}, archive:{}, settings:{}, filmArchive:[] };
+  }
+}
+
+function classifyFilms(csvFilme, dbFilms) {
+  // Eindeutige Filme aus CSV (nach Titel dedupliziert)
+  const uniqueCSV = [];
+  csvFilme.forEach(f => {
+    if (!uniqueCSV.find(u => u.titel.toLowerCase() === f.titel.toLowerCase()))
+      uniqueCSV.push(f);
+  });
+
+  const neu       = []; // Neuer Film — nicht im Katalog
+  const weiter    = []; // Läuft weiter — gleiche SW
+  const neueWoche = []; // Neue Woche — höhere SW
+  const ausläuft  = []; // Im Katalog aber nicht in CSV
+
+  // Fuzzy-Matching: Titel normalisieren für Vergleich
+  function normTitle(t) {
+    return (t||'').toLowerCase()
+      .replace(/\s*-\s*(digital|imax|3d|ov|omeu|omu|omdu|omu)\s*/gi, ' ')
+      .replace(/\(ac [^)]+\)\s*/gi, '')
+      .replace(/\s+/g,' ').trim();
+  }
+
+  uniqueCSV.forEach(f => {
+    // Exakter Treffer zuerst
+    let ex = dbFilms.find(d => d.title.toLowerCase() === f.titel.toLowerCase());
+    // Normalisierter Vergleich
+    if (!ex) ex = dbFilms.find(d => normTitle(d.title) === normTitle(f.titel));
+    if (!ex) {
+      neu.push(f);
+    } else if ((ex.week || 1) < (f.spw || 1)) {
+      neueWoche.push({ ...f, oldSpw: ex.week || 1 });
+    } else {
+      weiter.push(f);
+    }
+  });
+
+  // Auslaufende Filme: im Katalog vorhanden aber nicht in CSV
+  dbFilms.forEach(d => {
+    const inCSV = uniqueCSV.find(f => f.titel.toLowerCase() === d.title.toLowerCase());
+    if (!inCSV && d.week && d.week > 0) {
+      ausläuft.push({ titel: d.title, spw: d.week });
+    }
+  });
+
+  return { neu, weiter, neueWoche, ausläuft };
+}
+
+function renderPreview(data, weekStartIso) {
+  const filmsOnly = document.getElementById('filmsOnly').checked;
+  importPlan = buildPlan(data.filme, weekStartIso);
+  const dates = getWeekDates(weekStartIso);
+  const totalShows = Object.values(importPlan.schedule).reduce((s,d)=>s+Object.values(d).reduce((ss,v)=>ss+v.length,0),0);
+
+  // Platzhalter anzeigen
+  document.getElementById('previewContent').innerHTML =
+    `<div style="padding:20px;color:var(--muted);font-size:.82rem;display:flex;align-items:center;gap:10px;">
+      <div style="width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;"></div>
+      Lade Vergleichsdaten…
+    </div>`;
+
+  function doRender(dbFilms) {
+    try {
+      const cls = classifyFilms(data.filme, dbFilms || []);
+      _dbFilmsForSimilar = dbFilms || [];
+      renderFilmClassification(cls, data, weekStartIso, filmsOnly, totalShows, dates);
+    } catch(e) {
+      console.error('renderPreview doRender ERROR:', e);
+      document.getElementById('previewContent').innerHTML =
+        `<div style="padding:20px;color:var(--red);font-size:.82rem;">❌ Fehler beim Rendern: ${e.message}</div>`;
+    }
+  }
+
+  // Timeout-Fallback nach 6 Sekunden
+  let done = false;
+  const t = setTimeout(() => {
+    if (!done) { done = true; doRender([]); toast('Server-Timeout — ohne Vergleich', 'info'); }
+  }, 6000);
+
+  loadDBFilms()
+    .then(DB => {
+      if (!done) {
+        done = true; clearTimeout(t);
+        window._currentDB = DB;
+        doRender(DB.films);
+      }
+    })
+    .catch(e => { if (!done) { done = true; clearTimeout(t); doRender([]); } });
+}
+
+// Normalisierung für Ähnlichkeits-Vergleich
+let _dbFilmsForSimilar = [];
+
+function normForSimilar(t) {
+  return (t||'').toLowerCase()
+    .replace(/\s+neu\s*$/i, '')
+    .replace(/\s*-\s*(digital|imax|3d|ov|omeu|omu|omdu|ovu|hfr)\s*/gi, ' ')
+    .replace(/^(imax|3d|ov|omeu|omu|omdu|hfr)\s+/gi, '')
+    .replace(/\(ac [^)]+\)\s*/gi, '')
+    .replace(/\s+/g,' ').trim();
+}
+
+// ── VORSTELLUNG AUS VORSCHAU ENTFERNEN ───────────────────────────────────
+function removePreviewShow(iso, saal, idx) {
+  if (!importPlan || !importPlan.schedule[iso] || !importPlan.schedule[iso][saal]) return;
+  importPlan.schedule[iso][saal].splice(idx, 1);
+  if (!importPlan.schedule[iso][saal].length) delete importPlan.schedule[iso][saal];
+  if (!Object.keys(importPlan.schedule[iso]||{}).length) delete importPlan.schedule[iso];
+  const weekStartIso = document.getElementById('weekStart').value;
+  const dates = getWeekDates(weekStartIso);
+  const filmsOnly = document.getElementById('filmsOnly').checked;
+  const totalShows = Object.values(importPlan.schedule)
+    .reduce((s,d)=>s+Object.values(d).reduce((ss,v)=>ss+v.length,0),0);
+  loadDBFilms()
+    .then(DB => { const cls=classifyFilms(parsedData.filme,DB.films||[]); renderFilmClassification(cls,parsedData,weekStartIso,filmsOnly,totalShows,dates); })
+    .catch(() => { const cls=classifyFilms(parsedData.filme,[]); renderFilmClassification(cls,parsedData,weekStartIso,filmsOnly,totalShows,dates); });
+  toast('Vorstellung entfernt ✓', 'info');
+}
+
+// ── FILM AUS TABELLE ENTFERNEN ────────────────────────────────────────────
+function delFilm(ui) {
+  const rows = [...document.querySelectorAll('tr[id^="filmrow_"]')];
+  const targetRow = rows[ui];
+  if (!targetRow) return;
+  const titEl = targetRow.querySelector('input[type=text]');
+  if (!titEl) return;
+  const titel = titEl.value.toLowerCase();
+  parsedData.filme = parsedData.filme.filter(f => f.titel.toLowerCase() !== titel);
+  if (importPlan) {
+    Object.values(importPlan.schedule).forEach(day => {
+      Object.values(day).forEach(shows => {
+        for (let i = shows.length-1; i >= 0; i--) {
+          if (shows[i].titel.toLowerCase() === titel) shows.splice(i,1);
+        }
+      });
+    });
+  }
+  targetRow.remove();
+  toast('Film entfernt ✓', 'info');
+}
+
+// Live-Update wenn Titel geändert wird (feuert beim Verlassen des Feldes)
+function updateTitelLive(origIdx, newTitel) {
+  if (!parsedData || !newTitel.trim()) return;
+
+  const oldTitel = parsedData.filme[origIdx]?.titel?.toLowerCase();
+  const nt = newTitel.trim();
+
+    // parsedData aktualisieren — alle Einträge mit diesem origIdx oder gleichem alten Titel
+    parsedData.filme.forEach((f, i) => {
+      if (i === origIdx || f.titel.toLowerCase() === oldTitel) {
+        f.titel = nt;
+      }
+    });
+
+    // importPlan aktualisieren
+    if (importPlan) {
+      Object.values(importPlan.schedule).forEach(day => {
+        Object.values(day).forEach(shows => {
+          shows.forEach(sh => {
+            if (sh.titel?.toLowerCase() === oldTitel) sh.titel = nt;
+          });
+        });
+      });
+    }
+
+    // Film-Analyse Badge aktualisieren
+    const weekStartIso = document.getElementById('weekStart').value;
+    const dates = getWeekDates(weekStartIso);
+    const filmsOnly = document.getElementById('filmsOnly').checked;
+    const totalShows = Object.values(importPlan?.schedule||{})
+      .reduce((s,d)=>s+Object.values(d).reduce((ss,v)=>ss+v.length,0),0);
+
+    loadDBFilms()
+      .then(DB => {
+        const cls = classifyFilms(parsedData.filme, DB.films||[]);
+        _dbFilmsForSimilar = DB.films||[];
+        renderFilmClassification(cls, parsedData, weekStartIso, filmsOnly, totalShows, dates);
+      })
+      .catch(() => {
+        const cls = classifyFilms(parsedData.filme, []);
+        renderFilmClassification(cls, parsedData, weekStartIso, filmsOnly, totalShows, dates);
+      });
+}
+
+function adoptTitle(i, newTitle) {
+  const inp = document.getElementById('f_titel_' + i);
+  if (!inp) return;
+  inp.value = newTitle;
+  // Badge auf ▶ wechseln
+  const row = document.getElementById('filmrow_' + i);
+  if (row) {
+    row.style.background = '';
+    const badge = row.querySelector('td:first-child span');
+    if (badge) {
+      badge.textContent = '▶';
+      badge.style.cssText = 'font-size:.58rem;padding:1px 5px;border-radius:3px;background:rgba(74,144,255,.15);color:#4a90ff;border:1px solid rgba(74,144,255,.3);';
+    }
+  }
+  // Ähnliche Filme ausblenden
+  const simEl = document.getElementById('similar_' + i);
+  if (simEl) simEl.innerHTML = '';
+  // Live-Update auslösen
+  updateTitelLive(i, newTitle);
+  toast('Titel übernommen: ' + newTitle, 'ok');
+}
+
+function checkSimilar(i, val, isNeu) {
+  if (!isNeu || !_dbFilmsForSimilar.length) return;
+  const fn = normForSimilar(val);
+  if (fn.length < 5) return;
+  const similar = _dbFilmsForSimilar.filter(d => {
+    const dn = normForSimilar(d.title);
+    if (!dn) return false;
+    return dn.includes(fn.slice(0,10)) || fn.includes(dn.slice(0,10)) ||
+           (dn.split(' ').filter(w => fn.includes(w) && w.length > 3).length >= 3);
+  }).slice(0,3);
+  const el = document.getElementById('similar_' + i);
+  if (!el) return;
+  if (similar.length) {
+    el.innerHTML = '<span style="font-size:.6rem;color:var(--muted);">Ähnlich im Katalog:</span>' +
+      similar.map(d => `<button onclick="adoptTitle(${i},'${d.title.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')}')"
+        style="font-size:.6rem;padding:1px 6px;margin-left:4px;background:rgba(74,144,255,.1);border:1px solid rgba(74,144,255,.3);color:#4a90ff;border-radius:3px;cursor:pointer;">
+        ↩ ${esc(d.title.length>35?d.title.slice(0,35)+'…':d.title)}</button>`).join('');
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+
+
+
+function renderFilmClassification(cls, data, weekStartIso, filmsOnly, totalShows, dates) {
+  const BADGE = {
+    neu:       'background:rgba(46,216,122,.15);color:#2ed87a;border:1px solid rgba(46,216,122,.3);',
+    weiter:    'background:rgba(74,144,255,.15);color:#4a90ff;border:1px solid rgba(74,144,255,.3);',
+    neueWoche: 'background:rgba(240,192,64,.15);color:#f0c040;border:1px solid rgba(240,192,64,.3);',
+    ausläuft:  'background:rgba(255,51,85,.15);color:#ff3355;border:1px solid rgba(255,51,85,.3);',
+  };
+
+  let html = '';
+
+  // ── Film-Klassifizierungs-Übersicht ──────────────────────────────────
+  html += `<div class="panel"><div class="ph">
+    <h3>Film-Analyse</h3>
+    <span style="font-size:.68rem;color:var(--muted);margin-left:8px;">Vergleich CSV mit bestehendem Katalog</span>
+  </div><div class="pb">
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;">
+    <div style="background:var(--s2);border:1px solid rgba(46,216,122,.3);border-radius:6px;padding:10px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#2ed87a;">${cls.neu.length}</div>
+      <div style="font-size:.68rem;color:var(--muted);">🆕 Neue Filme</div>
+    </div>
+    <div style="background:var(--s2);border:1px solid rgba(240,192,64,.3);border-radius:6px;padding:10px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#f0c040;">${cls.neueWoche.length}</div>
+      <div style="font-size:.68rem;color:var(--muted);">📅 Neue Woche</div>
+    </div>
+    <div style="background:var(--s2);border:1px solid rgba(74,144,255,.3);border-radius:6px;padding:10px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#4a90ff;">${cls.weiter.length}</div>
+      <div style="font-size:.68rem;color:var(--muted);">▶ Läuft weiter</div>
+    </div>
+    <div style="background:var(--s2);border:1px solid rgba(255,51,85,.3);border-radius:6px;padding:10px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#ff3355;">${cls.ausläuft.length}</div>
+      <div style="font-size:.68rem;color:var(--muted);">⏹ Läuft aus</div>
+    </div>
+  </div>`;
+
+  // Detail-Tabellen
+  const sections = [
+    { key:'neu',       label:'🆕 Neue Filme',     color:'#2ed87a', badge:'neu',       films: cls.neu },
+    { key:'neueWoche', label:'📅 Neue Spielwoche', color:'#f0c040', badge:'neueWoche', films: cls.neueWoche },
+    { key:'weiter',    label:'▶ Läuft weiter',     color:'#4a90ff', badge:'weiter',    films: cls.weiter },
+    { key:'ausläuft',  label:'⏹ Läuft aus',        color:'#ff3355', badge:'ausläuft',  films: cls.ausläuft },
+  ];
+
+  sections.forEach(sec => {
+    if (!sec.films.length) return;
+    html += `<div style="margin-bottom:10px;">
+      <div style="font-size:.72rem;font-weight:700;color:${sec.color};letter-spacing:1px;margin-bottom:5px;">${sec.label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        ${sec.films.map(f => {
+          let info = `SW ${f.spw||'?'}`;
+          if (sec.key === 'neueWoche') info = `SW ${f.oldSpw} → SW ${f.spw}`;
+          if (sec.key === 'ausläuft')  info = `SW ${f.spw||'?'} · läuft aus`;
+          return `<div style="font-size:.72rem;padding:3px 8px;border-radius:4px;${BADGE[sec.badge]}">
+            ${esc(f.titel.length>35?f.titel.slice(0,35)+'…':f.titel)}
+            <span style="opacity:.7;margin-left:4px;">${info}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+
+  // ── Editierbare Film-Tabelle (dedupliziert nach Titel) ───────────────
+  // Filme zusammenfassen: gleicher Titel → einmal anzeigen, Säle auflisten
+  const uniqueFilme = [];
+  data.filme.forEach((f, i) => {
+    const ex = uniqueFilme.find(u => u.titel.toLowerCase() === f.titel.toLowerCase());
+    if (ex) {
+      ex.saale.push({ saal: f.saal, schiene: f.schiene, origIdx: i });
+    } else {
+      uniqueFilme.push({ ...f, saale: [{ saal: f.saal, schiene: f.schiene, origIdx: i }], origIdx: i });
+    }
+  });
+
+  html += `<div class="panel" style="margin-top:14px;"><div class="ph">
+    <h3>Filme (${uniqueFilme.length})</h3>
+    <span style="font-size:.68rem;color:var(--muted);margin-left:8px;">${data.filme.length} Einträge · ${uniqueFilme.length} verschiedene Filme · Werte können angepasst werden</span>
+  </div><div class="pb" style="overflow-x:auto;">
+  <table class="import-table"><thead><tr>
+    <th></th><th>Filmtitel</th><th style="width:45px;">SpW</th>
+    <th style="width:55px;">FSK</th><th style="width:65px;">Länge</th>
+    <th>Säle</th><th style="width:28px;"></th>
+  </tr></thead><tbody>
+  ${uniqueFilme.map((f, ui) => {
+    const i = f.origIdx;
+    let badge = '', rowStyle = '';
+    const tl = f.titel.toLowerCase();
+    const isNeu = !!cls.neu.find(x => x.titel.toLowerCase()===tl);
+    if (isNeu) {
+      badge = `<span style="font-size:.58rem;padding:1px 5px;border-radius:3px;${BADGE.neu}">NEU</span>`;
+      rowStyle = 'background:rgba(46,216,122,.03);';
+    } else if (cls.neueWoche.find(x => x.titel.toLowerCase()===tl)) {
+      const nw = cls.neueWoche.find(x => x.titel.toLowerCase()===tl);
+      badge = `<span style="font-size:.58rem;padding:1px 5px;border-radius:3px;${BADGE.neueWoche}">SW${nw.oldSpw}→${nw.spw}</span>`;
+      rowStyle = 'background:rgba(240,192,64,.03);';
+    } else if (cls.weiter.find(x => x.titel.toLowerCase()===tl)) {
+      badge = `<span style="font-size:.58rem;padding:1px 5px;border-radius:3px;${BADGE.weiter}">▶</span>`;
+    }
+    const saalList = f.saale.map(s => `<span style="font-size:.65rem;background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;">Saal ${s.saal}</span>`).join(' ');
+    // Ähnliche Filme im Katalog suchen für NEU-Einträge
+    const similarFilms = isNeu ? _dbFilmsForSimilar.filter(d => {
+      const dn = normForSimilar(d.title), fn = normForSimilar(f.titel);
+      if (!dn || !fn) return false;
+      // Levenshtein-ähnlich: enthält den anderen oder > 70% Übereinstimmung
+      return dn.includes(fn.slice(0,12)) || fn.includes(dn.slice(0,12)) ||
+             (dn.split(' ').filter(w => fn.includes(w) && w.length > 3).length >= 3);
+    }).slice(0,3) : [];
+    const similarHtml = similarFilms.length ? `
+      <div id="similar_${i}" style="margin-top:3px;">
+        <span style="font-size:.6rem;color:var(--muted);">Ähnlich im Katalog:</span>
+        ${similarFilms.map(d => `<button onclick="adoptTitle(${i},'${esc(d.title).replace(/'/g,"&#39;")}')"
+          style="font-size:.6rem;padding:1px 6px;margin-left:4px;background:rgba(74,144,255,.1);border:1px solid rgba(74,144,255,.3);color:#4a90ff;border-radius:3px;cursor:pointer;"
+          title="Titel übernehmen">↩ ${esc(d.title.length>30?d.title.slice(0,30)+'…':d.title)}</button>`).join('')}
+      </div>` : '';
+    return `<tr id="filmrow_${i}" style="${rowStyle}">
+      <td style="width:24px;">${badge}</td>
+      <td><input type="text" id="f_titel_${i}" value="${esc(f.titel)}" oninput="checkSimilar(${i},this.value,${isNeu})" onblur="updateTitelLive(${i},this.value)">${similarHtml}</td>
+      <td><input type="number" id="f_spw_${i}" value="${f.spw||1}" style="width:45px;" min="1"></td>
+      <td><select id="f_fsk_${i}">
+        <option value="-1" ${f.fsk<0?'selected':''}>?</option>
+        <option value="0" ${f.fsk===0?'selected':''}>0</option>
+        <option value="6" ${f.fsk===6?'selected':''}>6</option>
+        <option value="12" ${f.fsk===12?'selected':''}>12</option>
+        <option value="16" ${f.fsk===16?'selected':''}>16</option>
+        <option value="18" ${f.fsk===18?'selected':''}>18</option>
+      </select></td>
+      <td><input type="number" id="f_len_${i}" value="${f.laenge||90}" style="width:60px;" min="1"></td>
+      <td style="font-size:.72rem;">${saalList}</td>
+      <td><button style="background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.25);color:var(--red);border-radius:3px;padding:1px 6px;cursor:pointer;font-size:.7rem;" onclick="delFilm(${ui})">✕</button></td>
+    </tr>`;
+  }).join('')}
+  </tbody></table></div></div>`;
+
+  // ── Wochenübersicht als Tabelle (Tage = Zeilen, Säle = Spalten) ─────────
+  if (!filmsOnly) {
+    // Welche Säle haben überhaupt Vorstellungen?
+    const activeSaale = [];
+    for (let s=1; s<=9; s++) {
+      const hasShows = ['do','fr','sa','so','mo','di','mi'].some(dow => (importPlan.schedule[dates[dow]]?.[s]||[]).length > 0);
+      if (hasShows) activeSaale.push(s);
+    }
+    html += `<div class="panel" style="margin-top:14px;"><div class="ph">
+      <h3>Spielplan-Vorschau</h3>
+      <span style="font-size:.68rem;color:var(--muted);margin-left:8px;">${totalShows} Vorstellungen · ${weekStartIso}</span>
+    </div><div class="pb" style="overflow-x:auto;">
+    <table style="border-collapse:collapse;width:100%;font-size:.72rem;">
+      <thead><tr>
+        <th style="padding:5px 8px;text-align:left;background:var(--s2);border-bottom:2px solid var(--border2);white-space:nowrap;font-size:.6rem;letter-spacing:1px;color:var(--muted);">TAG</th>
+        ${activeSaale.map(s => `<th style="padding:5px 8px;text-align:center;background:var(--s2);border-bottom:2px solid var(--border2);border-left:1px solid var(--border);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;white-space:nowrap;">Saal ${s}</th>`).join('')}
+      </tr></thead><tbody>`;
+
+    ['do','fr','sa','so','mo','di','mi'].forEach(dow => {
+      const iso = dates[dow];
+      const dt = new Date(iso+'T12:00:00');
+      const dayData = importPlan.schedule[iso]||{};
+      const cnt = Object.values(dayData).reduce((s,v)=>s+v.length,0);
+      const isWeekend = dow==='sa'||dow==='so';
+      html += `<tr style="background:${isWeekend?'rgba(240,192,64,.03)':''};">
+        <td style="padding:6px 8px;border-bottom:1px solid var(--border);border-right:2px solid var(--border2);white-space:nowrap;vertical-align:middle;">
+          <div style="font-weight:700;color:var(--text);">${DOW_FULL[dow].slice(0,2)}.</div>
+          <div style="font-size:.65rem;color:var(--muted);">${dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</div>
+          ${cnt?`<div style="font-size:.58rem;color:var(--muted2);margin-top:1px;">${cnt} Vorst.</div>`:''}
+        </td>`;
+      activeSaale.forEach(s => {
+        const shows = dayData[s]||[];
+        // VVK-Slots aus bestehender DB
+        const dbVVKSlots = (_dbFilmsForSimilar.length && window._currentDB?.days?.[iso]?.saale?.[s]||[])
+          ? (window._currentDB?.days?.[iso]?.saale?.[s]||[]).filter(e=>e.vvk)
+          : [];
+        html += `<td style="padding:4px 6px;border-bottom:1px solid var(--border);border-left:1px solid var(--border);vertical-align:top;">`;
+        // VVK-Slots immer zuerst anzeigen
+        dbVVKSlots.forEach(sl => {
+          const f = (window._currentDB?.films||[]).find(f=>f.id===sl.filmId);
+          const title = f?.title||'?';
+          html += `<div style="margin-bottom:2px;background:rgba(240,192,64,.1);border-radius:3px;padding:2px 5px;border-left:2px solid var(--accent);">
+            <div style="font-size:.65rem;font-weight:600;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;" title="${esc(title)}">🔒 ${esc(title.length>12?title.slice(0,12)+'…':title)}</div>
+            <div style="font-size:.6rem;color:var(--accent);">${sl.startzeit||'–'}</div>
+          </div>`;
+        });
+        if (!shows.length && !dbVVKSlots.length) {
+          html += `<span style="color:var(--muted);font-size:.65rem;">–</span>`;
+        } else {
+          shows.forEach((sh, si) => {
+            // Prüfen ob dieser Film als VVK in DB markiert ist
+            const isVVK = dbVVKSlots.some(e=>{
+              const f=(window._currentDB?.films||[]).find(f=>f.id===e.filmId);
+              return f?.title?.toLowerCase()===sh.titel.toLowerCase();
+            });
+            if (isVVK) return; // Bereits oben als VVK angezeigt
+            html += `<div style="margin-bottom:2px;background:var(--s2);border-radius:3px;padding:2px 5px;border-left:2px solid var(--accent);display:flex;align-items:center;gap:3px;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:.65rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px;" title="${esc(sh.titel)}">${esc(sh.titel.length>14?sh.titel.slice(0,14)+'…':sh.titel)}</div>
+                <div style="font-size:.6rem;color:var(--accent);">${sh.time}</div>
+              </div>
+              <button onclick="removePreviewShow('${iso}',${s},${si})" title="Vorstellung entfernen"
+                style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.65rem;padding:0 2px;flex-shrink:0;line-height:1;">✕</button>
+            </div>`;
+          });
+        }
+        html += `</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table></div></div>`;
+  }
+
+  document.getElementById('previewContent').innerHTML = html;
+
+  // Import-Zusammenfassung aktualisieren
+  document.getElementById('importSummary').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
+      ${[['Neue Filme',cls.neu.length],['Neue Woche',cls.neueWoche.length],['Weiter',cls.weiter.length],['Läuft aus',cls.ausläuft.length]].map(([l,v],i)=>{
+        const colors=['#2ed87a','#f0c040','#4a90ff','#ff3355'];
+        return `<div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:${colors[i]};">${v}</div>
+          <div style="font-size:.7rem;color:var(--muted);">${l}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);border-radius:6px;padding:12px;font-size:.78rem;color:var(--muted2);margin-bottom:12px;">
+      <strong style="color:var(--accent);">Was beim Import passiert:</strong><br>
+      🆕 ${cls.neu.length} neue Filme werden im Katalog angelegt<br>
+      📅 ${cls.neueWoche.length} Filme bekommen eine neue Spielwoche-Nummer<br>
+      ▶ ${cls.weiter.length} Filme laufen weiter (FSK/Länge wird ggf. aktualisiert)<br>
+      ⏹ ${cls.ausläuft.length} Filme laufen aus — bleiben im Katalog, können archiviert werden<br>
+      ${filmsOnly ? '⏭ Spieltage werden NICHT erstellt' : '✅ Spieltage werden angelegt oder ergänzt · Bestehende Vorstellungen bleiben erhalten'}
+    </div>`;
+}
+
+// ── IMPORT DURCHFÜHREN ────────────────────────────────────────────────────
+async function doImport() {
+  if (!importPlan) { toast('Bitte erst Vorschau erstellen!', 'err'); return; }
+  document.getElementById('doImportBtn').disabled = true;
+
+  const filmsOnly = document.getElementById('filmsOnly').checked;
+  const prog = document.getElementById('importProgressWrap');
+  const bar  = document.getElementById('importBar');
+  const stat = document.getElementById('importStatus');
+  prog.style.display = 'block';
+
+  // Aktuelle Werte aus editierbaren Feldern lesen
+  // Titel-Mapping aus DOM aufbauen (nur sichtbare Zeilen)
+  const titelMap = {}; // original titel → bearbeiteter titel
+  parsedData.filme.forEach((f, i) => {
+    const row = document.getElementById('filmrow_'+i);
+    if (!row) return;
+    const titel = document.getElementById('f_titel_'+i)?.value.trim();
+    if (titel) titelMap[f.titel.toLowerCase()] = titel;
+  });
+
+  // Alle parsedData.filme nehmen — nicht nur sichtbare DOM-Zeilen
+  const editedFilms = parsedData.filme.map((f, i) => {
+    const row = document.getElementById('filmrow_'+i);
+    // Titel aus DOM wenn vorhanden, sonst Mapping verwenden
+    let titel = f.titel;
+    if (row) {
+      titel = document.getElementById('f_titel_'+i)?.value.trim() || f.titel;
+    } else if (titelMap[f.titel.toLowerCase()]) {
+      titel = titelMap[f.titel.toLowerCase()];
+    }
+    return {
+      titel,
+      spw:    row ? (parseInt(document.getElementById('f_spw_'+i)?.value)||f.spw) : f.spw,
+      fsk:    row ? parseInt(document.getElementById('f_fsk_'+i)?.value) : f.fsk,
+      laenge: row ? (parseInt(document.getElementById('f_len_'+i)?.value)||f.laenge) : f.laenge,
+      saal:   row ? (parseInt(document.getElementById('f_saal_'+i)?.value)||f.saal) : f.saal,
+      schiene:row ? (document.getElementById('f_sch_'+i)?.value.trim()||f.schiene) : f.schiene,
+    };
+  }).filter(f => f.titel && f.schiene);
+  importPlan = buildPlan(editedFilms, document.getElementById('weekStart').value);
+
+  try {
+    bar.style.width='10%'; stat.textContent='Lade aktuelle Daten vom Server…';
+
+    const DB = await loadDBFilms();
+    if (!DB.days) DB.days = {};
+    if (!DB.filmArchive) DB.filmArchive = [];
+
+    bar.style.width='35%'; stat.textContent='Filme werden klassifiziert und verarbeitet…';
+
+    const cls = classifyFilms(editedFilms, DB.films);
+    let newFilms=0, updFilms=0, swUpd=0, newShows=0, newDays=0;
+
+    // Neue Filme anlegen
+    cls.neu.forEach(f => {
+      DB.films.push({ id:uid(), title:f.titel, len:f.laenge||90, fsk:f.fsk>=0?f.fsk:-1, week:f.spw||1, credits:5 });
+      newFilms++;
+    });
+
+    // Weiterführende Filme: FSK/Länge aktualisieren
+    cls.weiter.forEach(f => {
+      const ex = DB.films.find(d => d.title.toLowerCase()===f.titel.toLowerCase());
+      if (!ex) return;
+      if (f.fsk>=0) ex.fsk=f.fsk;
+      if (f.laenge) ex.len=f.laenge;
+      // SW NICHT ändern — läuft weiter mit gleicher Nummer
+      updFilms++;
+    });
+
+    // Neue Woche: SW-Nummer hochsetzen
+    cls.neueWoche.forEach(f => {
+      const ex = DB.films.find(d => d.title.toLowerCase()===f.titel.toLowerCase());
+      if (!ex) return;
+      if (f.fsk>=0) ex.fsk=f.fsk;
+      if (f.laenge) ex.len=f.laenge;
+      ex.week = f.spw; // Neue SW-Nummer setzen
+      swUpd++;
+    });
+
+    bar.style.width='60%'; stat.textContent='Spieltage werden erstellt…';
+
+    // ── Konflikterkennung ──────────────────────────────────────────────────
+    if (!filmsOnly) {
+      const conflicts = [];
+      Object.entries(importPlan.schedule).forEach(([iso, saale]) => {
+        if (!DB.days?.[iso]) return; // Neuer Tag → kein Konflikt
+        Object.entries(saale).forEach(([saal, shows]) => {
+          const existing = DB.days[iso]?.saale?.[saal]||[];
+          const nonVVK = existing.filter(e => !e.vvk);
+          if (nonVVK.length > 0) {
+            const dt = new Date(iso+'T12:00:00');
+            const label = dt.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'});
+            conflicts.push(`${label} · Saal ${saal} (${nonVVK.length} bestehende Vorstellung${nonVVK.length>1?'en':''})`);
+          }
+        });
+      });
+
+      if (conflicts.length > 0) {
+        // Konflikt-Dialog anzeigen
+        prog.style.display = 'none';
+        document.getElementById('doImportBtn').disabled = false;
+        const msg = `⚠️ Bestehende Vorstellungen gefunden:\n\n${conflicts.slice(0,10).join('\n')}${conflicts.length>10?`\n...und ${conflicts.length-10} weitere`:''}\n\nDiese werden durch den Import ERGÄNZT (nicht überschrieben).\nBereits vorhandene Vorstellungen bleiben erhalten.\n\nTrotzdem importieren?`;
+        if (!confirm(msg)) return;
+        // Wieder Fortschritt anzeigen
+        prog.style.display = 'block';
+        document.getElementById('doImportBtn').disabled = true;
+        bar.style.width = '60%';
+      }
+    }
+    // ── Ende Konflikterkennung ─────────────────────────────────────────────
+
+    if (!filmsOnly) {
+      Object.entries(importPlan.schedule).forEach(([iso, saale]) => {
+        if (!Object.keys(saale).length) return;
+        if (!DB.days[iso]) { DB.days[iso]={cleanup:30,saale:{}}; newDays++; }
+        const day = DB.days[iso];
+        if (!day.saale) day.saale={};
+        Object.entries(saale).forEach(([saal, shows]) => {
+          if (!day.saale[saal]) day.saale[saal]=[];
+          shows.forEach(sh => {
+            let film = DB.films.find(f=>f.title.toLowerCase()===sh.titel.toLowerCase());
+            if (!film) {
+              // Film nicht im Katalog — direkt anlegen
+              film = { id:uid(), title:sh.titel, len:90, fsk:-1, week:1, credits:5 };
+              DB.films.push(film);
+              newFilms++;
+            }
+
+            // Bestehenden Slot für diesen Film in diesem Saal suchen
+            const existingIdx = day.saale[saal].findIndex(e=>e.filmId===film.id);
+            const existing = existingIdx >= 0 ? day.saale[saal][existingIdx] : null;
+
+            if (existing?.vvk) {
+              // VVK-Slot: unberührt lassen — Startzeit ist gesperrt
+              // Nur sicherstellen dass er existiert (bereits vorhanden)
+              return;
+            }
+
+            // Kein bestehender VVK-Slot → normal importieren
+            const exactMatch = day.saale[saal].find(e=>e.filmId===film.id&&e.startzeit===sh.time);
+            if (!exactMatch) {
+              day.saale[saal].push({filmId:film.id, startzeit:sh.time, ads:30});
+              newShows++;
+            }
+          });
+        });
+      });
+    }
+
+    bar.style.width='85%'; stat.textContent='Wird auf Server gespeichert…';
+    DB._savedAt = new Date().toISOString();
+    const saveR = await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main`, {
+      method:'PATCH',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${session.token}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({data:DB, updated_at:DB._savedAt})
+    });
+    if (!saveR.ok) throw new Error('Fehler beim Speichern (Status '+saveR.status+')');
+    localStorage.setItem('csp_db', JSON.stringify(DB));
+    _dbFilmsCache = null; // Cache leeren
+
+    bar.style.width='100%'; stat.textContent='Fertig!';
+
+    document.getElementById('importResult').innerHTML=`
+      <div style="background:rgba(46,216,122,.08);border:1px solid rgba(46,216,122,.3);border-radius:6px;padding:14px;margin-top:10px;">
+        <div style="font-weight:700;color:var(--green);margin-bottom:8px;font-size:.9rem;">✅ Import erfolgreich</div>
+        <div style="font-size:.78rem;color:var(--muted2);display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+          <span>🆕 Neue Filme:</span><span style="color:#2ed87a;font-weight:600;">${newFilms}</span>
+          <span>📅 SW aktualisiert:</span><span style="color:#f0c040;font-weight:600;">${swUpd}</span>
+          <span>▶ Weiter (aktualisiert):</span><span style="color:#4a90ff;font-weight:600;">${updFilms}</span>
+          ${!filmsOnly?`<span>📅 Neue Spieltage:</span><span style="color:var(--text);font-weight:600;">${newDays}</span>
+          <span>🎬 Neue Vorstellungen:</span><span style="color:var(--text);font-weight:600;">${newShows}</span>`:''}
+        </div>
+        ${cls.ausläuft.length?`<div style="margin-top:8px;font-size:.75rem;color:#ff3355;">⏹ ${cls.ausläuft.length} Filme laufen aus — ggf. in programm.html archivieren</div>`:''}
+        <div style="margin-top:10px;font-size:.75rem;color:var(--muted);">Daten in Supabase gespeichert · für alle Nutzer sofort sichtbar</div>
+        <button class="btn btn-p" style="margin-top:12px;" onclick="goToPlanung()">→ Zu CineSchedule · Planung</button>
+      </div>`;
+    toast('Import abgeschlossen ✓','ok');
+
+  } catch(e) {
+    document.getElementById('doImportBtn').disabled=false;
+    bar.style.background='var(--red)';
+    stat.textContent='Fehler: '+e.message;
+    toast('Fehler: '+e.message,'err');
+    document.getElementById('importResult').innerHTML=`
+      <div style="background:rgba(255,51,85,.08);border:1px solid rgba(255,51,85,.3);border-radius:6px;padding:12px;margin-top:10px;">
+        <div style="font-weight:700;color:var(--red);margin-bottom:6px;">❌ Fehler beim Import</div>
+        <div style="font-size:.78rem;color:var(--muted2);margin-bottom:10px;">${e.message}</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-s btn-sm" onclick="goStep(1)">← Schritt 1 · Neue CSV</button>
+          <button class="btn btn-s btn-sm" onclick="goStep(2)">← Vorschau prüfen</button>
+          <button class="btn btn-p btn-sm" onclick="document.getElementById('importResult').innerHTML='';doImport()">↺ Nochmal versuchen</button>
+        </div>
+      </div>`;
+  }
+}
+
+
+
+// ── SESSION BEIM SCHLIESSEN LÖSCHEN ─────────────────────────
+// ── PRESENCE BEIM SCHLIESSEN ─────────────────────────────────────────────
+function clearPresenceBeacon() {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess?.token || sess.rolle !== 'programmplanung') return;
+
+  // Presence als abgelaufen markieren (expires_at = jetzt)
+  // Das ist zuverlässiger als DELETE beim Tab-Schließen
+  const expiredAt = new Date(Date.now() - 1000).toISOString();
+  const body = JSON.stringify({
+    rolle: 'programmplanung',
+    user_name: sess.name || 'Programmplanung',
+    expires_at: expiredAt
+  });
+
+  // sendBeacon mit POST → Presence auf "abgelaufen" setzen
+  const blob = new Blob([body], { type: 'application/json' });
+  const url = `${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`;
+
+  // Methode 1: keepalive fetch mit PATCH
+  fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+    method: 'PATCH',
+    keepalive: true,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${sess.token}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ expires_at: expiredAt })
+  }).catch(() => {});
+
+  localStorage.removeItem('csp_session');
+}
+
+window.addEventListener('pagehide', (e) => {
+  // Nicht löschen wenn zu programm.html navigiert wird
+  if (sessionStorage.getItem('csp_goto')) return;
+  if (!e.persisted) clearPresenceBeacon();
+});
+
+// Presence erneuern wenn Seite wieder sichtbar
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+    if (sess?.token && sess.rolle === 'programmplanung') {
+      const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+      fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${sess.token}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ last_seen: new Date().toISOString(), expires_at: expiresAt })
+      }).catch(() => {});
+    }
+  }
+});
+
+// ── PRESENCE ALLE 10 MIN ERNEUERN ────────────────────────────────────────
+setInterval(async () => {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess?.token || sess.rolle !== 'programmplanung') return;
+  const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${sess.token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ last_seen: new Date().toISOString(), expires_at: expiresAt })
+    });
+  } catch(e) {}
+}, 10 * 60 * 1000);
+
+// ── INAKTIVITÄT + SPERRE-DIALOG nach 30 Min ──────────────────────────────
+let _lastActivityTime = Date.now();
+['click','keydown','mousemove','scroll','touchstart'].forEach(ev =>
+  document.addEventListener(ev, () => { _lastActivityTime = Date.now(); }, { passive: true })
+);
+
+setInterval(async () => {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess?.token || sess.rolle !== 'programmplanung') return;
+  if (document.getElementById('lockDialog')) return;
+  const inactiveMins = (Date.now() - _lastActivityTime) / 60000;
+  if (inactiveMins < 30) return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung&select=user_name,last_seen,ip`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${sess.token}` } }
+    );
+    const data = await res.json();
+    const p = data?.[0];
+    const lastSeen = p?.last_seen ? new Date(p.last_seen) : null;
+    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const andererAktiv = lastSeen && lastSeen > thirtyMinAgo && p.user_name !== (sess.name || 'Programmplanung');
+    showLockDialog(andererAktiv ? p : null, sess);
+  } catch(e) {}
+}, 60 * 1000);
+
+function showLockDialog(andererNutzer, sess) {
+  if (document.getElementById('lockDialog')) return;
+  const wer = andererNutzer
+    ? `⚠️ ${andererNutzer.user_name || 'Jemand'}${andererNutzer.ip ? ' (IP: '+andererNutzer.ip+')' : ''} ist eingeloggt.`
+    : '⏱ Du warst 30 Minuten inaktiv.';
+  const info = andererNutzer
+    ? 'Ein anderer Nutzer könnte die Programmplanung übernommen haben.'
+    : 'Die Sperre wurde für andere Nutzer aufgehoben.';
+  const el = document.createElement('div');
+  el.id = 'lockDialog';
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  el.innerHTML = `<div style="background:#1a1a2e;border:1px solid #333;border-radius:10px;padding:28px 32px;max-width:420px;width:90%;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:10px;">🔒</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:#f0c040;margin-bottom:10px;">SITZUNG INAKTIV</div>
+    <div style="font-size:.84rem;color:#aaa;margin-bottom:6px;">${wer}</div>
+    <div style="font-size:.78rem;color:#666;margin-bottom:24px;">${info}</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="resumeSession()" style="background:#f0c040;color:#000;border:none;border-radius:6px;padding:10px 24px;font-weight:700;cursor:pointer;font-size:.9rem;">▶ Weiter arbeiten</button>
+      <button onclick="doLogout()" style="background:#111;color:#666;border:1px solid #333;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:.9rem;">Abmelden</button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+}
+
+async function resumeSession() {
+  document.getElementById('lockDialog')?.remove();
+  _lastActivityTime = Date.now();
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess?.token) return;
+  try {
+    const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+    await fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${sess.token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ rolle:'programmplanung', user_name:sess.name||'Programmplanung', expires_at:expiresAt, last_seen:new Date().toISOString() })
+    });
+    toast('Sitzung fortgesetzt ✓', 'ok');
+  } catch(e) {}
+}
+
+init();
+</script>
+</body>
+</html>

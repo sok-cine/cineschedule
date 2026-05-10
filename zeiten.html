@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineSchedule PRO – Zeiten</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080810;--s1:#0f0f1a;--s2:#161624;--s3:#1e1e30;--border:#252538;--border2:#30304a;--accent:#f0c040;--accent2:#ff6030;--green:#2ed87a;--red:#ff3355;--blue:#4a90ff;--text:#e0e0f0;--muted:#606080;--muted2:#9090b0;--radius:8px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:var(--s1);border-bottom:2px solid var(--accent);padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:300;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:4px;color:var(--accent);}
+.logo em{color:var(--text);font-style:normal;}
+.logo-sub{font-size:.54rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:1px;}
+.role-badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;margin-left:8px;background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);}
+.btn{padding:6px 15px;border-radius:4px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.79rem;font-weight:600;letter-spacing:.4px;transition:all .2s;}
+.btn-s{background:transparent;border:1px solid var(--border2);color:var(--muted2);}
+.btn-s:hover{border-color:var(--accent);color:var(--accent);}
+.btn-p{background:var(--accent);color:#000;}
+.btn-p:hover{background:#f8d050;}
+.btn-g{background:rgba(46,216,122,.12);border:1px solid rgba(46,216,122,.3);color:var(--green);}
+.btn-g:hover{background:rgba(46,216,122,.22);}
+.btn-sm{padding:3px 9px;font-size:.72rem;}
+main{padding:22px 26px;max-width:1400px;margin:0 auto;}
+.ptitle{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:4px;color:var(--accent);}
+.psub{color:var(--muted);font-size:.78rem;letter-spacing:1px;margin-top:3px;margin-bottom:18px;}
+.day-bar{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:11px 15px;margin-bottom:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.day-tab{background:var(--s2);border:1px solid var(--border);color:var(--muted2);padding:4px 11px;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.76rem;transition:all .2s;}
+.day-tab:hover{border-color:var(--border2);color:var(--text);}
+.day-tab.active{background:rgba(240,192,64,.1);border-color:var(--accent);color:var(--accent);}
+.saale-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.sp{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.sp-head{background:var(--s2);padding:7px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.sp-num{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;color:var(--accent);}
+.sp-body{padding:7px 10px;display:flex;flex-direction:column;gap:6px;min-height:46px;}
+.ss{background:var(--s3);border:1px solid var(--border2);border-radius:5px;padding:8px 10px;display:flex;align-items:center;gap:8px;}
+.ss-d{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ss-i{flex:1;min-width:0;}
+.ss-t{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ss-ti{font-size:.66rem;color:var(--muted);margin-top:2px;}
+.ss-lbl{font-size:.62rem;color:var(--muted);white-space:nowrap;}
+.tif{background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:3px 6px;border-radius:3px;font-family:'Outfit',sans-serif;font-size:.78rem;width:58px;transition:border-color .2s;}
+.tif:focus{outline:none;border-color:var(--accent);}
+.tif-ads{width:46px;}
+.save-bar{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.nav-links{display:flex;gap:6px;}
+.loading-overlay{position:fixed;inset:0;background:rgba(8,8,16,.85);z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;right:20px;padding:8px 17px;border-radius:5px;font-weight:600;font-size:.82rem;z-index:999;transform:translateY(42px);opacity:0;transition:all .26s;pointer-events:none;}
+.toast.show{transform:none;opacity:1;}
+.toast.ok{background:var(--green);color:#000;}
+.toast.err{background:var(--red);color:#fff;}
+.toast.info{background:var(--accent);color:#000;}
+.saal-info-badge{font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;text-transform:uppercase;}
+.badge-3d{background:rgba(74,144,255,.18);color:var(--blue);border:1px solid rgba(74,144,255,.35);}
+.badge-imax{background:rgba(240,192,64,.18);color:var(--accent);border:1px solid rgba(240,192,64,.35);}
+.badge-3dimax{background:rgba(155,61,192,.18);color:#c060ff;border:1px solid rgba(155,61,192,.35);}
+
+.step-nav{display:flex;gap:3px;margin:0 12px;}
+.snb{background:transparent;border:1px solid var(--border2);color:var(--muted2);padding:5px 13px;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.76rem;letter-spacing:.4px;transition:all .2s;display:flex;align-items:center;gap:5px;text-decoration:none;}
+.snb .n{width:17px;height:17px;border-radius:50%;background:var(--border2);color:var(--muted2);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;transition:all .2s;}
+.snb:hover,.snb.active{border-color:var(--accent);color:var(--accent);}
+.snb:hover .n,.snb.active .n{background:var(--accent);color:#000;}
+.snb.arch{border-color:var(--border2);}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div style="color:var(--muted);font-size:.8rem;">Wird geladen…</div>
+</div>
+
+<header>
+  <div>
+    <div class="logo">Cine<em>Schedule</em> <span style="font-size:.82rem;letter-spacing:2px;color:var(--muted2)">PRO</span></div>
+    <div class="logo-sub">Zeitenbearbeitung · <span style="color:var(--accent);letter-spacing:1px;">v5.3</span></div>
+  </div>
+  <nav class="step-nav" id="mainNav"></nav>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <span id="userLabel" style="font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);">✏️ Zeitenbearbeitung</span>
+    <button class="btn btn-s btn-sm" onclick="doLogout()">🔒 Abmelden</button>
+  </div>
+</header>
+
+<main>
+  <div class="save-bar">
+    <span class="save-bar-title">Datei:</span>
+    <button class="btn btn-g btn-sm" onclick="saveToServer()">💾 Sichern</button>
+    <span class="save-bar-info">Alle Eingaben fertig? Bitte jetzt speichern.</span>
+  </div>
+
+  <div class="ptitle">ZEITENBEARBEITUNG</div>
+  <div class="psub">Startzeiten · Werbezeiten · Abspannzeiten anpassen</div>
+
+  <div class="day-bar">
+    <span style="font-size:.64rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);">Spieltage:</span>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;" id="dayTabs"></div>
+  </div>
+
+  <div class="saale-grid" id="saaleGrid"></div>
+</main>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+const SUPABASE_URL='https://bzoewjopqhdundcfwpww.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6b2V3am9wcWhkdW5kY2Z3cHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDk0OTQsImV4cCI6MjA5MjEyNTQ5NH0.gj-BCQ20LZLGQmch1WqWvHLVcO65LnAp96Kym4ZrNUs';
+let session=null, DB={films:[],days:{},settings:{}}, curDay='';
+const COLORS=[['#3d2e1e','#6b4c2a'],['#1e2e3d','#2a4a5e'],['#2e3d1e','#4a6b2a'],['#3d1e2e','#6b2a4a'],['#2e2e1e','#5e5a2a'],['#1e3d3a','#2a6b62'],['#3a2a1e','#7a5a38'],['#1e243d','#2a3870'],['#3d2e1e','#7a5c3a']];
+let cmap={},cidx=0;
+function fc(id){ if(!cmap[id]) cmap[id]=COLORS[cidx++%COLORS.length]; return cmap[id]; }
+function resetColors(){ cmap={}; cidx=0; }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function t2m(t){ if(!t) return 0; const[h,m]=t.split(':').map(Number); return h*60+m; }
+function m2t(m){ const h=Math.floor(m/60)%24,mn=m%60; return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`; }
+function toast(msg,type='info'){ const t=document.getElementById('toastEl'); t.innerHTML=msg; t.className=`toast ${type} show`; clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),3000); }
+function fmtDate(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'}); }catch{return d;} }
+
+function saalBadgeHtml(s){
+  const si=(DB.settings&&DB.settings.saale&&DB.settings.saale[s])||{}, t=si.type||'normal';
+  if(t==='normal') return '';
+  const map={imax:['badge-imax','IMAX'],'3d':['badge-3d','3D'],'3dimax':['badge-3dimax','3D IMAX']};
+  const [cls,lbl]=map[t]||['',''];
+  return `<span class="saal-info-badge ${cls}">${lbl}</span>`;
+}
+
+
+function buildNav() {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess) return;
+  const nav = document.getElementById('mainNav');
+  if (!nav) return;
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  if (sess.rolle === 'programmplanung') {
+    nav.innerHTML = `
+      <a class="snb${currentPage==='programm.html'?' active':''}" href="programm.html"><span class="n">1</span> Filmkatalog</a>
+      <a class="snb${currentPage==='programm.html'?' active':''}" href="programm.html?step=2"><span class="n">2</span> Planung</a>
+      <a class="snb${currentPage==='programm.html'?' active':''}" href="programm.html?step=3"><span class="n">3</span> Zeitleiste</a>
+      <a class="snb${currentPage==='programm.html'?' active':''}" href="programm.html?step=4"><span class="n">⚙</span> Einstellungen</a>
+      <a class="snb${currentPage==='zeiten.html'?' active':''}" href="zeiten.html"><span class="n">✏️</span> Zeiten</a>
+      <a class="snb${currentPage==='druck.html'?' active':''}" href="druck.html"><span class="n">🖨</span> Druck</a>`;
+  } else if (sess.rolle === 'zeiten') {
+    nav.innerHTML = `
+      <a class="snb${currentPage==='zeiten.html'?' active':''}" href="zeiten.html"><span class="n">✏️</span> Zeiten</a>
+      <a class="snb${currentPage==='druck.html'?' active':''}" href="druck.html"><span class="n">🖨</span> Druck</a>`;
+  }
+  // druck rolle: keine navigation nötig
+}
+
+async function init(){
+  session=JSON.parse(localStorage.getItem('csp_session')||'null');
+  if(!session?.token||!['zeiten','programmplanung'].includes(session.rolle)){
+    window.location.href='index.html'; return;
+  }
+  document.getElementById('userLabel').textContent=session.name||session.rolle;
+  buildNav();
+  await loadFromServer();
+  document.getElementById('loadingOverlay').style.display='none';
+}
+
+async function clearPresence() {
+  try {
+    const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+    if (!sess?.token || !sess?.rolle) return;
+    await fetch(`https://bzoewjopqhdundcfwpww.supabase.co/rest/v1/cineschedule_presence?rolle=eq.${sess.rolle}`, {
+      method: 'DELETE',
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6b2V3am9wcWhkdW5kY2Z3cHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDk0OTQsImV4cCI6MjA5MjEyNTQ5NH0.gj-BCQ20LZLGQmch1WqWvHLVcO65LnAp96Kym4ZrNUs', 'Authorization': `Bearer ${sess.token}` }
+    });
+  } catch(e) {}
+}
+async function doLogout(){
+  await clearPresence();
+  try { await saveToServer(); } catch(e){}
+  localStorage.removeItem('csp_session');
+  window.location.href='index.html';
+}
+
+async function loadFromServer(){
+  try{
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main&select=data`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${session.token}`}
+    });
+    const rows=await r.json();
+    if(rows[0]?.data){
+      DB=rows[0].data;
+      if(!DB.films) DB.films=[];
+      if(!DB.days) DB.days={};
+      if(!DB.settings) DB.settings={};
+      resetColors(); renderDayTabs(); renderSaale();
+      toast('Daten geladen ✓','ok');
+    }
+  } catch(e){ toast('Verbindungsfehler!','err'); }
+}
+
+async function saveToServer(){
+  try{
+    DB._savedAt=new Date().toISOString();
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main`,{
+      method:'PATCH',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${session.token}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({data:DB,updated_at:DB._savedAt})
+    });
+    if(r.ok) toast('Gespeichert ✓','ok');
+    else toast('Fehler beim Speichern!','err');
+  } catch(e){ toast('Verbindungsfehler!','err'); }
+}
+
+function renderDayTabs(){
+  const el=document.getElementById('dayTabs'); if(!el) return;
+  const days=Object.keys(DB.days).sort();
+  if(!days.length){ el.innerHTML='<span style="font-size:.75rem;color:var(--muted);">Keine Tage vorhanden</span>'; return; }
+  // curDay nur setzen wenn noch nicht gesetzt
+  if(!curDay||!DB.days[curDay]){
+    const _td=new Date();
+    const todayKey=`${_td.getFullYear()}-${String(_td.getMonth()+1).padStart(2,'0')}-${String(_td.getDate()).padStart(2,'0')}`;
+    if(DB.days[todayKey]) curDay=todayKey;
+    else curDay=days[days.length-1];
+  }
+  el.innerHTML=days.map(d=>`<div class="day-tab${d===curDay?' active':''}" onclick="switchDay('${d}')">${new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'})}</div>`).join('');
+}
+
+function switchDay(d){ curDay=d; renderDayTabs(); renderSaale(); }
+
+function renderSaale(){
+  const el=document.getElementById('saaleGrid'); if(!el) return;
+  if(!curDay||!DB.days[curDay]){ el.innerHTML='<div style="color:var(--muted);padding:20px;">Kein Tag ausgewählt</div>'; return; }
+  const d=DB.days[curDay];
+  el.innerHTML='';
+  for(let s=1;s<=9;s++){
+    const slots=(d.saale&&d.saale[s])||[];
+    const sorted=[...slots].sort((a,b)=>{ if(!a.startzeit&&!b.startzeit) return 0; if(!a.startzeit) return 1; if(!b.startzeit) return -1; return t2m(a.startzeit)-t2m(b.startzeit); });
+    const div=document.createElement('div'); div.className='sp';
+    const seats=(DB.settings?.saale?.[s]?.seats)?`<span style="font-size:.64rem;color:var(--muted2);">👥${DB.settings.saale[s].seats}</span>`:'';
+    div.innerHTML=`<div class="sp-head"><div class="sp-num">${s}</div>${saalBadgeHtml(s)}<span style="font-size:.66rem;color:var(--muted);">SAAL ${s}</span>${seats}</div>
+    <div class="sp-body">${sorted.length===0?'<div style="color:var(--muted);font-size:.75rem;padding:4px 0;">Keine Vorstellungen</div>':sorted.map((sl,i)=>{
+      const f=DB.films.find(f=>f.id===sl.filmId); if(!f) return '';
+      const c=fc(f.id), ads=sl.ads!=null?sl.ads:30, cr=f.credits||0;
+      const filmEnd=sl.startzeit?t2m(sl.startzeit)+ads+f.len:null;
+      const endT=filmEnd?m2t(filmEnd):'–';
+      return `<div class="ss" style="border:1px solid var(--border2);">
+        <div class="ss-d" style="background:${c[1]};"></div>
+        <div class="ss-i">
+          <div class="ss-t">${esc(f.title)}</div>
+          <div class="ss-ti">${sl.startzeit||'–'} → <strong style="color:var(--accent);">${endT}</strong></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <div style="display:flex;align-items:center;gap:3px;">
+            <span class="ss-lbl">Start:</span>
+            <input class="tif" type="text" value="${sl.startzeit||''}" placeholder="1300" maxlength="5"
+              oninput="fmtTime(this)"
+              onblur="saveTime(this,'${curDay}',${s},${slots.indexOf(sl)})"
+              onkeydown="if(event.key==='Enter')this.blur()"
+              ${sl.vvk?'readonly disabled title="🔒 Gesperrt – Vorverkauf aktiv" style=\"opacity:.5;cursor:not-allowed;\"':''}>
+            ${sl.vvk?'<span style=\"font-size:.6rem;color:var(--accent);\">🔒 VVK</span>':''}
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;">
+            <span class="ss-lbl">Werb.:</span>
+            <input class="tif tif-ads" type="number" value="${ads}" min="0" max="90"
+              onchange="saveAds(this,'${curDay}',${s},${slots.indexOf(sl)})">
+            <span class="ss-lbl">Min</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;">
+            <span class="ss-lbl">Absp.:</span>
+            <input class="tif tif-ads" type="number" value="${cr}" min="0" max="30"
+              onchange="saveCredits(this,'${f.id}')">
+            <span class="ss-lbl">Min</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:3px;">
+            <span class="ss-lbl">FSK:</span>
+            <select class="tif" style="width:70px;padding:2px 4px;"
+              onchange="saveFsk(this,'${f.id}')">
+              <option value="-1"${(f.fsk==null||f.fsk<0)?' selected':''}>–</option>
+              <option value="0"${f.fsk===0?' selected':''}>0</option>
+              <option value="6"${f.fsk===6?' selected':''}>6</option>
+              <option value="12"${f.fsk===12?' selected':''}>12</option>
+              <option value="16"${f.fsk===16?' selected':''}>16</option>
+              <option value="18"${f.fsk===18?' selected':''}>18</option>
+            </select>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+    el.appendChild(div);
+  }
+}
+
+function fmtTime(inp){
+  let v=inp.value.replace(/[^0-9]/g,'');
+  if(v.length>4) v=v.slice(0,4);
+  if(v.length>=3) inp.value=v.slice(0,2)+':'+v.slice(2,4);
+  else inp.value=v;
+}
+
+function saveTime(inp,day,saal,idx){
+  if(DB.days[day]?.saale[saal]?.[idx]?.vvk){
+    const orig=DB.days[day].saale[saal][idx].startzeit||'';
+    inp.value=orig;
+    return;
+  }
+  const v=inp.value.trim();
+  if(!v){ return; }
+  let clean=v.replace(':','').replace(/\D/g,'');
+  if(clean.length<3||clean.length>4){ toast('Ungültige Zeit!','err'); return; }
+  const h=clean.length===4?clean.slice(0,2):('0'+clean.slice(0,1)), m=clean.slice(-2);
+  if(parseInt(m)>59){ toast('Ungültige Minuten!','err'); return; }
+  const t=h+':'+m;
+  if(DB.days[day]&&DB.days[day].saale&&DB.days[day].saale[saal]&&DB.days[day].saale[saal][idx]){
+    DB.days[day].saale[saal][idx].startzeit=t;
+    inp.value=t; renderSaale();
+  }
+}
+
+function saveAds(inp,day,saal,idx){
+  if(DB.days[day]?.saale?.[saal]?.[idx]){
+    DB.days[day].saale[saal][idx].ads=parseInt(inp.value)||0;
+    renderSaale();
+  }
+}
+
+function saveCredits(inp,filmId){
+  const val=parseInt(inp.value)||0;
+  const f=DB.films.find(f=>f.id===filmId);
+  if(f){
+    f.credits=val;
+    renderSaale();
+  }
+}
+
+function saveFsk(sel,filmId){
+  const f=DB.films.find(f=>f.id===filmId);
+  if(f){ f.fsk=parseInt(sel.value); renderSaale(); }
+}
+
+
+// ── TOKEN AUTO-REFRESH (alle 45 Min) ────────────────────────
+async function refreshToken() {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess?.refreshToken) return;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+      body: JSON.stringify({ refresh_token: sess.refreshToken })
+    });
+    const data = await r.json();
+    if (data.access_token) {
+      sess.token = data.access_token;
+      sess.refreshToken = data.refresh_token || sess.refreshToken;
+      localStorage.setItem('csp_session', JSON.stringify(sess));
+      session = sess;
+    } else {
+      // Token nicht mehr gültig → neu einloggen
+      localStorage.removeItem('csp_session');
+      window.location.href = 'index.html';
+    }
+  } catch(e) { console.warn('Token-Refresh fehlgeschlagen', e); }
+}
+// Alle 45 Minuten erneuern
+setInterval(refreshToken, 45 * 60 * 1000);
+
+
+// ── AUTO-LOGOUT nach 1 Stunde Inaktivität ──────────────────
+let _lastActivity = Date.now();
+['click','keydown','mousemove','touchstart'].forEach(ev =>
+  document.addEventListener(ev, () => { _lastActivity = Date.now(); }, { passive: true })
+);
+setInterval(() => {
+  if (!session?.token) return;
+  if (Date.now() - _lastActivity > 60 * 60 * 1000) doLogout();
+}, 60 * 1000);
+
+
+
+
+init();
+
+// ── AUTO-SAVE beim Verlassen/Schließen ──────────────────────
+window.addEventListener('beforeunload', () => {
+  if (!session?.token) return;
+  DB._savedAt = new Date().toISOString();
+  const payload = JSON.stringify({ data: DB, updated_at: DB._savedAt });
+  // Supabase PATCH via fetch mit keepalive (zuverlässiger als sendBeacon für PATCH)
+  fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${session.token}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: payload,
+    keepalive: true  // funktioniert auch beim Schließen des Tabs
+  });
+});
+
+</script>
+</body>
+</html>

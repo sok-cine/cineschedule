@@ -1,0 +1,3468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineSchedule Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080810;--s1:#0f0f1a;--s2:#161624;--s3:#1e1e30;
+  --border:#252538;--border2:#30304a;
+  --accent:#f0c040;--accent2:#ff6030;
+  --green:#2ed87a;--red:#ff3355;--blue:#4a90ff;
+  --text:#e0e0f0;--muted:#606080;--muted2:#9090b0;--radius:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+header{background:var(--s1);border-bottom:2px solid var(--accent);padding:0 24px;height:54px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:300;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:4px;color:var(--accent);}
+.logo em{color:var(--text);font-style:normal;}
+.logo-sub{font-size:.54rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:1px;}
+.step-nav{margin-left:auto;display:flex;gap:3px;}
+.snb{background:transparent;border:1px solid var(--border2);color:var(--muted2);padding:5px 13px;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.76rem;letter-spacing:.4px;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.snb .n{width:17px;height:17px;border-radius:50%;background:var(--border2);color:var(--muted2);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;transition:all .2s;}
+.snb:hover,.snb.active{border-color:var(--accent);color:var(--accent);}
+.snb:hover .n,.snb.active .n{background:var(--accent);color:#000;}
+.snb.done{border-color:var(--green);color:var(--green);}
+.snb.done .n{background:var(--green);color:#000;}
+.snb.arch{border-color:rgba(74,144,255,.4)!important;color:var(--blue)!important;}
+.snb.arch .n{background:rgba(74,144,255,.18)!important;color:var(--blue)!important;}
+.snb.arch:hover,.snb.arch.active{background:rgba(74,144,255,.1)!important;border-color:var(--blue)!important;}
+
+/* ── MAIN ── */
+main{padding:22px 26px;max-width:1700px;margin:0 auto;}
+.view{display:none;animation:fi .25s ease;}
+.view.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ptitle{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:4px;color:var(--accent);}
+.psub{color:var(--muted);font-size:.78rem;letter-spacing:1px;margin-top:3px;margin-bottom:18px;}
+
+/* ── PANELS ── */
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);}
+.ph{background:var(--s2);padding:10px 15px;border-bottom:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:space-between;}
+.ph h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--accent);}
+
+/* ── BUTTONS ── */
+.btn{padding:6px 15px;border-radius:4px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.79rem;font-weight:600;letter-spacing:.4px;transition:all .2s;}
+.btn-p{background:var(--accent);color:#000;}
+.btn-p:hover{background:#f8d050;transform:translateY(-1px);box-shadow:0 4px 14px rgba(240,192,64,.22);}
+.btn-s{background:transparent;border:1px solid var(--border2);color:var(--muted2);}
+.btn-s:hover{border-color:var(--accent);color:var(--accent);}
+.btn-d{background:transparent;border:1px solid rgba(255,51,85,.3);color:var(--red);}
+.btn-d:hover{background:rgba(255,51,85,.1);}
+.btn-b{background:rgba(74,144,255,.12);border:1px solid rgba(74,144,255,.3);color:var(--blue);}
+.btn-b:hover{background:rgba(74,144,255,.22);}
+.btn-g{background:rgba(46,216,122,.12);border:1px solid rgba(46,216,122,.3);color:var(--green);}
+.btn-g:hover{background:rgba(46,216,122,.22);}
+.btn-sm{padding:3px 9px;font-size:.72rem;}
+.btn-ic{width:26px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:4px;}
+
+/* ── FIELDS ── */
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.field input,.field select{background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.84rem;transition:border-color .2s;width:100%;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+.field input::placeholder{color:var(--muted);}
+
+/* ── SAVE/LOAD BAR ── */
+.save-bar{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.save-bar-title{font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.save-bar-info{font-size:.74rem;color:var(--muted2);}
+
+/* ══ STEP 1 ══ */
+.lib-grid{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start;}
+.af{padding:15px;}
+.afg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;}
+.afg .full{grid-column:1/-1;}
+.fl-wrap{padding:11px 15px;display:flex;flex-direction:column;gap:7px;min-height:130px;}
+.fc{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+.fdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.fi2{flex:1;min-width:0;}
+.ft{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fm{font-size:.7rem;color:var(--muted);margin-top:1px;}
+.fa{display:flex;gap:4px;flex-shrink:0;}
+.empty-msg{color:var(--muted);font-size:.8rem;text-align:center;padding:20px 0;}
+
+/* ══ STEP 2 ══ */
+.day-bar{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:11px 15px;margin-bottom:12px;display:flex;align-items:center;gap:9px;overflow-x:auto;}
+.day-tabs{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.day-tab{background:var(--s2);border:1px solid var(--border);color:var(--muted2);padding:4px 11px;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.76rem;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.day-tab:hover{border-color:var(--border2);color:var(--text);}
+.day-tab.active{background:rgba(240,192,64,.1);border-color:var(--accent);color:var(--accent);}
+.day-tab.archived{border-color:rgba(96,96,128,.4);color:var(--muted);font-style:italic;}
+.day-archive-tab{background:transparent;border:1px solid var(--border2);color:var(--muted2);padding:4px 10px;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.72rem;transition:all .2s;white-space:nowrap;}
+.day-archive-tab.active{background:rgba(96,96,128,.1);border-color:var(--muted2);color:var(--text);}
+.day-tab .drm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.76rem;padding:0;margin-left:1px;transition:color .2s;}
+.day-tab .drm:hover{color:var(--red);}
+.day-add-btn{background:transparent;border:1px dashed var(--border2);color:var(--muted);padding:4px 11px;border-radius:4px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.76rem;transition:all .2s;white-space:nowrap;}
+.day-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+.sched-grid{display:grid;grid-template-columns:210px 1fr;gap:14px;align-items:start;}
+.pool-panel{padding:10px;}
+.pool-sec{font-size:.64rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.pitem{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:7px 9px;cursor:grab;display:flex;align-items:center;gap:7px;transition:all .2s;user-select:none;margin-bottom:5px;}
+.pitem:hover{border-color:var(--accent);transform:translateX(2px);}
+.pitem.dragging{opacity:.28;cursor:grabbing;}
+.pid{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pin{flex:1;min-width:0;}
+.pit{font-size:.79rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pim{font-size:.65rem;color:var(--muted);}
+.saale-col{display:flex;flex-direction:column;gap:6px;overflow:visible;}
+.sp{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.sp-head{background:var(--s2);padding:7px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.sp-num{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--accent);line-height:1;}
+.sp-body{padding:7px 10px;display:flex;flex-wrap:wrap;gap:5px;min-height:46px;transition:background .15s;}
+.sp-body.dov{background:rgba(240,192,64,.06);outline:2px dashed rgba(240,192,64,.35);outline-offset:-2px;border-radius:4px;}
+.drp-hint{color:var(--muted);font-size:.69rem;display:flex;align-items:center;gap:4px;padding:3px;width:100%;}
+.ss{background:var(--s3);border:1px solid var(--border2);border-radius:5px;padding:6px 7px;display:flex;align-items:center;gap:6px;animation:pop .18s ease;}
+.ss.ov{border-color:var(--red)!important;background:rgba(255,51,85,.1)!important;}
+@keyframes pop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:none}}
+.ss-d{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ss-i{flex:1;min-width:0;}
+.ss-t{font-size:.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;}
+.ss-ti{font-size:.62rem;color:var(--muted);margin-top:1px;}
+.ss-ti.ov{color:var(--red);}
+.tif{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:2px 5px;border-radius:3px;font-size:.67rem;font-family:'Outfit',sans-serif;}
+.tif:focus{outline:none;border-color:var(--accent);}
+.tif-time{width:72px;}.tif-ads{width:44px;}
+.ss-lbl{font-size:.57rem;color:var(--muted);white-space:nowrap;}
+.ss-rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:0 2px;transition:color .2s;}
+.ss-rm:hover{color:var(--red);}
+.ov-tag{background:rgba(255,51,85,.12);color:var(--red);border:1px solid rgba(255,51,85,.3);padding:2px 6px;border-radius:3px;font-size:.65rem;font-weight:700;margin-left:auto;white-space:nowrap;}
+
+/* Add-via-form row */
+.add-film-row{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--border);background:rgba(240,192,64,.03);}
+.add-film-row .autocomplete-wrap{position:relative;flex:1;}
+.add-film-row input{background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:4px 8px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.75rem;width:100%;}
+.add-film-row input:focus{outline:none;border-color:var(--accent);}
+.ac-dropdown{position:fixed;background:var(--s2);border:1px solid var(--accent);border-radius:4px;z-index:500;max-height:240px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.6);}
+.ac-dropdown.open{display:block;}
+.ac-item{padding:6px 10px;cursor:pointer;font-size:.78rem;display:flex;align-items:center;gap:8px;transition:background .15s;}
+.ac-item:hover,.ac-item.focused{background:var(--s3);outline:1px solid var(--accent);}
+.ac-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ══ STEP 3 ══ */
+.tl-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.tl-day-lbl{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:2px;color:var(--muted2);margin-top:3px;}
+.tl-actions{display:flex;gap:5px;flex-wrap:wrap;}
+.view-tabs{display:flex;gap:2px;background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:2px;}
+.vtab{background:transparent;border:none;color:var(--muted);padding:5px 12px;border-radius:3px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:.75rem;font-weight:600;transition:all .2s;white-space:nowrap;}
+.vtab.active{background:var(--accent);color:#000;}
+
+/* Timeline */
+.tl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);background:var(--s1);}
+.tl-inner{min-width:800px;}
+.ruler{display:flex;border-bottom:2px solid var(--border);background:var(--s2);height:30px;}
+.r-lbl{width:76px;min-width:76px;border-right:1px solid var(--border);display:flex;align-items:center;padding-left:9px;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.r-hrs{flex:1;position:relative;}
+.hm{position:absolute;top:0;height:100%;border-left:1px solid var(--border);display:flex;align-items:center;padding-left:3px;}
+.hm span{font-size:.62rem;color:var(--muted);white-space:nowrap;}
+.tl-row{display:flex;border-bottom:1px solid var(--border);min-height:68px;}
+.tl-row:last-child{border-bottom:none;}
+.tl-rl{width:76px;min-width:76px;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;padding:0 9px;background:var(--s2);}
+.tl-rl .tn{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--accent);}
+.tl-rl .ts{font-size:.56rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.tl-track{flex:1;position:relative;background:repeating-linear-gradient(90deg,transparent,transparent calc(var(--hw) - 1px),var(--border) calc(var(--hw) - 1px),var(--border) var(--hw));}
+.mb{position:absolute;top:4px;height:calc(100% - 8px);border-radius:4px;display:flex;flex-direction:column;justify-content:center;padding:0 6px;overflow:hidden;cursor:default;transition:filter .15s,transform .12s;border:1px solid rgba(255,255,255,.07);}
+.mb:hover{filter:brightness(1.18);transform:scaleY(1.04);z-index:10;}
+.mb.ov{border:2px solid var(--red)!important;box-shadow:0 0 7px rgba(255,51,85,.28);}
+.mb .mbt{font-weight:600;font-size:.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.55);}
+.mb .mbt2{font-size:.62rem;color:rgba(255,255,255,.9);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.3;}
+.mb .mbl{font-size:.56rem;color:rgba(255,255,255,.42);margin-top:1px;}
+.mb-ad{position:absolute;top:5px;height:calc(100% - 10px);border-radius:4px;border:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.mb-ad span{font-size:.52rem;color:rgba(255,255,255,.36);padding:0 3px;}
+.cl{position:absolute;top:5px;height:calc(100% - 10px);border-radius:4px;background:repeating-linear-gradient(45deg,rgba(255,96,48,.07),rgba(255,96,48,.07) 4px,transparent 4px,transparent 8px);border:1px dashed rgba(255,96,48,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;gap:1px;}
+.cl .ct{font-size:.53rem;color:rgba(255,96,48,.75);text-align:center;padding:0 3px;line-height:1.3;}
+.cl .cn{font-size:.54rem;color:rgba(255,150,80,.9);text-align:center;padding:0 2px;line-height:1.3;font-weight:600;}
+
+/* Cleanup view */
+.clean-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.clean-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.clean-card-head{background:var(--s2);padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.cc-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--accent);}
+.clean-card-body{padding:8px 12px;display:flex;flex-direction:column;gap:5px;}
+.cl-item{background:var(--s2);border-radius:4px;padding:7px 9px;border-left:3px solid;}
+.cl-item.has-next{border-color:var(--accent2);}
+.cl-item.last-show{border-color:var(--muted);}
+.cl-item.ov-item{border-color:var(--red);}
+.cl-title{font-weight:600;font-size:.8rem;}
+.cl-times{font-size:.7rem;color:var(--muted);margin-top:1px;}
+.cl-clean{font-size:.68rem;margin-top:3px;display:flex;align-items:center;gap:4px;}
+.clbadge{background:rgba(255,96,48,.12);color:var(--accent2);border:1px solid rgba(255,96,48,.25);padding:1px 5px;border-radius:3px;font-size:.65rem;font-weight:600;}
+.cl-next-info{background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.15);border-radius:3px;padding:4px 7px;margin-top:4px;font-size:.69rem;}
+.cl-next-info .nxt-title{font-weight:600;color:var(--accent);}
+.cl-next-info .nxt-meta{color:var(--muted);font-size:.64rem;margin-top:1px;}
+.gap-pill{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.68rem;font-weight:700;white-space:nowrap;}
+.gp-g{background:rgba(46,216,122,.1);color:var(--green);border:1px solid rgba(46,216,122,.2);}
+.gp-w{background:rgba(255,160,0,.1);color:#ffa000;border:1px solid rgba(255,160,0,.2);}
+.gp-r{background:rgba(255,51,85,.1);color:var(--red);border:1px solid rgba(255,51,85,.2);}
+
+/* Box view */
+.box-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.box-saal{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.box-head{background:var(--s2);padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.box-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--accent);}
+.box-shows{padding:7px 9px;display:flex;gap:5px;flex-wrap:wrap;}
+.box-show{border-radius:4px;padding:7px 9px;flex:1;min-width:100px;border:1px solid rgba(255,255,255,.08);}
+.box-show.ov{border-color:var(--red)!important;box-shadow:0 0 6px rgba(255,51,85,.22);}
+.box-show.vvk{border-color:#f0c040!important;box-shadow:0 0 6px rgba(240,192,64,.3);}
+.ss.vvk{border:1px solid var(--accent)!important;box-shadow:0 0 6px rgba(240,192,64,.2)!important;}
+.vvk-badge{font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(240,192,64,.2);color:var(--accent);border:1px solid rgba(240,192,64,.4);}
+.bs-title{font-weight:700;font-size:.78rem;color:#fff;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bs-row{font-size:.67rem;color:rgba(255,255,255,.66);display:flex;justify-content:space-between;gap:4px;margin-top:1px;}
+.bs-row span:last-child{font-weight:600;color:rgba(255,255,255,.88);}
+.bs-end{font-size:.75rem;font-weight:700;color:var(--accent);margin-top:4px;}
+.bs-clean{font-size:.63rem;color:rgba(255,96,48,.8);margin-top:2px;}
+.box-empty{color:var(--muted);font-size:.74rem;padding:8px 12px;font-style:italic;}
+
+/* Legend */
+.leg-row{display:flex;gap:12px;margin-top:9px;flex-wrap:wrap;}
+.li{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--muted);}
+.lsw{width:16px;height:10px;border-radius:2px;}
+.lcl{background:repeating-linear-gradient(45deg,rgba(255,96,48,.2),rgba(255,96,48,.2) 3px,transparent 3px,transparent 6px);border:1px dashed rgba(255,96,48,.5);}
+.tl-track.tl-drop-over{background:rgba(240,192,64,.08)!important;outline:2px dashed rgba(240,192,64,.5);outline-offset:-2px;}
+.lov{background:rgba(255,51,85,.3);border:2px solid var(--red);}
+
+/* Summary table */
+.sum-wrap{margin-top:20px;}
+.sum-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:var(--accent);margin-bottom:9px;}
+table{width:100%;border-collapse:collapse;background:var(--s1);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);font-size:.79rem;}
+thead tr{background:var(--s2);}
+th{padding:9px 11px;text-align:left;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:500;}
+td{padding:8px 11px;border-bottom:1px solid rgba(37,37,56,.5);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(240,192,64,.02);}
+.tg{padding:2px 6px;border-radius:3px;font-size:.67rem;font-weight:700;}
+.tg-s{background:rgba(240,192,64,.12);color:var(--accent);}
+.tg-o{background:rgba(255,51,85,.12);color:var(--red);border:1px solid rgba(255,51,85,.3);}
+.tn{font-variant-numeric:tabular-nums;}
+
+/* ══ STEP 4 – ARCHIV ══ */
+.arch-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.arch-weeks{display:flex;flex-direction:column;gap:14px;}
+.week-group{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.week-head{background:var(--s2);padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .14s;}
+.week-head:hover{background:var(--s3);}
+.week-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--accent);}
+.week-meta{font-size:.71rem;color:var(--muted);}
+.week-badge{background:rgba(240,192,64,.12);color:var(--accent);border:1px solid rgba(240,192,64,.25);padding:2px 8px;border-radius:3px;font-size:.69rem;font-weight:600;}
+.week-chev{color:var(--muted);font-size:.85rem;transition:transform .18s;}
+.week-chev.open{transform:rotate(90deg);}
+.week-body{padding:12px 14px;display:flex;flex-direction:column;gap:7px;}
+.week-body.collapsed{display:none;}
+.arch-card{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:11px 13px;display:flex;align-items:center;gap:12px;}
+.arch-date{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:2px;color:var(--text);min-width:120px;}
+.arch-meta{flex:1;font-size:.75rem;color:var(--muted);}
+.arch-actions{display:flex;gap:5px;flex-shrink:0;}
+.arch-empty{color:var(--muted);font-size:.83rem;text-align:center;padding:50px 20px;}
+
+/* ── SETTINGS ── */
+.settings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.settings-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.settings-card-head{background:var(--s2);padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.settings-card-body{padding:12px 14px;display:flex;flex-direction:column;gap:9px;}
+.saal-info-badge{font-size:.65rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.badge-3d{background:rgba(74,144,255,.18);color:var(--blue);border:1px solid rgba(74,144,255,.35);}
+.badge-imax{background:rgba(240,192,64,.18);color:var(--accent);border:1px solid rgba(240,192,64,.35);}
+.badge-3dimax{background:rgba(155,61,192,.18);color:#c060ff;border:1px solid rgba(155,61,192,.35);}
+.badge-normal{background:var(--s3);color:var(--muted);border:1px solid var(--border);}
+.cleanup-pill{display:inline-block;padding:3px 12px;border-radius:20px;font-size:.82rem;font-weight:700;transition:all .2s;}
+.cp-red{background:rgba(255,51,85,.15);color:var(--red);border:1px solid rgba(255,51,85,.4);}
+.cp-yellow{background:rgba(255,193,7,.15);color:#ffc107;border:1px solid rgba(255,193,7,.4);}
+.cp-green{background:rgba(46,216,122,.15);color:var(--green);border:1px solid rgba(46,216,122,.4);}
+
+/* ── LOGIN OVERLAY ── */
+#loginOverlay{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:38px 42px;width:350px;max-width:95vw;text-align:center;}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:5px;color:var(--accent);margin-bottom:3px;}
+.login-logo em{color:var(--text);font-style:normal;}
+.login-sub{font-size:.6rem;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-bottom:24px;}
+.login-role-btns{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+.lrb{flex:1;padding:9px;border-radius:6px;border:2px solid var(--border2);background:var(--s2);color:var(--muted2);cursor:pointer;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:600;transition:all .2s;}
+.lrb:hover{border-color:var(--accent);color:var(--accent);}
+.lrb.sel{border-color:var(--accent);background:rgba(240,192,64,.1);color:var(--accent);}
+.pin-display{display:flex;gap:10px;justify-content:center;margin-bottom:18px;}
+.pin-dot{width:15px;height:15px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all .18s;}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px;}
+.pin-key{background:var(--s2);border:1px solid var(--border2);color:var(--text);font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;padding:13px;border-radius:6px;cursor:pointer;transition:all .14s;}
+.pin-key:hover{background:var(--s3);border-color:var(--accent);color:var(--accent);}
+.pin-key:active{transform:scale(.93);}
+.pin-error{color:var(--red);font-size:.78rem;margin-top:5px;min-height:16px;}
+.role-badge{font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;}
+.role-admin{background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);}
+.role-staff{background:rgba(74,144,255,.15);color:var(--blue);border:1px solid rgba(74,144,255,.3);}
+.user-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.user-item{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 13px;display:flex;align-items:center;gap:12px;}
+
+/* ── WEEK VIEW ── */
+.week-controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.week-table-wrap{overflow-x:auto;}
+.week-table{border-collapse:collapse;width:100%;min-width:700px;border-radius:var(--radius);overflow:hidden;}
+.week-table th{padding:9px 10px;text-align:left;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--border);font-weight:600;white-space:nowrap;}
+.week-table th.wt-day-header{background:var(--s1);}
+.week-table th.wt-saal{background:var(--s2);color:var(--accent);min-width:110px;text-align:center;border-left:1px solid var(--border);}
+/* Tages-Zellen */
+.week-table td.wt-day-label{background:var(--s2);white-space:nowrap;border-right:2px solid var(--border2);padding:8px 10px;vertical-align:middle;}
+.week-table td{padding:6px 8px;border:1px solid rgba(37,37,56,.5);vertical-align:top;}
+/* Alternierende Zeilen */
+.week-table tbody tr:nth-child(odd) td{background:var(--s1);}
+.week-table tbody tr:nth-child(even) td{background:rgba(22,22,36,.6);}
+.week-table tbody tr:nth-child(odd) td.wt-day-label{background:var(--s2);}
+.week-table tbody tr:nth-child(even) td.wt-day-label{background:var(--s3);}
+.week-table tbody tr:hover td{filter:brightness(1.12);}
+/* Heute hervorheben */
+.week-table tr.wt-today td{background:rgba(240,192,64,.06)!important;}
+.week-table tr.wt-today td.wt-day-label{background:rgba(240,192,64,.15)!important;border-right:2px solid var(--accent);}
+.wc-day{font-family:'Bebas Neue',sans-serif;font-size:.92rem;letter-spacing:1px;}
+.wc-date{font-size:.64rem;color:var(--muted);margin-top:1px;}
+.wc-show{background:var(--s3);border-radius:4px;padding:4px 7px;margin-bottom:3px;border-left:3px solid var(--border2);}
+.wc-show:last-child{margin-bottom:0;}
+.wc-title{font-size:.72rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
+.wc-time{font-size:.68rem;color:var(--accent);font-weight:700;margin-top:1px;}
+.wc-empty{color:var(--muted);font-size:.68rem;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.76);z-index:9000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:22px;width:430px;max-width:95vw;transform:translateY(12px);transition:transform .2s;}
+.modal-bg.open .modal{transform:none;}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:3px;color:var(--accent);margin-bottom:13px;}
+.mf{display:flex;flex-direction:column;gap:9px;margin-bottom:13px;}
+.mac{display:flex;gap:7px;justify-content:flex-end;}
+.modal-wide{width:95vw;max-width:1380px;max-height:88vh;overflow-y:auto;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:8px 17px;border-radius:5px;font-weight:600;font-size:.82rem;z-index:999;transform:translateY(42px);opacity:0;transition:all .26s;pointer-events:none;}
+.toast.show{transform:none;opacity:1;}
+.toast.ok{background:var(--green);color:#000;}
+.toast.err{background:var(--red);color:#fff;}
+.toast.info{background:var(--accent);color:#000;}
+
+/* ══ PRINT ══ */
+@media print {
+  @page{ size:A4 landscape; margin:5mm; }
+  *{ -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; box-sizing:border-box; }
+  body{ background:#fff!important;color:#000!important;font-size:8px;font-family:'Outfit',sans-serif; }
+
+  /* hide everything except step3 */
+  header,nav,.step-nav,.tl-actions,.view-tabs,.btn,.day-bar,.sched-grid,.lib-grid,#tlDayTabs,
+  .sum-wrap,.leg-row,#step1,#step2,#step4,.snb,.save-bar{ display:none!important; }
+  #step3{ display:block!important; }
+  main{ padding:0!important;max-width:100%!important; }
+  .tl-header{ margin-bottom:4px!important; flex-direction:column!important; gap:2px!important; }
+  .ptitle{ font-size:1.2rem!important;color:#000!important;letter-spacing:2px!important; }
+  .tl-day-lbl{ font-size:.85rem!important;color:#444!important; }
+
+  /* show only active panel */
+  .tv-panel{ display:none!important; }
+  .tv-panel.print-active{ display:block!important; }
+
+  /* — TIMELINE — */
+  .tl-wrap{ overflow:visible!important;border:1px solid #bbb!important;background:#fff!important;border-radius:3px!important; }
+  .tl-inner{ min-width:0!important;width:100%!important; }
+  .ruler{ background:#ececec!important;height:22px!important;border-bottom:1px solid #ccc!important; }
+  .r-lbl{ background:#ececec!important;color:#555!important;width:60px!important;min-width:60px!important;font-size:.55rem!important; }
+  .hm span{ color:#666!important;font-size:.55rem!important; }
+  .tl-row{ border-color:#ddd!important;min-height:0!important; }
+  .tl-rl{ background:#ececec!important;width:60px!important;min-width:60px!important;padding:0 7px!important; }
+  .tl-rl .tn{ color:#000!important;font-size:1rem!important; }
+  .tl-rl .ts{ color:#666!important;font-size:.52rem!important; }
+  .tl-track{ background:#fff!important; background-image:repeating-linear-gradient(90deg,transparent,transparent calc(var(--hw) - 1px),#e0e0e0 calc(var(--hw) - 1px),#e0e0e0 var(--hw))!important; }
+  .mb{ top:3px!important;height:calc(100% - 6px)!important;padding:0 4px!important; }
+  .mb .mbt{ font-size:.62rem!important; }
+  .mb .mbt2{ font-size:.55rem!important; }
+  .mb .mbl{ font-size:.52rem!important; }
+  .mb-ad{ top:3px!important;height:calc(100% - 6px)!important; }
+  .cl{ top:3px!important;height:calc(100% - 6px)!important; }
+  .cl .ct,.cl .cn{ font-size:.5rem!important; }
+
+  /* — CLEANUP — */
+  .clean-grid{ grid-template-columns:repeat(3,1fr)!important;gap:4px!important; }
+  .clean-card{ background:#fff!important;border:1px solid #ccc!important;border-radius:3px!important; }
+  .clean-card-head{ background:#ececec!important;border-color:#ccc!important;padding:5px 9px!important; }
+  .cc-num{ color:#000!important;font-size:.95rem!important; }
+  .clean-card-body{ padding:5px 9px!important;gap:3px!important; }
+  .cl-item{ background:#f8f8f8!important;padding:4px 6px!important;border-radius:3px!important; }
+  .cl-title{ color:#000!important;font-size:.74rem!important; }
+  .cl-times{ color:#555!important;font-size:.65rem!important; }
+  .cl-clean{ font-size:.63rem!important; }
+  .clbadge{ background:#ffe0cc!important;color:#c04010!important;border-color:#f09060!important;font-size:.62rem!important; }
+  .cl-next-info{ background:#fffbee!important;border-color:#e8c040!important;padding:3px 6px!important; }
+  .cl-next-info .nxt-title{ color:#000!important;font-size:.68rem!important; }
+  .cl-next-info .nxt-meta{ color:#555!important;font-size:.6rem!important; }
+  .gp-g{ background:#e0f8ec!important;color:#1a8040!important;border-color:#60d090!important; }
+  .gp-w{ background:#fff3e0!important;color:#a06000!important;border-color:#e0a040!important; }
+  .gp-r{ background:#ffe0e5!important;color:#c00020!important;border-color:#ff8090!important; }
+
+  /* — BOXES — */
+  .box-grid{ grid-template-columns:repeat(3,1fr)!important;gap:4px!important; }
+  .box-saal{ background:#fff!important;border:1px solid #ccc!important;border-radius:3px!important; }
+  .box-head{ background:#ececec!important;border-color:#ccc!important;padding:4px 10px!important; }
+  .box-num{ color:#000!important;font-size:.95rem!important; }
+  .box-shows{ padding:5px 7px!important;gap:4px!important; }
+  .box-show{ padding:5px 7px!important;border-radius:3px!important; }
+  .bs-title{ font-size:.72rem!important; }
+  .bs-row{ font-size:.62rem!important;margin-top:1px!important; }
+  .bs-end{ font-size:.7rem!important;margin-top:3px!important;color:#fff!important; }
+  .bs-clean{ font-size:.58rem!important; }
+
+  /* — PA ZETTEL header — */
+  #tableMainTitle{ font-size:1.5rem!important;color:#000!important; }
+  #tableDateLine{ font-size:.9rem!important;color:#333!important; }
+  /* — Besucher input — */
+  #vorstellungTable input[type=text]{ background:transparent!important;border:1px solid #999!important;color:#000!important; }
+  /* — Summary TABLE — */
+  .sum-wrap{ margin-top:6px!important;display:block!important; }
+  .sum-title{ font-size:1.1rem!important;color:#000!important;margin-bottom:5px!important; }
+  table{ font-size:.68rem!important;border-color:#ccc!important;background:#fff!important; }
+  thead tr{ background:#ececec!important; }
+  th{ padding:5px 7px!important;color:#444!important;border-color:#ccc!important;font-size:.58rem!important; }
+  td{ padding:4px 7px!important;border-color:#e5e5e5!important; }
+  /* — WOCHENÜBERSICHT — */
+  .week-table-wrap{ overflow:visible!important; }
+  .week-table{ border-collapse:collapse!important;width:100%!important;border:1px solid #bbb!important;border-radius:0!important; }
+  .week-table th{ background:#ececec!important;color:#333!important;border:1px solid #ccc!important;padding:4px 6px!important;font-size:.58rem!important; }
+  .week-table th.wt-day-header{ background:#ececec!important; }
+  .week-table th.wt-saal{ background:#e0e0e0!important;color:#000!important;border:1px solid #bbb!important; }
+  .week-table td{ background:#fff!important;border:1px solid #ddd!important;padding:4px 6px!important; }
+  .week-table td.wt-day-label{ background:#f5f5f5!important;border-right:2px solid #bbb!important; }
+  .week-table tbody tr:nth-child(odd) td{ background:#fff!important; }
+  .week-table tbody tr:nth-child(even) td{ background:#fafafa!important; }
+  .week-table tbody tr:nth-child(odd) td.wt-day-label{ background:#f0f0f0!important; }
+  .week-table tbody tr:nth-child(even) td.wt-day-label{ background:#e8e8e8!important; }
+  .week-table tr.wt-today td{ background:#fffde0!important; }
+  .week-table tr.wt-today td.wt-day-label{ background:#fff3b0!important;border-right:2px solid #c8a000!important; }
+  .wc-day{ color:#000!important;font-size:.78rem!important; }
+  .wc-date{ color:#555!important;font-size:.6rem!important; }
+  .wc-show{ background:#f0f0f0!important;border-left:3px solid #888!important;padding:2px 5px!important;margin-bottom:2px!important; }
+  .wc-title{ color:#000!important;font-size:.65rem!important; }
+  .wc-time{ color:#333!important;font-size:.62rem!important;font-weight:700!important; }
+  .wc-empty{ color:#999!important; }
+  .week-controls{ display:none!important; }
+  .tg-s{ background:#fff8e0!important;color:#806000!important; }
+  .tg-o{ background:#ffe0e5!important;color:#c00020!important;border-color:#ffaabb!important; }
+  .gap-pill{ font-size:.58rem!important; }
+}
+
+/* Film-Archiv & Such-Features */
+.film-tabs{display:flex;gap:4px;margin-bottom:12px;}
+.film-tab{background:var(--s2);border:1px solid var(--border);color:var(--muted2);padding:4px 12px;border-radius:4px;cursor:pointer;font-size:.75rem;font-weight:600;transition:all .18s;}
+.film-tab.active{background:rgba(240,192,64,.1);border-color:var(--accent);color:var(--accent);}
+.film-search{background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.82rem;width:100%;margin-bottom:10px;transition:border-color .2s;}
+.film-search:focus{outline:none;border-color:var(--accent);}
+.fc.used{border-left:3px solid var(--green);}
+.fc.archived{border-left:3px solid var(--muted);opacity:.85;}
+.fc-badge-used{font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(46,216,122,.15);color:var(--green);border:1px solid rgba(46,216,122,.3);margin-left:4px;}
+.fc-badge-arch{font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(96,96,128,.15);color:var(--muted2);border:1px solid var(--border2);margin-left:4px;}
+.arch-warn{background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.3);border-radius:4px;padding:6px 10px;font-size:.72rem;color:#e8b800;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Cine<em>Schedule</em> <span style="font-size:.82rem;letter-spacing:2px;color:var(--muted2)">PRO</span></div>
+    <div class="logo-sub">Mitarbeiter · Programm · Verwaltung · <span style="color:var(--accent);letter-spacing:1px;">v5.3</span></div>
+  </div>
+  <nav class="step-nav">
+    <button class="snb active" id="nav1" onclick="goStep(1)"><span class="n">1</span> Filmkatalog</button>
+    <button class="snb" id="nav2" onclick="goStep(2)"><span class="n">2</span> Planung</button>
+    <button class="snb" id="nav3" onclick="goStep(3)"><span class="n">3</span> Zeitleiste</button>
+    <button class="snb arch" id="nav4" onclick="openImport()"><span class="n">📥</span> Import</button>
+    <button class="snb arch" id="nav5" onclick="goStep(4)"><span class="n">⚙</span> Einstellungen</button>
+  </nav>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <span id="sbUserLabel" style="font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:3px;background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3);">👑 Programmplanung</span>
+    <button class="btn btn-s btn-sm" onclick="openImport()">📥 Import</button>
+    <button class="btn btn-s btn-sm" onclick="sbLogout()">🔒 Abmelden</button>
+
+  </div>
+</header>
+
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="loginOverlay" style="display:none!important;">
+  <div class="login-box">
+    <div class="login-logo">Cine<em>Schedule</em></div>
+    <div class="login-sub">Mitarbeiter · Programm · Verwaltung</div>
+    <div class="login-role-btns">
+      <button class="lrb sel" id="lrb-admin" onclick="selectLoginRole('admin')">🔑 Admin</button>
+      <button class="lrb" id="lrb-staff" onclick="selectLoginRole('staff')">👤 Mitarbeiter</button>
+    </div>
+    <div class="pin-display" id="pinDisplay">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" onclick="pinClear()">C</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div style="font-size:.7rem;color:var(--muted);margin-top:8px;">Standard-Admin-PIN: <strong style="color:var(--accent);">1234</strong></div>
+    <!-- Data freshness notice -->
+    <div id="dataFreshnessBox" style="display:none;margin-top:16px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:12px 14px;text-align:left;">
+      <div style="font-size:.72rem;color:var(--muted2);margin-bottom:5px;">📁 Zuletzt gespeichert:</div>
+      <div id="dataFreshnessDate" style="font-size:.84rem;font-weight:600;color:var(--accent);margin-bottom:10px;"></div>
+      <div style="font-size:.7rem;color:var(--muted);margin-bottom:10px;">Arbeiten mehrere Personen? Bitte aktuelle Datei laden:</div>
+      <button class="btn btn-p" style="width:100%;font-size:.82rem;" onclick="document.getElementById('fileInputLogin').click()">📂 Aktuelle Datei laden</button>
+      <input type="file" id="fileInputLogin" accept=".json" style="display:none" onchange="loadFromFile(event)">
+    </div>
+  </div>
+</div>
+
+<main>
+<!-- Shared file input for all load buttons -->
+<input type="file" id="fileInputMain" accept=".json" style="display:none" onchange="loadFromFile(event)">
+
+<!-- ══ STEP 1 ══ -->
+<div class="view active" id="step1">
+  <!-- Save/Load bar -->
+  <div class="save-bar">
+    <span class="save-bar-title">Datei:</span>
+    <button class="btn btn-g btn-sm" onclick="saveToServer()">💾 Sichern</button>
+    <span class="save-bar-info" id="saveInfo">Bitte nach jeder Änderung sichern</span>
+  </div>
+  <div class="ptitle">FILMKATALOG</div>
+  <div class="psub">Filme anlegen und verwalten · alle Filme werden gespeichert</div>
+  <div class="lib-grid">
+    <div class="panel">
+      <div class="ph"><h3>Neuen Film anlegen</h3></div>
+      <div class="af">
+        <div class="afg">
+          <div class="field full"><label>Filmtitel *</label><input type="text" id="f_title" placeholder="z.B. Dune Part Three" onkeydown="if(event.key==='Enter')addFilm()"></div>
+          <div class="field"><label>Filmlänge (Min) *</label><input type="number" id="f_len" placeholder="130" min="1"></div>
+          <div class="field"><label>Abspannzeit (Min)</label><input type="number" id="f_credits" placeholder="5" min="0" value="5"></div>
+          <div class="field"><label>FSK</label><select id="f_fsk"><option value="-1">– keine –</option><option value="0">FSK 0</option><option value="6">FSK 6</option><option value="12">FSK 12</option><option value="16">FSK 16</option><option value="18">FSK 18</option></select></div>
+          <div class="field"><label>Spielwoche</label><input type="number" id="f_week" placeholder="z.B. 1" min="1" max="53" style="width:100%;"></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;"><button class="btn btn-p" onclick="addFilm()">＋ Film anlegen</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph" style="flex-direction:column;align-items:flex-start;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <h3>Filme (<span id="filmCount">0</span> aktiv · <span id="filmArchCount">0</span> archiviert)</h3>
+          <button class="btn btn-s btn-sm" style="margin-left:auto;" onclick="archiveUnusedFilms()">📦 Nicht verwendete archivieren</button>
+        </div>
+        <div style="position:relative;">
+          <input class="film-search" type="text" id="filmSearch" placeholder="🔍 Film suchen…" oninput="renderFilmList();document.getElementById('filmSearchClear').style.display=this.value?'flex':'none'">
+          <button id="filmSearchClear" onclick="document.getElementById('filmSearch').value='';document.getElementById('filmSearchClear').style.display='none';renderFilmList();" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0;line-height:1;">✕</button>
+        </div>
+        <div class="film-tabs">
+          <div class="film-tab active" id="ftab-active" onclick="switchFilmTab('active')">🎬 Aktiv</div>
+          <div class="film-tab" id="ftab-archive" onclick="switchFilmTab('archive')">📦 Archiv</div>
+        </div>
+      </div>
+      <div class="fl-wrap" id="filmList"></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+    <button class="btn btn-p" onclick="goStep(2)" style="font-size:.88rem;padding:9px 24px;">Weiter zur Planung →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 2 ══ -->
+<div class="view" id="step2">
+  <div class="save-bar">
+    <span class="save-bar-title">Datei:</span>
+    <button class="btn btn-g btn-sm" onclick="saveToServer()">💾 Sichern</button>
+    <span class="save-bar-info">Bitte nach jeder Änderung sichern</span>
+  </div>
+  <div class="ptitle">SPIELPLAN PLANUNG</div>
+  <div class="psub">Tage verwalten · Drag &amp; Drop · Startzeit &amp; Werbezeit pro Vorstellung</div>
+
+  <!-- Aktiv / Archiv Tabs -->
+  <div style="display:flex;gap:4px;margin-bottom:10px;align-items:center;flex-wrap:wrap;">
+    <div class="film-tabs" style="margin-bottom:0;">
+      <div class="film-tab active" id="dtab-active" onclick="switchDayTab('active')">📅 Aktive Spieltage (<span id="activeDayCount">0</span>)</div>
+      <div class="film-tab" id="dtab-archive" onclick="switchDayTab('archive')">📦 Archiv (<span id="archiveDayCount">0</span>)</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;">
+      <button class="btn btn-s btn-sm" onclick="openCopyDay()" id="copyDayBtn">📋 Kopieren</button>
+      <button class="day-add-btn" onclick="openAddDay()" id="addDayBtn">＋ Tag</button>
+      <button class="btn btn-d btn-sm" onclick="clearDaySchedule()" id="clearDayBtn">Tag leeren</button>
+    </div>
+  </div>
+
+  <!-- Aktive Spieltage -->
+  <div id="dayTabsPanel">
+    <div class="day-bar" style="margin-bottom:10px;">
+      <div class="day-tabs" id="dayTabs" style="display:flex;gap:5px;flex-wrap:nowrap;overflow-x:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Archiv-Ansicht -->
+  <div id="dayArchivePanel" style="display:none;margin-bottom:10px;">
+    <div class="panel">
+      <div class="ph" style="justify-content:space-between;">
+        <h3>Archivierte Spieltage</h3>
+        <span style="font-size:.68rem;color:var(--muted);">Automatisch nach 28 Tagen gelöscht</span>
+      </div>
+      <div class="pb" id="dayArchiveList">
+        <div class="empty-msg">Kein Archiv vorhanden</div>
+      </div>
+    </div>
+  </div>
+  <div class="sched-grid">
+    <div class="panel">
+      <div class="ph"><h3>Filmpool</h3></div>
+      <div class="pool-panel"><div class="pool-sec">Zum Saal ziehen ↓</div><div id="filmPool"></div></div>
+    </div>
+    <div class="saale-col" id="saaleCol"></div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:7px;">
+    <button class="btn btn-p" onclick="goStep(3)" style="font-size:.88rem;padding:9px 24px;">Zeitleiste erstellen →</button>
+  </div>
+</div>
+
+<!-- ══ STEP 3 ══ -->
+<div class="view" id="step3">
+  <div class="tl-header">
+    <div>
+      <div class="ptitle" id="tlTitle">ZEITLEISTE</div>
+      <div class="tl-day-lbl" id="tlDate"></div>
+      <div id="printCreatorLine" style="font-size:.7rem;color:var(--muted);margin-top:2px;"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <div id="tlDayTabs" style="display:flex;gap:5px;flex-wrap:nowrap;overflow-x:auto;max-width:60vw;"></div>
+        <div class="tl-actions">
+          <button class="btn btn-s btn-sm" onclick="goStep(2)">← Bearbeiten</button>
+          <button class="btn btn-g btn-sm" onclick="saveCurrentDay()">💾 Sichern</button>
+          <button class="btn btn-p btn-sm" onclick="printActive()">🖨 Drucken / PDF</button>
+        </div>
+      </div>
+      <div class="view-tabs">
+        <button class="vtab active" onclick="setView('timeline')">📊 Zeitleiste</button>
+        <button class="vtab" onclick="setView('cleanup')">🧹 Reinigung</button>
+        <button class="vtab" onclick="setView('boxes')">🎬 Säle</button>
+        <button class="vtab" onclick="setView('boxes-bw')">🎬 Säle S/W</button>
+        <button class="vtab" onclick="setView('table')">📋 Auslasszettel</button>
+        <button class="vtab" onclick="setView('week')">📅 Wochenübersicht</button>
+      </div>
+    </div>
+  </div>
+  <div class="tv-panel" id="tv-timeline"><div id="tlContainer"></div><div class="leg-row" id="tlLegend"></div></div>
+  <div class="tv-panel" id="tv-cleanup" style="display:none;"><div id="cleanupContainer"></div></div>
+  <div class="tv-panel" id="tv-boxes" style="display:none;"><div id="boxContainer"></div></div>
+  <div class="tv-panel" id="tv-boxes-bw" style="display:none;"><div id="boxContainerBW"></div></div>
+  <div class="tv-panel" id="tv-table" style="display:none;">
+    <div id="tableContainer"></div>
+  </div>
+  <div class="tv-panel" id="tv-week" style="display:none;">
+    <div id="weekContainer"></div>
+  </div>
+  <!-- summary always visible below (hidden in print unless table view active) -->
+  <div class="sum-wrap" id="sumWrapAlways" style="display:none;"></div>
+</div>
+
+<!-- ══ STEP 4 – EINSTELLUNGEN ══ -->
+<div class="view" id="step4">
+  <div class="save-bar">
+    <span class="save-bar-title">Datei:</span>
+    <button class="btn btn-g btn-sm" onclick="saveToServer()">💾 Sichern</button>
+  </div>
+
+  <!-- Sub-tabs -->
+  <div style="display:flex;gap:3px;background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:3px;width:fit-content;margin-bottom:22px;">
+    <button class="vtab active" id="stab-general" onclick="switchSettingsTab('general')">👤 Allgemein</button>
+    <!-- PIN Benutzerverwaltung entfernt – Supabase Auth -->
+    <button class="vtab" id="stab-saale" onclick="switchSettingsTab('saale')">🎭 Säle</button>
+  </div>
+
+  <!-- ALLGEMEIN -->
+  <div id="stab-content-general">
+    <div class="ptitle">ALLGEMEINE EINSTELLUNGEN</div>
+    <div class="psub">Name des Erstellers für Dateiname und Ausdruck</div>
+    <div style="max-width:360px;">
+      <div class="panel">
+        <div class="ph"><h3>Ersteller</h3></div>
+        <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div class="field"><label>Name des Erstellers</label><input type="text" id="g_creator" placeholder="z.B. Max Mustermann"></div>
+          <div style="font-size:.72rem;color:var(--muted);">Wird im Dateinamen und auf dem Ausdruck angezeigt.</div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="ph"><h3>Farbsättigung der Ansichten</h3></div>
+        <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:.72rem;color:var(--muted);white-space:nowrap;">Keine Farbe</span>
+            <input type="range" id="g_saturation" min="0" max="100" value="100" style="flex:1;accent-color:var(--accent);" oninput="applyColorSaturation(this.value)">
+            <span style="font-size:.72rem;color:var(--muted);white-space:nowrap;">Volle Farbe</span>
+          </div>
+          <div style="font-size:.7rem;color:var(--muted);">Wirkt auf Saal-Boxen, Zeitleiste und Filmpool.</div>
+          <div id="satPreview" style="display:flex;gap:6px;margin-top:2px;"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="ph"><h3>Datensicherung</h3></div>
+        <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="font-size:.78rem;color:var(--muted2);">Alle Daten als JSON-Datei auf deinen Computer herunterladen.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-g btn-sm" onclick="downloadBackupJson()">⬇️ JSON-Backup herunterladen</button>
+            <button class="btn btn-s btn-sm" onclick="saveSupabaseBackup()">☁️ Backup auf Server</button>
+          </div>
+          <div id="backupInfo" style="font-size:.7rem;color:var(--muted);"></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;max-width:360px;">
+      <button class="btn btn-p" onclick="saveGeneralSettings()">💾 Sichern</button>
+    </div>
+  </div>
+
+  <!-- BENUTZERVERWALTUNG -->
+  <div id="stab-content-users" style="display:none!important;">
+    <div class="ptitle">BENUTZERVERWALTUNG</div>
+    <div class="psub">Admin-PIN und Mitarbeiter-PINs verwalten · nur für Admins sichtbar</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:780px;">
+      <div class="panel">
+        <div class="ph"><h3>Admin-PIN</h3><span class="role-badge role-admin">Admin</span></div>
+        <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div class="field"><label>Aktueller Admin-PIN</label><input type="password" id="u_adminOld" maxlength="8" placeholder="Aktuellen PIN eingeben"></div>
+          <div class="field"><label>Neuer Admin-PIN (4–8 Ziffern)</label><input type="password" id="u_adminNew" maxlength="8" placeholder="z.B. 4729"></div>
+          <div class="field"><label>Wiederholen</label><input type="password" id="u_adminNew2" maxlength="8" placeholder="Wiederholen"></div>
+          <button class="btn btn-p btn-sm" onclick="changeAdminPin()">PIN ändern</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><h3>Mitarbeiter-PINs</h3><span class="role-badge role-staff">Mitarbeiter</span></div>
+        <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div class="psub" style="margin-bottom:0;font-size:.72rem;">Mitarbeiter können die Zeitleiste ansehen und Besucherzahlen eintragen. Sie können nichts bearbeiten.</div>
+          <div class="user-list" id="staffPinList"></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+            <input type="password" id="u_newStaff" maxlength="8" placeholder="Neuer Mitarbeiter-PIN" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.84rem;flex:1;">
+            <input type="text" id="u_newStaffName" maxlength="30" placeholder="Name (optional)" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.84rem;flex:1;">
+            <button class="btn btn-p btn-sm" onclick="addStaffPin()">＋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SÄLE settings -->
+  <div id="stab-content-saale" style="display:none;">
+    <div class="ptitle">SAAL-EINSTELLUNGEN</div>
+    <div class="psub">3D / IMAX-Info und Platzzahl pro Saal</div>
+    <div class="settings-grid" id="saalSettingsGrid">
+      <!-- filled by renderSettingsSaale() -->
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-p" onclick="saveSaalSettings()">💾 Sichern</button>
+    </div>
+  </div>
+
+</div>
+
+</main>
+
+<!-- Modals -->
+<div class="modal-bg" id="editFilmModal">
+  <div class="modal"><h3>Film bearbeiten</h3>
+    <div class="mf">
+      <div class="field"><label>Filmtitel *</label><input type="text" id="em_t"></div>
+      <div class="field"><label>Filmlänge (Min) *</label><input type="number" id="em_l" min="1"></div>
+      <div class="field"><label>Abspannzeit (Min)</label><input type="number" id="em_cr" min="0" value="0"></div>
+      <div class="field"><label>FSK</label><select id="em_fsk"><option value="-1">– keine –</option><option value="0">FSK 0</option><option value="6">FSK 6</option><option value="12">FSK 12</option><option value="16">FSK 16</option><option value="18">FSK 18</option></select></div>
+      <div class="field"><label>Spielwoche</label><input type="number" id="em_week" placeholder="z.B. 1" min="1" max="53"></div>
+    </div>
+    <div class="mac"><button class="btn btn-s" onclick="closeModal('editFilmModal')">Abbrechen</button><button class="btn btn-p" onclick="saveFilmEdit()">Speichern</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="addFilmWithSaalModal">
+  <div class="modal" style="max-width:480px;">
+    <h3>🎬 Film anlegen & in Saal einfügen</h3>
+    <div class="mf">
+      <div class="field full"><label>Filmtitel *</label><input type="text" id="aws_title" placeholder="z.B. Dune Part Three" onkeydown="if(event.key==='Enter')document.getElementById('aws_len').focus()"></div>
+      <div class="field"><label>Filmlänge (Min) *</label><input type="number" id="aws_len" placeholder="130" min="1"></div>
+      <div class="field"><label>Abspannzeit (Min)</label><input type="number" id="aws_cr" placeholder="5" min="0" value="5"></div>
+      <div class="field"><label>FSK</label><select id="aws_fsk"><option value="-1">– keine –</option><option value="0">FSK 0</option><option value="6">FSK 6</option><option value="12">FSK 12</option><option value="16">FSK 16</option><option value="18">FSK 18</option></select></div>
+      <div class="field"><label>Spielwoche</label><input type="number" id="aws_week" placeholder="z.B. 1" min="1" max="53"></div>
+      <div class="field"><label>In Saal einfügen</label>
+        <select id="aws_saal" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.84rem;">
+          <option value="">– Nur anlegen –</option>
+          <option value="1">Saal 1</option><option value="2">Saal 2</option><option value="3">Saal 3</option>
+          <option value="4">Saal 4</option><option value="5">Saal 5</option><option value="6">Saal 6</option>
+          <option value="7">Saal 7</option><option value="8">Saal 8</option><option value="9">Saal 9</option>
+        </select>
+      </div>
+      <div class="field full"><label>Einlasszeiten <span style="font-size:.68rem;color:var(--muted);">(mehrere mit Leerzeichen: 1300 1700 2000)</span></label><input type="text" id="aws_time" placeholder="1300 1700 2000" style="width:100%;"></div>
+    </div>
+    <div class="mac">
+      <button class="btn btn-s" onclick="closeModal('addFilmWithSaalModal')">Abbrechen</button>
+      <button class="btn btn-p" onclick="confirmAddFilmWithSaal()">🎬 Film anlegen</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="copyFilmModal">
+  <div class="modal" style="max-width:480px;">
+    <h3>📋 Film kopieren</h3>
+    <div class="mf">
+      <div class="field full"><label>Filmtitel *</label><input type="text" id="cf_title"></div>
+      <div class="field"><label>Filmlänge (Min) *</label><input type="number" id="cf_len" min="1"></div>
+      <div class="field"><label>Abspannzeit (Min)</label><input type="number" id="cf_cr" min="0"></div>
+      <div class="field"><label>FSK</label><select id="cf_fsk"><option value="-1">– keine –</option><option value="0">FSK 0</option><option value="6">FSK 6</option><option value="12">FSK 12</option><option value="16">FSK 16</option><option value="18">FSK 18</option></select></div>
+      <div class="field"><label>Spielwoche</label><input type="number" id="cf_week" min="1" max="53"></div>
+    </div>
+    <div class="mac">
+      <button class="btn btn-s" onclick="closeModal('copyFilmModal')">Abbrechen</button>
+      <button class="btn btn-p" onclick="confirmCopyFilm()">📋 Kopie anlegen</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="einlasszeitModal">
+  <div class="modal" style="max-width:400px;">
+    <h3>⏰ Einlasszeit eingeben</h3>
+    <p style="font-size:.82rem;color:var(--muted2);margin-bottom:6px;"><strong id="ezm_title"></strong> · <span id="ezm_saal"></span></p>
+    <div class="mf">
+      <div class="field full">
+        <label>Einlasszeit(en) <span style="font-size:.68rem;color:var(--muted);">Mehrere mit Leerzeichen: 1300 1700 2000</span></label>
+        <input type="text" id="ezm_time" placeholder="1300 1700 2000" style="width:100%;"
+          onkeydown="if(event.key==='Enter') confirmEinlasszeit()">
+      </div>
+    </div>
+    <div class="mac">
+      <button class="btn btn-s" onclick="closeModal('einlasszeitModal')">Überspringen</button>
+      <button class="btn btn-p" onclick="confirmEinlasszeit()">Einfügen</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="addDayModal">
+  <div class="modal"><h3>Tag hinzufügen</h3>
+    <div class="mf"><div class="field"><label>Datum *</label><input type="date" id="nd_date"></div></div>
+    <div class="mac"><button class="btn btn-s" onclick="closeModal('addDayModal')">Abbrechen</button><button class="btn btn-p" onclick="confirmAddDay()">Hinzufügen</button></div>
+  </div>
+</div>
+<div class="modal-bg" id="copyDayModal">
+  <div class="modal"><h3>Tag kopieren</h3>
+    <p style="font-size:.79rem;color:var(--muted);margin-bottom:11px;">Vorstellungen des aktuellen Tages übernehmen.</p>
+    <div class="mf"><div class="field"><label>Zieldatum *</label><input type="date" id="cp_date"></div><label style="display:flex;align-items:center;gap:7px;font-size:.78rem;cursor:pointer;"><input type="checkbox" id="cp_times" style="width:auto;" checked> Startzeiten übernehmen</label><label style="display:flex;align-items:center;gap:7px;font-size:.78rem;cursor:pointer;margin-top:6px;"><input type="checkbox" id="cp_ads" style="width:auto;"> Werbezeiten übernehmen <span style="color:var(--muted);font-size:.7rem;">(sonst: 30 Min)</span></label></div>
+    <div class="mac"><button class="btn btn-s" onclick="closeModal('copyDayModal')">Abbrechen</button><button class="btn btn-p" onclick="confirmCopyDay()">Kopieren</button></div>
+  </div>
+</div>
+<div class="modal-bg" id="conflictModal">
+  <div class="modal">
+    <h3>⚠️ Veraltete Datei erkannt</h3>
+    <p style="font-size:.82rem;color:var(--muted2);margin-bottom:14px;">Die Datei die du laden möchtest ist <strong style="color:var(--red);">älter</strong> als deine aktuellen Daten.</p>
+    <div style="background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:12px 14px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.72rem;color:var(--muted);">📱 Aktuelle Daten:</span>
+        <span id="conflictCurrent" style="font-size:.78rem;font-weight:600;color:var(--green);"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.72rem;color:var(--muted);">📂 Geladene Datei:</span>
+        <span id="conflictIncoming" style="font-size:.78rem;font-weight:600;color:var(--red);"></span>
+      </div>
+    </div>
+    <p style="font-size:.76rem;color:var(--muted);margin-bottom:14px;">Wenn du trotzdem lädst, gehen neuere Änderungen verloren. Bitte sicherstellen, dass du die <strong>neueste Version</strong> der Datei verwendest.</p>
+    <div class="mac">
+      <button class="btn btn-s" onclick="closeModal('conflictModal')">Abbrechen – aktuelle Daten behalten</button>
+      <button class="btn btn-d" onclick="conflictForceLoad()">⚠️ Trotzdem laden</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+
+// ══════════════════════════════════════════════
+//  SUPABASE INTEGRATION
+// ══════════════════════════════════════════════
+const _SB_URL = 'https://bzoewjopqhdundcfwpww.supabase.co';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6b2V3am9wcWhkdW5kY2Z3cHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDk0OTQsImV4cCI6MjA5MjEyNTQ5NH0.gj-BCQ20LZLGQmch1WqWvHLVcO65LnAp96Kym4ZrNUs';
+let _sbSess = null;
+
+async function sbInit() {
+  // Session aus sessionStorage-Backup wiederherstellen (z.B. nach Import-Rückkehr)
+  const bak = sessionStorage.getItem('csp_session_bak');
+  if (bak && bak !== 'null' && !localStorage.getItem('csp_session')) {
+    localStorage.setItem('csp_session', bak);
+  }
+  sessionStorage.removeItem('csp_session_bak');
+  _sbSess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!_sbSess?.token || _sbSess.rolle !== 'programmplanung') {
+    window.location.href = 'index.html'; return;
+  }
+  document.getElementById('sbUserLabel').textContent = '👑 ' + (_sbSess.name || 'Programmplanung');
+
+  // Presence setzen/erneuern beim Laden der Seite
+  try {
+    const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+    const lastSeen  = new Date().toISOString();
+    await fetch(`${_SB_URL}/rest/v1/cineschedule_presence`, {
+      method: 'POST',
+      headers: {
+        'apikey': _SB_KEY,
+        'Authorization': `Bearer ${_sbSess.token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        rolle: 'programmplanung',
+        user_name: _sbSess.name || 'Programmplanung',
+        expires_at: expiresAt,
+        last_seen: lastSeen
+      })
+    });
+  } catch(e) { console.warn('Presence-Init fehlgeschlagen:', e); }
+
+  await loadFromServer();
+  document.getElementById('sbLoadingOverlay').style.display = 'none';
+}
+
+async function clearPresence(keepalive=false) {
+  try {
+    const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+    if (!sess?.token || !sess?.rolle || sess.rolle !== 'programmplanung') return;
+    await fetch(`https://bzoewjopqhdundcfwpww.supabase.co/rest/v1/cineschedule_presence?rolle=eq.${sess.rolle}`, {
+      method: 'DELETE',
+      keepalive,  // true = funktioniert auch beim Schließen des Browsers
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6b2V3am9wcWhkdW5kY2Z3cHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDk0OTQsImV4cCI6MjA5MjEyNTQ5NH0.gj-BCQ20LZLGQmch1WqWvHLVcO65LnAp96Kym4ZrNUs',
+        'Authorization': `Bearer ${sess.token}`
+      }
+    });
+  } catch(e) { console.warn('Presence-Clear fehlgeschlagen:', e); }
+}
+async function sbLogout() {
+  await clearPresence();
+  await saveSupabaseBackup().catch(()=>{});
+  localStorage.removeItem('csp_session');
+  window.location.href = 'index.html';
+}
+
+// ── DATENSICHERUNG ───────────────────────────────────────────
+function downloadBackupJson(){
+  const today = new Date().toISOString().slice(0,10);
+  const time  = new Date().toTimeString().slice(0,5).replace(':','-');
+  const fname = `CineSchedule_Backup_${today}_${time}.json`;
+  const json  = JSON.stringify(DB, null, 2);
+  const blob  = new Blob([json], { type: 'application/json' });
+  const a     = document.createElement('a');
+  a.href      = URL.createObjectURL(blob);
+  a.download  = fname;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  const info = document.getElementById('backupInfo');
+  if(info) info.textContent = `✓ ${fname} heruntergeladen`;
+  toast('⬇️ Backup heruntergeladen: ' + fname, 'ok');
+}
+
+async function saveSupabaseBackup(){
+  if(!_sbSess?.token) return;
+  const filmCount = DB.films?.length || 0;
+  const dayCount  = Object.keys(DB.days||{}).length;
+  if(filmCount===0 && dayCount===0){ toast('Keine Daten zum Sichern','err'); return; }
+  try {
+    const ts = new Date().toISOString();
+    const r = await fetch(`${_SB_URL}/rest/v1/cineschedule_backup?id=eq.backup`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': _SB_KEY,
+        'Authorization': `Bearer ${_sbSess.token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ data: { ...DB, _backupAt: ts }, updated_at: ts })
+    });
+    if(r.ok){
+      const info = document.getElementById('backupInfo');
+      const fmt = new Date(ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      if(info) info.textContent = `☁️ Server-Backup: ${fmt}`;
+      toast('☁️ Server-Backup gespeichert ✓', 'ok');
+    } else { toast('Fehler beim Server-Backup!', 'err'); }
+  } catch(e){ toast('Verbindungsfehler beim Backup!', 'err'); }
+}
+
+async function saveToServer() {
+  if (!_sbSess?.token) { toast('Nicht angemeldet!', 'err'); return; }
+
+  // ── SICHERHEITSPRÜFUNG: Niemals leere DB speichern ──────────
+  const filmCount = DB.films?.length || 0;
+  const dayCount  = Object.keys(DB.days || {}).length;
+  const archCount = Object.keys(DB.archive || {}).length;
+  if (filmCount === 0 && dayCount === 0 && archCount === 0) {
+    console.warn('saveToServer: DB ist leer – Speichern abgebrochen');
+    return; // Stille Verweigerung — kein Toast um den User nicht zu verwirren
+  }
+
+  // ── KONFLIKTPRÜFUNG: Server-Zeitstempel zuerst prüfen ───────
+  try {
+    const check = await fetch(`${_SB_URL}/rest/v1/cineschedule?id=eq.main&select=updated_at`, {
+      headers: { 'apikey': _SB_KEY, 'Authorization': `Bearer ${_sbSess.token}` }
+    });
+    const rows = await check.json();
+    if (rows[0]?.updated_at) {
+      const serverTime = new Date(rows[0].updated_at).getTime();
+      const localTime  = DB._savedAt ? new Date(DB._savedAt).getTime() : 0;
+      if (serverTime > localTime + 5000) {
+        // Server hat neuere Daten — nicht überschreiben
+        toast('⚠️ Neuere Daten auf dem Server – bitte erst Aktualisieren!', 'err');
+        return;
+      }
+    }
+  } catch(e) { /* Netzwerkfehler bei Prüfung — trotzdem speichern */ }
+
+  DB._savedAt = new Date().toISOString();
+  localStorage.setItem('csp_db', JSON.stringify(DB));
+  try {
+    const r = await fetch(`${_SB_URL}/rest/v1/cineschedule?id=eq.main`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': _SB_KEY,
+        'Authorization': `Bearer ${_sbSess.token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ data: DB, updated_at: DB._savedAt })
+    });
+    if (r.ok){ toast('💾 Gesichert ✓', 'ok'); localStorage.setItem('csp_server_updated_at', DB._savedAt); }
+    else toast('Fehler beim Speichern!', 'err');
+  } catch(e) { toast('Verbindungsfehler!', 'err'); }
+}
+
+// Flag: true sobald Daten erfolgreich vom Server geladen wurden
+let _dbLoaded = false;
+
+function persistDB(){
+  // Nur speichern wenn Daten tatsächlich vom Server geladen wurden
+  if (!_dbLoaded) return;
+  DB._savedAt = new Date().toISOString();
+  saveToServer();
+}
+
+async function loadFromServer() {
+  if (!_sbSess?.token) return;
+  try {
+    const r = await fetch(`${_SB_URL}/rest/v1/cineschedule?id=eq.main&select=data`, {
+      headers: { 'apikey': _SB_KEY, 'Authorization': `Bearer ${_sbSess.token}` }
+    });
+    const rows = await r.json();
+    if (rows[0]?.data) {
+      const data = rows[0].data;
+      if (!data.films && !data.days) { toast('Ungültige Serverdaten!', 'err'); return; }
+      const incomingTime = data._savedAt ? new Date(data._savedAt).getTime() : 0;
+      const currentTime  = DB._savedAt   ? new Date(DB._savedAt).getTime()   : 0;
+      const fmt = ts => ts ? new Date(ts).toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Unbekannt';
+      if (currentTime > 0 && incomingTime > 0 && incomingTime < currentTime - 60000) {
+        _pendingLoadData = data;
+        document.getElementById('conflictCurrent').textContent = fmt(DB._savedAt);
+        document.getElementById('conflictIncoming').textContent = fmt(data._savedAt);
+        openModal('conflictModal'); return;
+      }
+      applyLoadedData(data);
+      if(rows[0]?.updated_at) localStorage.setItem('csp_server_updated_at', rows[0].updated_at);
+      toast('☁️ Serverdaten geladen ✓', 'ok');
+    }
+  } catch(e) { toast('Verbindungsfehler beim Laden!', 'err'); }
+}
+
+
+const _origSaveFile = window.saveFile;
+
+
+// ── TOKEN AUTO-REFRESH (alle 45 Min) ────────────────────────
+async function refreshToken() {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  if (!sess?.refreshToken) return;
+  try {
+    const r = await fetch(`${_SB_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': _SB_KEY },
+      body: JSON.stringify({ refresh_token: sess.refreshToken })
+    });
+    const data = await r.json();
+    if (data.access_token) {
+      sess.token = data.access_token;
+      sess.refreshToken = data.refresh_token || sess.refreshToken;
+      localStorage.setItem('csp_session', JSON.stringify(sess));
+      _sbSess = sess;
+    } else {
+      // Token nicht mehr gültig → neu einloggen
+      localStorage.removeItem('csp_session');
+      window.location.href = 'index.html';
+    }
+  } catch(e) { console.warn('Token-Refresh fehlgeschlagen', e); }
+}
+// Alle 45 Minuten erneuern
+setInterval(refreshToken, 45 * 60 * 1000);
+
+
+// ── AUTO-LOGOUT nach Inaktivität ────────────────────────────
+let _lastActivity = Date.now();
+const _AUTO_LOGOUT_MS = 60 * 60 * 1000; // 1 Stunde
+['click','keydown','mousemove','touchstart'].forEach(ev =>
+  document.addEventListener(ev, () => { _lastActivity = Date.now(); }, { passive: true })
+);
+setInterval(() => {
+  if (!_sbSess?.token) return;
+  if (Date.now() - _lastActivity > _AUTO_LOGOUT_MS) {
+    sbLogout();
+  }
+}, 60 * 1000); // jede Minute prüfen
+
+
+
+
+// Auto-init on load
+window.addEventListener('load', () => { sbInit(); });
+
+// ── AUTO-SAVE beim Verlassen/Schließen der Seite ────────────
+window.addEventListener('beforeunload', (e) => {
+  if (!_sbSess?.token) return;
+  if (!_dbLoaded) return;
+  const filmCount = DB.films?.length || 0;
+  const dayCount  = Object.keys(DB.days || {}).length;
+  if (filmCount === 0 && dayCount === 0) return;
+  // Konfliktprüfung: nicht speichern wenn Server neuer ist
+  const serverTimeStr = localStorage.getItem('csp_server_updated_at');
+  if (serverTimeStr) {
+    const serverTime = new Date(serverTimeStr).getTime();
+    const localTime  = DB._savedAt ? new Date(DB._savedAt).getTime() : 0;
+    if (serverTime > localTime + 5000) return; // Server neuer — nicht überschreiben
+  }
+  DB._savedAt = new Date().toISOString();
+  const payload = JSON.stringify({ data: DB, updated_at: DB._savedAt });
+  fetch(`${_SB_URL}/rest/v1/cineschedule?id=eq.main`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': _SB_KEY,
+      'Authorization': `Bearer ${_sbSess.token}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: payload,
+    keepalive: true
+  });
+});
+
+
+// URL-Parameter: ?step=2 → direkt zum Tab springen
+window.addEventListener('load', () => {
+  const p = new URLSearchParams(window.location.search).get('step');
+  if (p) { const n = parseInt(p); if(n>=1&&n<=4) setTimeout(()=>goStep(n),300); }
+});
+
+
+/* ══════════════════════════════════════════════
+   STORAGE — localStorage as cache + JSON export
+══════════════════════════════════════════════ */
+const SK = 'csp_v6';
+let DB = { films:[], days:{}, archive:{} };
+
+function loadDB(){
+  try{ const raw=localStorage.getItem(SK); if(raw) DB=JSON.parse(raw); }catch(e){}
+  if(!DB.films) DB.films=[];
+  if(!DB.days)  DB.days={};
+  if(!DB.archive) DB.archive={};
+  if(!DB.users) DB.users={ adminPin:'1234', staff:[] };
+  if(!DB.users.adminPin) DB.users.adminPin='1234';
+  if(!DB.users.staff) DB.users.staff=[];
+}
+function persistDB(){
+  DB._savedAt = new Date().toISOString();
+  saveToServer(); // direkt auf Server sichern
+}
+
+// ── LOKALE DATEI-SYNC (File System Access API) ─────────────
+// ── DATEI-HANDLES (werden pro Session gemerkt) ─────────────
+let _fileHandle = null;      // Hauptdatei
+
+// Beim Laden: Handle-Verfügbarkeit prüfen (können nicht persistent gespeichert werden,
+// daher wird beim ersten Speichern einmalig nach dem Speicherort gefragt)
+
+async function saveToFile(){
+  await saveToServer();
+}
+
+let _pendingLoadData = null; // hält Daten die auf Bestätigung warten
+
+function loadFromFile(evt){
+  const file = evt.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.films&&!data.days){ toast('Ungültige Datei!','err'); return; }
+
+      // ── Konflikt-Erkennung ──
+      const incomingTime = data._savedAt ? new Date(data._savedAt).getTime() : 0;
+      const currentTime  = DB._savedAt   ? new Date(DB._savedAt).getTime()   : 0;
+      const fmt = ts => ts ? new Date(ts).toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Unbekannt';
+
+      if(currentTime > 0 && incomingTime > 0 && incomingTime < currentTime - 60000){
+        // Eingehende Datei ist mehr als 1 Minute älter → Warnung
+        _pendingLoadData = data;
+        document.getElementById('conflictCurrent').textContent = fmt(DB._savedAt);
+        document.getElementById('conflictIncoming').textContent = fmt(data._savedAt);
+        openModal('conflictModal');
+        return;
+      }
+
+      if(incomingTime > 0 && currentTime > 0 && Math.abs(incomingTime-currentTime) < 60000){
+        // Nahezu gleich
+        toast('Datei ist auf dem gleichen Stand ✓','info');
+      }
+
+      applyLoadedData(data);
+    }catch(ex){ toast('Fehler beim Laden!','err'); }
+  };
+  reader.readAsText(file);
+  evt.target.value='';
+}
+
+function conflictForceLoad(){
+  closeModal('conflictModal');
+  if(_pendingLoadData){ applyLoadedData(_pendingLoadData); _pendingLoadData=null; }
+}
+
+function applyLoadedData(data){
+  DB = data;
+  if(!DB.films) DB.films=[];
+  if(!DB.days) DB.days={};
+  if(!DB.archive) DB.archive={};
+  if(!DB.users) DB.users={adminPin:'1234',staff:[]};
+  if(!DB.filmArchive) DB.filmArchive=[];
+  if(!DB.dayArchive) DB.dayArchive={};   // ← NEU: dayArchive initialisieren
+  _fileHandle = null;
+
+  // Alte Spieltage archivieren BEVOR curDay gesetzt wird
+  autoArchivePastDays();
+
+  // curDay nach Laden setzen — heutiges Datum bevorzugen (lokale Zeit!)
+  const _td = new Date();
+  const todayKey = `${_td.getFullYear()}-${String(_td.getMonth()+1).padStart(2,'0')}-${String(_td.getDate()).padStart(2,'0')}`;
+  const sortedDays = Object.keys(DB.days).sort();
+  if(DB.days[todayKey]) curDay = todayKey;
+  else if(sortedDays.length) curDay = sortedDays[sortedDays.length-1];
+  _dbLoaded = true;
+  persistDB(); resetColors();
+  // Prüfen ob von Import-Seite zurückgekehrt → auf Zeitleiste springen
+  const _gotoStep = sessionStorage.getItem('csp_goto');
+  if (_gotoStep) {
+    sessionStorage.removeItem('csp_goto');
+    setTimeout(() => goStep(parseInt(_gotoStep)), 400);
+  }
+  renderFilmList(); renderDayTabs(); syncCleanupInput(); renderPool(); renderSaale(); renderArchive();
+  renderDayArchive(); renderDayCount();
+  updateFreshnessBox(DB._savedAt, true);
+  cleanExpiredArchive();
+  toast('Daten geladen ✓','ok');
+}
+
+function updateFreshnessBox(savedAt, isFresh){
+  const box = document.getElementById('dataFreshnessBox');
+  const dateEl = document.getElementById('dataFreshnessDate');
+  if(!box||!dateEl) return;
+  if(savedAt){
+    const d = new Date(savedAt);
+    const fmt = d.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    dateEl.textContent = fmt;
+    dateEl.style.color = isFresh ? 'var(--green)' : 'var(--accent)';
+    box.style.borderColor = isFresh ? 'rgba(46,216,122,.4)' : 'rgba(240,192,64,.4)';
+  }
+  box.style.display = 'block';
+}
+
+function getDays(){ return DB.days; }
+function getArchive(){ return DB.archive; }
+
+loadDB();
+
+/* ══════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════ */
+const COLORS=[
+  ['#3d2e1e','#6b4c2a'],  // Erdbraun
+  ['#1e2e3d','#2a4a5e'],  // Stahlblau
+  ['#2e3d1e','#4a6b2a'],  // Moosgrün
+  ['#3d1e2e','#6b2a4a'],  // Altrosa
+  ['#2e2e1e','#5e5a2a'],  // Olivgelb
+  ['#1e3d3a','#2a6b62'],  // Salbeigrün
+  ['#3a2a1e','#7a5a38'],  // Terrakotta
+  ['#1e243d','#2a3870'],  // Lavendel-Indigo
+  ['#3d2e1e','#7a5c3a'],  // Sandbraun
+  ['#1e3d2e','#2a6b4a'],  // Eukalyptus
+  ['#2e1e3a','#5a3870'],  // Pflaume
+  ['#3a3028','#6e5c40'],  // Warmgrau-Braun
+];
+let cmap={},cidx=0;
+function fc(id){ if(!cmap[id]) cmap[id]=COLORS[cidx++%COLORS.length]; return cmap[id]; }
+function resetColors(){ cmap={}; cidx=0; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function t2m(t){ const[h,m]=t.split(':').map(Number); return h*60+m; }
+function m2t(m){ const h=Math.floor(m/60)%24,mn=m%60; return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`; }
+function fmtDate(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'}); }catch(e){ return d; }}
+function fmtDateLong(d){ try{ return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); }catch(e){ return d; }}
+
+/* Cinema week key (Thu–Wed) */
+function getWeekKey(dateStr){
+  const d=new Date(dateStr+'T12:00:00'), dow=d.getDay();
+  const sinceThur=(dow+3)%7;
+  const thu=new Date(d); thu.setDate(d.getDate()-sinceThur);
+  return thu.toISOString().split('T')[0];
+}
+function getWeekLabel(thuStr){
+  const thu=new Date(thuStr+'T12:00:00'), wed=new Date(thu); wed.setDate(thu.getDate()+6);
+  const fmt=dt=>dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const startOfYear=new Date(thu.getFullYear()+'-01-01T12:00:00');
+  const dow=startOfYear.getDay(), dtt=(4-dow+7)%7;
+  const firstThu=new Date(startOfYear); firstThu.setDate(startOfYear.getDate()+dtt);
+  const wn=Math.max(1,Math.round((thu-firstThu)/(7*864e5))+1);
+  return `Kinowoche ${wn} / ${thu.getFullYear()} · ${fmt(thu)} – ${fmt(wed)}`;
+}
+
+/* Current day helpers */
+let curDay='';
+function curData(){ if(!curDay) return null; if(!DB.days[curDay]) DB.days[curDay]={cleanup:30,saale:{}}; return DB.days[curDay]; }
+function curSaale(){ const d=curData(); return d?d.saale:{}; }
+function curCleanup(){ const d=curData(); return d?d.cleanup:30; }
+
+// Init curDay
+(function(){ const sorted=Object.keys(DB.days).sort(); if(sorted.length) curDay=sorted[sorted.length-1]; })();
+
+/* ══════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════ */
+let activeView='timeline';
+let editFilmId=null, dragId=null, archPreviewId=null;
+
+function goStep(n){
+  // Rollencheck via Supabase bereits erledigt
+  if(n>=2&&n<=2&&!DB.films.length){ toast('Zuerst Filme anlegen!','err'); return; }
+  if(n===2&&!curDay&&!Object.keys(DB.days||{}).length){ openAddDay(); return; }
+  if(n===2&&!curDay&&Object.keys(DB.days||{}).length){ curDay=Object.keys(DB.days).sort().pop(); }
+  if(n===3){
+    // curDay sicherstellen bevor Zeitleiste aufgebaut wird
+    if(!curDay){ const days=Object.keys(DB.days||{}).sort(); if(days.length) curDay=days[days.length-1]; }
+    if(!curDay){ toast('Bitte zuerst einen Spieltag anlegen!','err'); return; }
+    if(!buildTimeline()) return;
+  }
+  if(n===4){ setTimeout(()=>{ loadGeneralSettings(); switchSettingsTab('general'); },50); }
+  goStepInternal(n);
+}
+
+/* ══════════════════════════════════════════════
+   STEP 1 – FILMS
+══════════════════════════════════════════════ */
+function addFilm(){
+  const t=document.getElementById('f_title').value.trim();
+  const l=parseInt(document.getElementById('f_len').value);
+  const cr=parseInt(document.getElementById('f_credits').value)||0;
+  const fsk=parseInt(document.getElementById('f_fsk').value);
+  const week=parseInt(document.getElementById('f_week').value)||0;
+  if(!t){ toast('Titel eingeben!','err'); return; }
+  if(!l||l<1){ toast('Filmlänge eingeben!','err'); return; }
+  const dup=DB.films.find(f=>f.title.toLowerCase()===t.toLowerCase());
+  if(dup){
+    if(!confirm(`„${t}" existiert bereits. Trotzdem anlegen?`)) return;
+  }
+  DB.films.push({id:uid(),title:t,len:l,credits:cr,fsk,week});
+  persistDB(); renderFilmList();
+  document.getElementById('f_title').value=''; document.getElementById('f_len').value=''; document.getElementById('f_credits').value='5'; document.getElementById('f_fsk').value='-1'; document.getElementById('f_week').value='';
+  document.getElementById('f_title').focus();
+  toast('Film gespeichert ✓','ok');
+}
+
+function copyFilm(id){
+  const f=DB.films.find(f=>f.id===id); if(!f) return;
+  // Popup öffnen mit vorausgefüllten Werten
+  document.getElementById('cf_title').value=f.title+' (Kopie)';
+  document.getElementById('cf_len').value=f.len;
+  document.getElementById('cf_cr').value=f.credits||0;
+  document.getElementById('cf_fsk').value=f.fsk!=null?f.fsk:'-1';
+  document.getElementById('cf_week').value=f.week||'';
+  openModal('copyFilmModal');
+}
+
+function confirmCopyFilm(){
+  const t=document.getElementById('cf_title').value.trim();
+  const l=parseInt(document.getElementById('cf_len').value);
+  const cr=parseInt(document.getElementById('cf_cr').value)||0;
+  const fsk=parseInt(document.getElementById('cf_fsk').value);
+  const week=parseInt(document.getElementById('cf_week').value)||0;
+  if(!t||!l){ toast('Pflichtfelder ausfüllen!','err'); return; }
+  const copy={id:uid(),title:t,len:l,credits:cr,fsk,week};
+  DB.films.push(copy); persistDB(); renderFilmList();
+  closeModal('copyFilmModal');
+  toast(`„${t}" angelegt ✓`,'ok');
+}
+
+function openAddFilmWithSaal(saal){
+  // Saal vorbelegen und Modal öffnen
+  const sel=document.getElementById('aws_saal');
+  if(sel) sel.value=String(saal);
+  // Felder zurücksetzen
+  ['aws_title','aws_len','aws_time'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const cr=document.getElementById('aws_cr'); if(cr) cr.value='5';
+  const fsk=document.getElementById('aws_fsk'); if(fsk) fsk.value='-1';
+  const wk=document.getElementById('aws_week'); if(wk) wk.value='';
+  openModal('addFilmWithSaalModal');
+  setTimeout(()=>document.getElementById('aws_title')?.focus(),100);
+}
+
+function confirmAddFilmWithSaal(){
+  const t=document.getElementById('aws_title').value.trim();
+  const l=parseInt(document.getElementById('aws_len').value);
+  const cr=parseInt(document.getElementById('aws_cr').value)||0;
+  const fsk=parseInt(document.getElementById('aws_fsk').value);
+  const week=parseInt(document.getElementById('aws_week').value)||0;
+  const saal=document.getElementById('aws_saal').value;
+  const timeRaw=document.getElementById('aws_time').value.trim();
+  if(!t){ toast('Titel eingeben!','err'); return; }
+  if(!l||l<1){ toast('Filmlänge eingeben!','err'); return; }
+  const dup=DB.films.find(f=>f.title.toLowerCase()===t.toLowerCase());
+  if(dup && !confirm(`„${t}" existiert bereits. Trotzdem anlegen?`)) return;
+  const newFilm={id:uid(),title:t,len:l,credits:cr,fsk,week};
+  DB.films.push(newFilm);
+  if(saal && curDay){
+    const d=curData(); if(d){
+      if(!d.saale[saal]) d.saale[saal]=[];
+      const times=timeRaw?timeRaw.split(/[\s,;]+/).map(x=>x.trim()).filter(x=>x):[''];
+      times.forEach(rawT=>{
+        if(d.saale[saal].length>=10) return;
+        let startzeit='';
+        const clean=rawT.replace(':','').replace(/[^0-9]/g,'');
+        if(clean.length>=3&&clean.length<=4){
+          const h=clean.length===4?clean.slice(0,2):('0'+clean.slice(0,1));
+          const m=clean.slice(-2);
+          if(parseInt(m)<=59) startzeit=h+':'+m;
+        }
+        d.saale[saal].push({filmId:newFilm.id,startzeit,ads:30});
+      });
+    }
+  }
+  persistDB(); renderFilmList(); renderPool(); if(saal&&curDay) renderSaale();
+  // Felder zurücksetzen
+  ['aws_title','aws_len','aws_time'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('aws_cr').value='5';
+  document.getElementById('aws_fsk').value='-1';
+  document.getElementById('aws_week').value='';
+  document.getElementById('aws_saal').value='';
+  closeModal('addFilmWithSaalModal');
+  toast(`„${t}" angelegt${saal?' und in Saal '+saal+' eingefügt':''}✓`,'ok');
+}
+
+function fmtTimeInput(inp){
+  let v=inp.value.replace(/[^0-9]/g,'');
+  if(v.length>4) v=v.slice(0,4);
+  if(v.length>=3) inp.value=v.slice(0,2)+':'+v.slice(2,4);
+  else inp.value=v;
+}
+
+function archiveFilm(id, isUsed=false){
+  if(isUsed && !confirm('Dieser Film ist im Spielplan. Trotzdem archivieren?')) return;
+  if(!isUsed && !confirm('Film archivieren? Er wird aus dem Katalog entfernt und nach 4 Wochen automatisch gelöscht.')) return;
+  if(!DB.filmArchive) DB.filmArchive=[];
+  const f=DB.films.find(f=>f.id===id); if(!f) return;
+  f.archivedAt=Date.now();
+  DB.filmArchive.push(f);
+  DB.films=DB.films.filter(f=>f.id!==id);
+  persistDB(); renderFilmList(); renderPool();
+  toast(`„${f.title}" archiviert ✓`,'ok');
+}
+
+function restoreFilm(id){
+  if(!DB.filmArchive) return;
+  const f=DB.filmArchive.find(f=>f.id===id); if(!f) return;
+  delete f.archivedAt;
+  DB.films.push(f);
+  DB.filmArchive=DB.filmArchive.filter(f=>f.id!==id);
+  persistDB(); renderFilmList(); renderPool();
+  toast(`„${f.title}" wiederhergestellt ✓`,'ok');
+}
+
+function deleteArchivedFilm(id){
+  if(!DB.filmArchive) return;
+  const f=DB.filmArchive.find(f=>f.id===id); if(!f) return;
+  if(!confirm(`„${f.title}" endgültig löschen? Dies kann nicht rückgängig gemacht werden.`)) return;
+  DB.filmArchive=DB.filmArchive.filter(f=>f.id!==id);
+  persistDB(); renderFilmList();
+  toast('Endgültig gelöscht','info');
+}
+
+function archiveUnusedFilms(){
+  if(!DB.filmArchive) DB.filmArchive=[];
+  const used=getUsedFilmIds();
+  const unused=DB.films.filter(f=>!used.has(f.id));
+  if(!unused.length){ toast('Alle Filme sind im Spielplan – nichts zu archivieren','info'); return; }
+  if(!confirm(`${unused.length} nicht verwendete Film${unused.length>1?'e':''} archivieren?`)) return;
+  const now=Date.now();
+  unused.forEach(f=>{ f.archivedAt=now; DB.filmArchive.push(f); });
+  DB.films=DB.films.filter(f=>used.has(f.id));
+  persistDB(); renderFilmList(); renderPool();
+  toast(`${unused.length} Film${unused.length>1?'e':''} archiviert ✓`,'ok');
+}
+
+function cleanExpiredArchive(){
+  if(!DB.filmArchive) return;
+  const cutoff=Date.now()-28*86400000;
+  const expired=DB.filmArchive.filter(f=>f.archivedAt&&f.archivedAt<cutoff);
+  if(expired.length){
+    DB.filmArchive=DB.filmArchive.filter(f=>!f.archivedAt||f.archivedAt>=cutoff);
+    persistDB();
+    toast(`${expired.length} abgelaufene${expired.length>1?' Archivfilme':' Archivfilm'} automatisch gelöscht`,'info');
+  }
+}
+
+function deleteFilm(id){
+  if(!confirm('Film löschen?')) return;
+  DB.films=DB.films.filter(f=>f.id!==id);
+  for(const dy in DB.days) for(const s in DB.days[dy].saale) DB.days[dy].saale[s]=DB.days[dy].saale[s].filter(sl=>sl.filmId!==id);
+  persistDB(); renderFilmList(); toast('Gelöscht','info');
+}
+function openEditFilm(id){ const f=DB.films.find(f=>f.id===id); if(!f) return; editFilmId=id; document.getElementById('em_t').value=f.title; document.getElementById('em_l').value=f.len; document.getElementById('em_cr').value=f.credits||0; document.getElementById('em_fsk').value=f.fsk!=null?f.fsk:'-1'; document.getElementById('em_week').value=f.week||''; openModal('editFilmModal'); }
+function saveFilmEdit(){
+  const f=DB.films.find(f=>f.id===editFilmId); if(!f) return;
+  const t=document.getElementById('em_t').value.trim(), l=parseInt(document.getElementById('em_l').value), cr=parseInt(document.getElementById('em_cr').value)||0, fsk=parseInt(document.getElementById('em_fsk').value), week=parseInt(document.getElementById('em_week').value)||0;
+  if(!t||!l){ toast('Pflichtfelder!','err'); return; }
+  f.title=t; f.len=l; f.credits=cr; f.fsk=fsk; f.week=week; persistDB(); renderFilmList(); closeModal('editFilmModal'); toast('Gespeichert ✓','ok');
+}
+function fskBadge(fsk){
+  const n=parseInt(fsk);
+  if(isNaN(n)||n<0) return '';
+  const styles={
+    0:  'background:#fff;color:#000;border:1px solid #ccc;',
+    6:  'background:#f5c400;color:#000;',
+    12: 'background:#1a8a2a;color:#fff;',
+    16: 'background:#1a4aaa;color:#fff;',
+    18: 'background:#cc0000;color:#fff;border:2px solid #990000;box-shadow:0 0 6px rgba(204,0,0,.5);'
+  };
+  const style=styles[n]||'background:#555;color:#fff;';
+  const size=n>=16?'.72rem':'.6rem';
+  const pad=n>=16?'2px 8px':'1px 5px';
+  return `<span style="${style}font-size:${size};font-weight:800;padding:${pad};border-radius:3px;letter-spacing:.5px;margin-left:4px;">FSK ${n}</span>`;
+}
+let _filmTab = 'active';
+function switchFilmTab(tab){ _filmTab=tab; document.getElementById('ftab-active').classList.toggle('active',tab==='active'); document.getElementById('ftab-archive').classList.toggle('active',tab==='archive'); renderFilmList(); }
+
+function getUsedFilmIds(){
+  const used=new Set();
+  for(const dy in DB.days) for(const s in DB.days[dy].saale) (DB.days[dy].saale[s]||[]).forEach(sl=>used.add(sl.filmId));
+  return used;
+}
+
+function renderFilmList(){
+  if(!DB.filmArchive) DB.filmArchive=[];
+  const el=document.getElementById('filmList');
+  const q=(document.getElementById('filmSearch')?.value||'').toLowerCase().trim();
+  const used=getUsedFilmIds();
+  document.getElementById('filmCount').textContent=DB.films.length;
+  document.getElementById('filmArchCount').textContent=DB.filmArchive.length;
+
+  if(_filmTab==='archive'){
+    if(!DB.filmArchive.length){ el.innerHTML='<div class="empty-msg">Kein Archiv vorhanden</div>'; return; }
+    const now=Date.now();
+    const sorted=[...DB.filmArchive].sort((a,b)=>(a.archivedAt||0)-(b.archivedAt||0));
+    const filtered=q?sorted.filter(f=>f.title.toLowerCase().includes(q)):sorted;
+    el.innerHTML = filtered.map(f=>{
+      const daysLeft = f.archivedAt ? Math.max(0,28-Math.floor((now-f.archivedAt)/(86400000))) : 28;
+      const warn = daysLeft<=7 ? `<span style="color:var(--red);font-size:.65rem;font-weight:700;">⚠ wird in ${daysLeft} Tag${daysLeft!==1?'en':''} gelöscht</span>` : `<span style="color:var(--muted);font-size:.65rem;">noch ${daysLeft} Tage</span>`;
+      return `<div class="fc archived">
+        <div class="fdot" style="background:#666;"></div>
+        <div class="fi2">
+          <div class="ft">${esc(f.title)}${fskBadge(f.fsk)}<span class="fc-badge-arch">Archiv</span></div>
+          <div class="fm">${f.len} Min${f.week?` · SW ${f.week}`:''} · ${warn}</div>
+        </div>
+        <div class="fa">
+          <button class="btn btn-s btn-sm btn-ic" title="Wiederherstellen" onclick="restoreFilm('${f.id}')">↩️</button>
+          <button class="btn btn-d btn-sm btn-ic" title="Endgültig löschen" onclick="deleteArchivedFilm('${f.id}')">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  if(!DB.films.length){ el.innerHTML='<div class="empty-msg">Noch keine Filme angelegt</div>'; return; }
+  let sorted=[...DB.films].sort((a,b)=>a.title.localeCompare(b.title,'de'));
+  if(q) sorted=sorted.filter(f=>f.title.toLowerCase().includes(q));
+  if(!sorted.length){ el.innerHTML='<div class="empty-msg">Keine Treffer</div>'; return; }
+  el.innerHTML=sorted.map(f=>{
+    const c=fc(f.id), cr=f.credits||0, isUsed=used.has(f.id);
+    const usedBadge=isUsed?'<span class="fc-badge-used">✓ im Spielplan</span>':'';
+    return `<div class="fc${isUsed?' used':''}">
+      <div class="fdot" style="background:${c[1]};box-shadow:0 0 4px ${c[1]}55;"></div>
+      <div class="fi2">
+        <div class="ft" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">${esc(f.title)}${fskBadge(f.fsk)}${usedBadge}</div>
+        <div class="fm">${f.len} Min${cr>0?` · Abspann: ${cr} Min`:''}${f.week?` · <span style="color:var(--blue);font-size:.68rem;">📅 SW ${f.week}</span>`:''}</div>
+      </div>
+      <div class="fa">
+        <button class="btn btn-s btn-sm btn-ic" title="Bearbeiten" onclick="openEditFilm('${f.id}')">✏️</button>
+        <button class="btn btn-s btn-sm btn-ic" title="Kopieren" onclick="copyFilm('${f.id}')">📋</button>
+        <button class="btn btn-d btn-sm btn-ic" title="${isUsed?'Film ist im Spielplan – trotzdem archivieren?':'Archivieren'}" onclick="archiveFilm('${f.id}',${isUsed})">📦</button>
+        ${!isUsed?`<button class="btn btn-d btn-sm btn-ic" title="Löschen" onclick="deleteFilm('${f.id}')">🗑</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   STEP 2 – DAY MANAGEMENT
+══════════════════════════════════════════════ */
+function openAddDay(){ document.getElementById('nd_date').value=new Date().toISOString().split('T')[0]; openModal('addDayModal'); }
+function confirmAddDay(){
+  const d=document.getElementById('nd_date').value; if(!d){ toast('Datum eingeben!','err'); return; }
+  if(!DB.days[d]) DB.days[d]={cleanup:30,saale:{}};
+  curDay=d; persistDB(); closeModal('addDayModal');
+  renderDayTabs(); syncCleanupInput(); renderPool(); renderSaale();
+  toast('Tag hinzugefügt','ok');
+}
+function switchDay(d){ curDay=d; persistDB(); renderDayTabs(); syncCleanupInput(); renderSaale(); }
+
+
+let _dayTab = 'active';
+function switchDayTab(tab) {
+  _dayTab = tab;
+  document.getElementById('dtab-active').classList.toggle('active', tab==='active');
+  document.getElementById('dtab-archive').classList.toggle('active', tab==='archive');
+  document.getElementById('dayTabsPanel').style.display    = tab==='active'  ? '' : 'none';
+  document.getElementById('dayArchivePanel').style.display = tab==='archive' ? '' : 'none';
+  ['copyDayBtn','addDayBtn','clearDayBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = tab==='active' ? '' : 'none';
+  });
+  const sg = document.querySelector('.sched-grid');
+  if (sg) sg.style.display = tab==='active' ? '' : 'none';
+  if (tab === 'archive') {
+    if (!DB.dayArchive) DB.dayArchive = {};
+    renderDayArchive();
+    renderDayCount();
+  }
+}
+
+function renderDayArchive() {
+  if (!DB.dayArchive) DB.dayArchive = {};
+  const listEl = document.getElementById('dayArchiveList');
+  const cntEl  = document.getElementById('archiveDayCount');
+  const keys   = Object.keys(DB.dayArchive).sort().reverse();
+  if (cntEl) cntEl.textContent = keys.length;
+  if (!listEl) return;
+  if (!keys.length) {
+    listEl.innerHTML = '<div class="empty-msg">Kein Archiv vorhanden</div>';
+    return;
+  }
+  const now = Date.now();
+  listEl.innerHTML = keys.map(d => {
+    const entry      = DB.dayArchive[d] || {};
+    const archivedAt = entry._archivedAt || 0;
+    const daysLeft   = Math.max(0, 28 - Math.floor((now - archivedAt) / 86400000));
+    const warn = daysLeft <= 7
+      ? `<span style="color:var(--red);font-size:.65rem;font-weight:700;">⚠ wird in ${daysLeft} Tag${daysLeft!==1?'en':''} gelöscht</span>`
+      : `<span style="color:var(--muted);font-size:.65rem;">${archivedAt ? 'noch '+daysLeft+' Tage' : 'archiviert'}</span>`;
+    const saale     = entry.saale || {};
+    const saalCount = Object.keys(saale).length;
+    const showCount = Object.values(saale).reduce((s,v)=>s+(Array.isArray(v)?v.length:0), 0);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);">
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.84rem;color:var(--text);">${fmtDate(d)}</div>
+        <div style="font-size:.7rem;color:var(--muted2);margin-top:2px;">
+          ${showCount} Vorstellung${showCount!==1?'en':''} · ${saalCount} Saal${saalCount!==1?'e':''} · ${warn}
+        </div>
+      </div>
+      <button class="btn btn-s btn-sm" onclick="restoreDay('${d}')">↩️ Wiederherstellen</button>
+      <button class="btn btn-d btn-sm" onclick="deleteArchivedDay('${d}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function renderDayCount() {
+  const el = document.getElementById('activeDayCount');
+  if (el) el.textContent = Object.keys(DB.days||{}).length;
+  const el2 = document.getElementById('archiveDayCount');
+  if (el2) el2.textContent = Object.keys(DB.dayArchive||{}).length;
+}
+
+// ── SPIELTAG-ARCHIV ──────────────────────────────────────────────────────
+function archiveDay(d) {
+  if (!DB.dayArchive) DB.dayArchive = {};
+  if (!DB.days[d]) return;
+  DB.dayArchive[d] = { ...DB.days[d], _archivedAt: Date.now() };
+  delete DB.days[d];
+  if (curDay === d) {
+    const s = Object.keys(DB.days).sort();
+    curDay = s.length ? s[s.length-1] : '';
+  }
+  persistDB(); renderDayTabs(); renderDayCount(); renderSaale();
+  toast(`${fmtDate(d)} archiviert ✓`, 'ok');
+}
+
+function restoreDay(d) {
+  if (!DB.dayArchive?.[d]) return;
+  const data = { ...DB.dayArchive[d] };
+  delete data._archivedAt;
+  DB.days[d] = data;
+  delete DB.dayArchive[d];
+  curDay = d;
+  persistDB(); renderDayTabs(); renderDayArchive(); renderSaale(); renderDayCount();
+  switchDayTab('active');
+  toast(`${fmtDate(d)} wiederhergestellt ✓`, 'ok');
+}
+
+function deleteArchivedDay(d) {
+  if (!DB.dayArchive?.[d]) return;
+  if (!confirm(`Spielplan ${fmtDate(d)} endgültig löschen?`)) return;
+  delete DB.dayArchive[d];
+  persistDB(); renderDayArchive(); renderDayCount();
+  toast('Spieltag gelöscht', 'info');
+}
+
+function cleanExpiredDays() {
+  if (!DB.dayArchive) return;
+  const cutoff = Date.now() - 28 * 86400000;
+  const expired = Object.keys(DB.dayArchive).filter(d => DB.dayArchive[d]._archivedAt < cutoff);
+  if (expired.length) {
+    expired.forEach(d => delete DB.dayArchive[d]);
+    persistDB();
+    toast(`${expired.length} abgelaufene Spieltage automatisch gelöscht`, 'info');
+  }
+}
+
+
+function autoArchivePastDays() {
+  if (!DB.dayArchive) DB.dayArchive = {};
+  const now = new Date();
+  const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yesterdayStr = `${yest.getFullYear()}-${String(yest.getMonth()+1).padStart(2,'0')}-${String(yest.getDate()).padStart(2,'0')}`;
+  let count = 0;
+  Object.keys(DB.days).forEach(d => {
+    if (d < yesterdayStr) {
+      if (!DB.dayArchive[d]) {
+        DB.dayArchive[d] = { ...DB.days[d], _archivedAt: Date.now() };
+        count++;
+      }
+      delete DB.days[d];
+    }
+  });
+  cleanExpiredDays();
+  renderDayCount();
+  if (count > 0) {
+    // curDay anpassen falls nötig
+    if (curDay && !DB.days[curDay]) {
+      const s = Object.keys(DB.days).sort();
+      curDay = s.length ? s[s.length-1] : '';
+    }
+    // Sofort auf Server speichern damit dayArchive nicht verloren geht
+    saveToServer();
+    toast(`${count} vergangene Spieltag${count>1?'e':''} archiviert`, 'info');
+  }
+}
+
+function deleteDay(d){
+  if(!confirm(`Spielplan ${fmtDate(d)} archivieren oder löschen?
+
+OK = Archivieren (28 Tage)
+Abbrechen = Abbrechen`)) return;
+  archiveDay(d);
+}
+function renderDayTabs(){
+  const el=document.getElementById('dayTabs'), sorted=Object.keys(DB.days).sort();
+  if(!sorted.length){ el.innerHTML='<span style="color:var(--muted);font-size:.76rem;">Noch kein Tag angelegt</span>'; }
+  else { el.innerHTML=sorted.map(d=>`<div class="day-tab${d===curDay?' active':''}" onclick="switchDay('${d}')"><span>${fmtDate(d)}</span><button class="drm" onclick="event.stopPropagation();deleteDay('${d}')" title="Archivieren">✕</button></div>`).join(''); }
+  renderTlDayTabs();
+  renderDayCount();
+}
+
+function renderTlDayTabs(){
+  const el=document.getElementById('tlDayTabs'); if(!el) return;
+  const sorted=Object.keys(DB.days).sort();
+  if(!sorted.length){ el.innerHTML=''; return; }
+  el.innerHTML=sorted.map(d=>`<div class="day-tab${d===curDay?' active':''}" onclick="tlSwitchDay('${d}')">${new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'})}</div>`).join('');
+}
+
+function tlSwitchDay(d){
+  curDay=d;
+  renderDayTabs();
+  buildTimeline();
+}
+function syncCleanupInput(){ /* cleanupMins field removed from planner */ }
+function onCleanupChange(){ const d=curData(); if(d){ d.cleanup=parseInt(document.getElementById('cleanupMins').value)||30; persistDB(); renderSaale(); } }
+function openCopyDay(){ if(!curDay){ toast('Erst Tag auswählen!','err'); return; } document.getElementById('cp_date').value=''; document.getElementById('cp_times').checked=true; document.getElementById('cp_ads').checked=false; openModal('copyDayModal'); }
+function confirmCopyDay(){
+  const target=document.getElementById('cp_date').value;
+  const wt=document.getElementById('cp_times').checked;
+  const wa=document.getElementById('cp_ads').checked;
+  if(!target){ toast('Zieldatum!','err'); return; }
+  if(target===curDay){ toast('Gleiches Datum!','err'); return; }
+  const src=JSON.parse(JSON.stringify(DB.days[curDay]));
+  if(!wt) for(const s in src.saale) src.saale[s]=src.saale[s].map(sl=>({...sl,startzeit:''}));
+  if(!wa) for(const s in src.saale) src.saale[s]=src.saale[s].map(sl=>({...sl,ads:30}));
+  if(!DB.days[target]) DB.days[target]=src;
+  else for(const s in src.saale){ if(!DB.days[target].saale[s]) DB.days[target].saale[s]=src.saale[s]; else DB.days[target].saale[s]=[...DB.days[target].saale[s],...src.saale[s]]; }
+  curDay=target; persistDB(); closeModal('copyDayModal');
+  renderDayTabs(); syncCleanupInput(); renderSaale();
+  toast(`Kopiert nach ${fmtDate(target)} ✓`,'ok');
+}
+function clearDaySchedule(){ if(!curDay||!confirm('Tag leeren?')) return; const d=curData(); if(d) d.saale={}; persistDB(); renderSaale(); toast('Geleert','info'); }
+function archiveCurDay(){
+  if(!curDay){ toast('Kein Tag ausgewählt!','err'); return; }
+  const d=curData(); if(!d){ toast('Keine Daten!','err'); return; }
+  const wKey=getWeekKey(curDay);
+  const existing=Object.values(DB.archive).find(a=>a.date===curDay);
+  if(existing){ if(!confirm(`${fmtDate(curDay)} ist bereits archiviert. Überschreiben?`)) return; delete DB.archive[existing.id]; }
+  const id=uid();
+  DB.archive[id]={ id, date:curDay, label:fmtDateLong(curDay), weekKey:wKey, weekLabel:getWeekLabel(wKey),
+    cleanup:d.cleanup||30, saale:JSON.parse(JSON.stringify(d.saale)),
+    filmsSnapshot:JSON.parse(JSON.stringify(DB.films)), archivedAt:new Date().toISOString() };
+  persistDB(); toast(`${fmtDate(curDay)} archiviert ✓`,'ok');
+}
+
+/* ══════════════════════════════════════════════
+   STEP 2 – SAAL RENDER + AUTOCOMPLETE
+══════════════════════════════════════════════ */
+function renderPool(){
+  const el=document.getElementById('filmPool');
+  if(!DB.films.length){ el.innerHTML='<div class="empty-msg">Keine Filme</div>'; return; }
+  const sorted=[...DB.films].sort((a,b)=>a.title.localeCompare(b.title,'de'));
+  el.innerHTML=sorted.map(f=>{
+    const c=fc(f.id), cr=f.credits||0;
+    return `<div class="pitem" draggable="true" ondragstart="dstart(event,'${f.id}')" ondragend="dend(event)">
+      <div class="pid" style="background:${c[1]};"></div>
+      <div class="pin">
+        <div class="pit">${esc(f.title)}</div>
+        <div style="display:flex;align-items:center;gap:4px;margin-top:3px;">
+          <span class="pim">${f.len} Min ·</span>
+          <span class="ss-lbl">Abspann:</span>
+          <input type="number" value="${cr}" min="0" max="30" style="width:38px;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:1px 4px;border-radius:3px;font-size:.67rem;font-family:'Outfit',sans-serif;"
+            onclick="event.stopPropagation()" ondragstart="event.stopPropagation()"
+            onchange="updateFilmCredits('${f.id}',parseInt(this.value)||0)">
+          <span class="ss-lbl">Min</span>
+        </div>
+      </div>
+      <span style="color:var(--muted)">⠿</span>
+    </div>`;
+  }).join('');
+}
+function updateFilmCredits(id, val){
+  const f=DB.films.find(f=>f.id===id); if(!f) return;
+  f.credits=val; persistDB();
+}
+
+function getSaalInfo(s){
+  const si=(DB.settings&&DB.settings.saale&&DB.settings.saale[s])||{};
+  return si;
+}
+function getSaalCleanup(s){
+  const si=getSaalInfo(s);
+  return si.cleanup!=null ? si.cleanup : curCleanup();
+}
+function saalBadgeHtml(s){
+  const si=getSaalInfo(s), t=si.type||'normal';
+  if(t==='normal') return '';
+  const map={imax:['badge-imax','IMAX'],'3d':['badge-3d','3D'],'3dimax':['badge-3dimax','3D IMAX']};
+  const [cls,lbl]=map[t]||['badge-normal',t];
+  return `<span class="saal-info-badge ${cls}" style="font-size:.58rem;padding:1px 5px;border-radius:3px;">${lbl}</span>`;
+}
+function getCleanupThresholds(){
+  const s=DB.settings&&DB.settings.general;
+  return { low: s&&s.clLow!=null?s.clLow:20, high: s&&s.clHigh!=null?s.clHigh:30 };
+}
+function cleanupPillClass(mins){
+  const {low,high}=getCleanupThresholds();
+  if(mins<low) return 'cp-red';
+  if(mins<=high) return 'cp-yellow';
+  return 'cp-green';
+}
+function cleanupBlockStyle(mins){
+  // Returns inline gradient colors for the cl block in timeline
+  const {low,high}=getCleanupThresholds();
+  if(mins<low) return 'rgba(255,51,85,.12),rgba(255,51,85,.06)'; // red tint
+  if(mins<=high) return 'rgba(255,193,7,.1),rgba(255,193,7,.05)'; // yellow tint
+  return 'rgba(46,216,122,.08),rgba(46,216,122,.04)'; // green tint
+}
+function cleanupBorderColor(mins){
+  const {low,high}=getCleanupThresholds();
+  if(mins<low) return 'rgba(255,51,85,.5)';
+  if(mins<=high) return 'rgba(255,193,7,.4)';
+  return 'rgba(46,216,122,.4)';
+}
+
+function renderSaale(){
+  if(!curDay){ document.getElementById('saaleCol').innerHTML='<div class="empty-msg" style="padding:28px;">Erst einen Spieltag anlegen ↑</div>'; return; }
+  const saale=curSaale(), col=document.getElementById('saaleCol');
+  col.innerHTML='';
+  for(let s=1;s<=9;s++){
+    const cleanup=getSaalCleanup(s);
+    const rawSlots=saale[s]||[];
+    const slots=[...rawSlots].sort((a,b)=>{
+      if(!a.startzeit&&!b.startzeit) return 0;
+      if(!a.startzeit) return 1; if(!b.startzeit) return -1;
+      return t2m(a.startzeit)-t2m(b.startzeit);
+    });
+    if(saale[s] && JSON.stringify(slots.map(s=>s.filmId+s.startzeit)) !== JSON.stringify(rawSlots.map(s=>s.filmId+s.startzeit))) saale[s]=slots;
+    const ovs=getOverlapSet(slots,cleanup), hasOv=ovs.size>0;
+    const si=getSaalInfo(s), seats=si.seats?`<span style="font-size:.64rem;color:var(--muted2);">👥 ${si.seats}</span>`:'';
+    const typeBadge=saalBadgeHtml(s);
+    const div=document.createElement('div'); div.className='sp';
+    let slotsHtml=slots.length===0?'<div class="drp-hint">⟵ ziehen oder unten auswählen</div>':slots.map((sl,i)=>{
+      // Abstand zur nächsten Vorstellung berechnen
+      const next=slots[i+1];
+      let gapWarn=false;
+      if(sl.startzeit && next && next.startzeit){
+        const f=DB.films.find(f=>f.id===sl.filmId);
+        if(f){
+          const ads=sl.ads!=null?sl.ads:30;
+          const thisEnd=t2m(sl.startzeit)+ads+f.len;
+          const nextStart=t2m(next.startzeit);
+          if(nextStart-thisEnd<10 && nextStart-thisEnd>=0) gapWarn=true;
+        }
+      }
+      return slotHtml(sl,i,s,ovs,cleanup,gapWarn);
+    }).join('');
+    const addRow = currentRole==='admin' ? `<div class="add-film-row">
+      <div class="autocomplete-wrap" id="acWrap${s}">
+        <input type="text" id="acInput${s}" placeholder="Film auswählen oder tippen…" oninput="acFilter(${s})" onfocus="acFilter(${s})" onkeydown="acKey(event,${s})" autocomplete="off">
+      </div>
+      <button class="btn btn-p btn-sm" onclick="openAddFilmWithSaal(${s})" title="Neuen Film anlegen und in diesen Saal einfügen">＋</button>
+    </div>` : '';
+    div.innerHTML=`<div class="sp-head"><div class="sp-num">${s}</div>${typeBadge}<span style="font-size:.66rem;color:var(--muted);letter-spacing:1px;">SAAL ${s}</span>${seats?`<span style="font-size:.64rem;color:var(--muted2);margin-left:4px;">👥 ${si.seats}</span>`:''} ${hasOv?`<span class="ov-tag">⚠ ${ovs.size} Überschneidung${ovs.size>1?'en':''}</span>`:''}</div>
+    <div class="sp-body" id="sb${s}" ondragover="${currentRole==='admin'?`dover(event,${s})`:'null'}" ondragleave="${currentRole==='admin'?`dleave(event,${s})`:'null'}" ondrop="${currentRole==='admin'?`ddrop(event,${s})`:'null'}">${slotsHtml}</div>
+    ${addRow}`;
+    col.appendChild(div);
+  }
+  acCloseAll();
+  applyStoredSaturation();
+}
+
+function slotHtml(sl,idx,saal,ovs,cleanup,gapWarn){
+  const f=DB.films.find(f=>f.id===sl.filmId); if(!f) return '';
+  const c=fc(f.id), ov=ovs.has(idx), ads=sl.ads!=null?sl.ads:30;
+  const credits=f.credits||0;
+  const filmEndMins = sl.startzeit ? t2m(sl.startzeit)+ads+f.len : null;
+  const abspannMins = filmEndMins!==null&&credits>0 ? filmEndMins-credits : filmEndMins;
+  const endT = filmEndMins!==null ? m2t(filmEndMins) : '–';
+  const abspannT = abspannMins!==null ? m2t(abspannMins) : '–';
+  const keyTime = credits>0 ? abspannT : endT;
+  const keyLabel = credits>0 ? 'Auslass' : 'Ende';
+  const canRemove = currentRole==='admin';
+  const isVVK = !!sl.vvk;
+  const canDrag = currentRole==='admin' && !isVVK;
+  const borderStyle = ov ? 'border:1px solid var(--red);box-shadow:0 0 6px rgba(255,51,85,.2);'
+                     : isVVK ? 'border:1px solid var(--accent);box-shadow:0 0 6px rgba(240,192,64,.2);'
+                     : gapWarn ? 'border:1px solid #e8b800;box-shadow:0 0 6px rgba(232,184,0,.25);'
+                     : '';
+  const warnBadge = gapWarn && !ov ? `<span style="font-size:.58rem;font-weight:700;color:#e8b800;margin-left:4px;">⚠ &lt;10 Min</span>` : '';
+  const dragHandle = canDrag ? `<div title="Saal wechseln" draggable="true"
+    ondragstart="slotDragStart(event,${saal},${idx})"
+    ondragend="slotDragEnd(event)"
+    style="cursor:grab;color:var(--muted);font-size:.85rem;padding:0 2px;user-select:none;"
+    >⠿</div>` : '';
+  // VVK nur für zukünftige Vorstellungen
+  const _td = new Date();
+  const todayStr = `${_td.getFullYear()}-${String(_td.getMonth()+1).padStart(2,'0')}-${String(_td.getDate()).padStart(2,'0')}`;
+  const isFuture = curDay >= todayStr;
+  const vvkBtn = isFuture ? `<button onclick="toggleVVK(${saal},${idx})"
+    title="${isVVK?'Vorverkauf aufheben':'Als Vorverkauf markieren'}"
+    style="background:${isVVK?'rgba(240,192,64,.15)':'transparent'};border:1px solid ${isVVK?'var(--accent)':'var(--border2)'};color:${isVVK?'var(--accent)':'var(--muted)'};border-radius:3px;cursor:pointer;font-size:.65rem;padding:0px 4px;line-height:1.6;white-space:nowrap;"
+    >${isVVK?'🔒 VVK':'🔓'}</button>` : (isVVK?'<span class="vvk-badge">🔒 VVK</span>':'');
+
+  return `<div class="ss${ov?' ov':''}" style="${borderStyle}">
+    ${dragHandle}
+    <div class="ss-d" style="background:${c[1]};"></div>
+    <div class="ss-i">
+      <div class="ss-t" title="${esc(f.title)}">${esc(f.title)}</div>
+      <div class="ss-ti${ov?' ov':''}" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+        <span>${sl.startzeit?sl.startzeit:'–'} → <strong style="color:${ov?'var(--red)':gapWarn?'#e8b800':'var(--accent)'}">${endT}</strong>${ov?' ⚠':''}${warnBadge}</span>
+        ${vvkBtn}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <div style="display:flex;align-items:center;gap:2px;">
+        <span class="ss-lbl">Start:</span>
+        <input type="text" class="tif tif-time" value="${sl.startzeit||''}" placeholder="1300"
+          maxlength="5" oninput="formatTimeInput(this)"
+          onblur="applyTimeInput(this,${saal},${idx})"
+          onkeydown="if(event.key==='Enter')this.blur()"
+          title="${isVVK?'Gesperrt – Vorverkauf aktiv':'Startzeit eingeben: z.B. 1300'}"
+          ${isVVK?'readonly disabled style="opacity:.5;cursor:not-allowed;"':''}>
+      </div>
+      <div style="display:flex;align-items:center;gap:2px;">
+        <span class="ss-lbl">Werbung:</span>
+        <input type="number" class="tif tif-ads" value="${ads}" min="0" max="90"
+          onchange="setField(${saal},${idx},'ads',parseInt(this.value)||0)"
+          ${isVVK?'readonly disabled style="opacity:.5;cursor:not-allowed;"':''}>
+        <span class="ss-lbl">Min</span>
+      </div>
+    </div>
+    ${canRemove?`<button class="ss-rm" onclick="removeSlot(${saal},${idx})" title="Entfernen">✕</button>`:''}
+  </div>`;
+}
+
+
+function toggleVVK(saal, idx) {
+  const d = curData(); if (!d) return;
+  const sl = d.saale[saal]?.[idx]; if (!sl) return;
+  sl.vvk = !sl.vvk;
+  persistDB(); renderSaale();
+  toast(sl.vvk ? '🔒 Vorverkauf aktiviert' : '🔓 Vorverkauf aufgehoben', 'ok');
+}
+
+function getOverlapSet(slots,cleanup){
+  const ov=new Set();
+  const ranges=slots.map((sl,i)=>{
+    const f=DB.films.find(f=>f.id===sl.filmId); if(!f||!sl.startzeit) return null;
+    const ads=sl.ads!=null?sl.ads:30;
+    return {s:t2m(sl.startzeit),e:t2m(sl.startzeit)+f.len+ads,i};
+  }).filter(Boolean);
+  for(let a=0;a<ranges.length;a++) for(let b=a+1;b<ranges.length;b++)
+    if(ranges[a].s<ranges[b].e&&ranges[a].e>ranges[b].s){ov.add(ranges[a].i);ov.add(ranges[b].i);}
+  return ov;
+}
+
+function setField(saal,idx,field,val){
+  const d=curData(); if(!d||!d.saale[saal]) return;
+  if(d.saale[saal][idx]?.vvk && (field==='ads'||field==='startzeit')){
+    toast('🔒 Gesperrt – Vorverkauf aktiv','err'); return;
+  }
+  d.saale[saal][idx][field]=val; persistDB(); renderSaale();
+}
+
+/* Smart time input: accept 4 digits like "1300" → "13:00", or "130" → "01:30" etc. */
+function formatTimeInput(inp){
+  let v=inp.value.replace(/[^0-9]/g,'');
+  if(v.length>4) v=v.slice(0,4);
+  // Live preview: insert colon when 3+ digits
+  if(v.length>=3){
+    const h=v.slice(0,2), m=v.slice(2,4);
+    inp.value=h+':'+m;
+  } else {
+    inp.value=v;
+  }
+}
+function applyTimeInput(inp, saal, idx){
+  const d=curData();
+  if(d?.saale[saal]?.[idx]?.vvk){ inp.value=d.saale[saal][idx].startzeit||''; toast('🔒 Gesperrt – Vorverkauf aktiv','err'); return; }
+  let v=inp.value.replace(/[^0-9]/g,'');
+  if(!v){ inp.value=''; return; }
+  if(v.length===3) v='0'+v;
+  if(v.length<4) v=v.padEnd(4,'0');
+  v=v.slice(0,4);
+  let h=parseInt(v.slice(0,2)), m=parseInt(v.slice(2,4));
+  h=Math.min(h,23); m=Math.min(m,59);
+  const timeStr=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  inp.value=timeStr;
+  setField(saal, idx, 'startzeit', timeStr);
+}
+function removeSlot(saal,idx){ const d=curData(); if(!d||!d.saale[saal]) return; d.saale[saal].splice(idx,1); persistDB(); renderSaale(); }
+// Modal für Einlasszeit-Eingabe beim Film hinzufügen
+let _pendingFilmSaal=null, _pendingFilmId=null;
+function openEinlasszeitModal(saal, filmId){
+  _pendingFilmSaal=saal; _pendingFilmId=filmId;
+  const f=DB.films.find(f=>f.id===filmId);
+  const el=document.getElementById('ezm_title');
+  if(el) el.textContent=f?f.title:'Film';
+  const el2=document.getElementById('ezm_saal');
+  if(el2) el2.textContent='Saal '+saal;
+  const inp=document.getElementById('ezm_time');
+  if(inp){ inp.value=''; }
+  openModal('einlasszeitModal');
+  setTimeout(()=>document.getElementById('ezm_time')?.focus(),100);
+}
+
+function confirmEinlasszeit(){
+  const saal=_pendingFilmSaal, filmId=_pendingFilmId;
+  if(!saal||!filmId) return;
+  const raw=document.getElementById('ezm_time').value.trim();
+  if(!filmId||!curDay){ closeModal('einlasszeitModal'); return; }
+  const d=curData(); if(!d) return;
+  if(!d.saale[saal]) d.saale[saal]=[];
+  const f=DB.films.find(f=>f.id===filmId);
+  const fname=f?f.title:'Film';
+  // Mehrere Zeiten per Leerzeichen oder Komma
+  const parts=raw?raw.split(/[\s,;]+/).filter(x=>x.trim()):[''];
+  let added=0;
+  parts.forEach(rawT=>{
+    if(d.saale[saal].length>=10) return;
+    let startzeit='';
+    const clean=rawT.replace(':','').replace(/[^0-9]/g,'');
+    if(clean.length>=3&&clean.length<=4){
+      const h=clean.length===4?clean.slice(0,2):('0'+clean[0].padStart?('0'+clean[0]):('0'+clean.slice(0,1)));
+      const hh=clean.length===4?clean.slice(0,2):('0'+clean.slice(0,1));
+      const m=clean.slice(-2);
+      if(parseInt(m)<=59){ startzeit=hh+':'+m; }
+    }
+    d.saale[saal].push({filmId,startzeit,ads:30});
+    added++;
+  });
+  persistDB(); renderSaale();
+  closeModal('einlasszeitModal');
+  if(added>1) toast(fname+' – '+added+' Vorstellungen eingefügt','ok');
+  else if(added===1&&parts[0]) toast(fname+' um '+(parts[0])+' eingefügt','ok');
+  else toast(fname+' hinzugefügt – Startzeit noch eintragen','info');
+  _pendingFilmSaal=null; _pendingFilmId=null;
+}
+
+function addFilmToSaal(saal, filmId){
+  if(!filmId||!curDay) return;
+  const d=curData(); if(!d) return;
+  if(!d.saale[saal]) d.saale[saal]=[];
+  if(d.saale[saal].length>=10){ toast('Max. 10 Vorstellungen pro Saal!','err'); return; }
+  openEinlasszeitModal(saal, filmId);
+}
+
+/* Autocomplete */
+let acFocusIdx={};
+function acFilter(saal){
+  const inp=document.getElementById('acInput'+saal), drop=document.getElementById('acDrop'+saal);
+  if(!inp||!drop) return;
+  const q=(inp.value||'').toLowerCase().trim();
+  const allSorted=[...DB.films].sort((a,b)=>a.title.localeCompare(b.title,'de'));
+  const matches=q ? allSorted.filter(f=>f.title.toLowerCase().includes(q)) : allSorted;
+  if(!matches.length){ drop.innerHTML='<div style="padding:8px 10px;color:var(--muted);font-size:.78rem;">Keine Filme gefunden</div>'; }
+  else {
+    acFocusIdx[saal]=-1;
+    drop.innerHTML=matches.map((f,i)=>{
+      const c=fc(f.id), cr=f.credits||0;
+      const fsk=fskBadge(f.fsk);
+      const sw=f.week?`<span style="font-size:.6rem;color:var(--blue);margin-left:3px;">SW${f.week}</span>`:'';
+      return `<div class="ac-item" id="aci${saal}_${i}" data-id="${f.id}" onmousedown="pickAc(${saal},'${f.id}')"><div class="ac-dot" style="background:${c[1]};flex-shrink:0;"></div><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.title)}</span><span style="color:var(--muted);font-size:.65rem;margin-left:6px;white-space:nowrap;">${f.len}Min${cr>0?` / ${cr}`:''}</span>${fsk}${sw}</div>`;
+    }).join('');
+  }
+  // Position dropdown above the input to avoid clipping at bottom
+  const rect=inp.getBoundingClientRect();
+  const dropHeight=240;
+  const spaceBelow=window.innerHeight-rect.bottom;
+  const spaceAbove=rect.top;
+  drop.style.position='fixed';
+  drop.style.left=rect.left+'px';
+  drop.style.width=rect.width+'px';
+  drop.style.right='auto';
+  if(spaceBelow>=160){
+    // Enough space below — open downward
+    drop.style.top=(rect.bottom+2)+'px';
+    drop.style.bottom='auto';
+    drop.style.maxHeight=Math.min(dropHeight, spaceBelow-8)+'px';
+  } else {
+    // Open upward
+    drop.style.bottom=(window.innerHeight-rect.top+2)+'px';
+    drop.style.top='auto';
+    drop.style.maxHeight=Math.min(dropHeight, spaceAbove-8)+'px';
+  }
+  drop.classList.add('open');
+}
+function pickAc(saal, filmId){
+  addFilmToSaal(saal, filmId);
+  const inp=document.getElementById('acInput'+saal);
+  if(inp) inp.value='';
+  acCloseAll();
+}
+function addFilmToSaalFromInput(saal){
+  const inp=document.getElementById('acInput'+saal); if(!inp) return;
+  const q=inp.value.trim().toLowerCase();
+  const f=DB.films.find(f=>f.title.toLowerCase()===q)||DB.films.find(f=>f.title.toLowerCase().includes(q));
+  if(!f){ toast('Film nicht gefunden!','err'); return; }
+  pickAc(saal, f.id);
+}
+function acKey(e,saal){
+  const drop=document.getElementById('acDropGlobal');
+  if(!drop||!drop.classList.contains('open')) return;
+  const items=drop.querySelectorAll('.ac-item');
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); acFocusIdx[saal]=Math.min((acFocusIdx[saal]||0)+1,items.length-1); items.forEach((it,i)=>it.classList.toggle('focused',i===acFocusIdx[saal])); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); acFocusIdx[saal]=Math.max((acFocusIdx[saal]||0)-1,0); items.forEach((it,i)=>it.classList.toggle('focused',i===acFocusIdx[saal])); }
+  else if(e.key==='Enter'){ e.preventDefault(); const fi=acFocusIdx[saal]; if(fi>=0&&items[fi]) items[fi].dispatchEvent(new MouseEvent('mousedown')); else addFilmToSaalFromInput(saal); }
+  else if(e.key==='Escape'){ acCloseAll(); }
+}
+// ── AUTOCOMPLETE DROPDOWN (an body gehängt, kein Clipping) ─
+let _acActiveSaal = null;
+function acGetOrCreateDrop(){
+  let drop = document.getElementById('acDropGlobal');
+  if(!drop){
+    drop = document.createElement('div');
+    drop.id = 'acDropGlobal';
+    drop.className = 'ac-dropdown';
+    drop.style.position = 'fixed';
+    drop.style.zIndex = '500'; // below modal(9000) and loginOverlay(1000)
+    drop.style.display = 'none';
+    document.body.appendChild(drop);
+  }
+  return drop;
+}
+
+function acFilter(saal){
+  const inp = document.getElementById('acInput'+saal);
+  if(!inp) return;
+  _acActiveSaal = saal;
+  const drop = acGetOrCreateDrop();
+  const q = (inp.value||'').toLowerCase().trim();
+  const allSorted = [...DB.films].sort((a,b)=>a.title.localeCompare(b.title,'de'));
+  const matches = q ? allSorted.filter(f=>f.title.toLowerCase().includes(q)) : allSorted;
+  if(!matches.length){
+    drop.innerHTML = '<div style="padding:8px 10px;color:var(--muted);font-size:.78rem;">Keine Filme gefunden</div>';
+  } else {
+    acFocusIdx[saal] = -1;
+    drop.innerHTML = matches.map((f,i)=>{
+      const c=fc(f.id), cr=f.credits||0;
+      const fsk=fskBadge(f.fsk);
+      const sw=f.week?`<span style="font-size:.6rem;color:var(--blue);margin-left:3px;">SW${f.week}</span>`:'';
+      return `<div class="ac-item" id="aci${saal}_${i}" data-id="${f.id}" onmousedown="pickAc(${saal},'${f.id}')"><div class="ac-dot" style="background:${c[1]};flex-shrink:0;"></div><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.title)}</span><span style="color:var(--muted);font-size:.65rem;margin-left:6px;white-space:nowrap;">${f.len}Min${cr>0?` / ${cr}`:''}</span>${fsk}${sw}</div>`;
+    }).join('');
+  }
+  acPositionDrop(inp, drop);
+  drop.style.display = 'block';
+  drop.classList.add('open');
+}
+
+function acPositionDrop(inp, drop){
+  const rect = inp.getBoundingClientRect();
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const maxH = 240;
+  drop.style.left = rect.left + 'px';
+  drop.style.width = rect.width + 'px';
+  drop.style.right = 'auto';
+  if(spaceBelow >= 120){
+    drop.style.top = (rect.bottom + 2) + 'px';
+    drop.style.bottom = 'auto';
+    drop.style.maxHeight = Math.min(maxH, spaceBelow - 8) + 'px';
+  } else {
+    drop.style.bottom = (window.innerHeight - rect.top + 2) + 'px';
+    drop.style.top = 'auto';
+    drop.style.maxHeight = Math.min(maxH, rect.top - 8) + 'px';
+  }
+}
+
+function acCloseAll(){
+  const drop = document.getElementById('acDropGlobal');
+  if(drop) drop.remove(); // remove from DOM entirely
+  _acActiveSaal = null;
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.add-film-row') && !e.target.closest('#acDropGlobal')) acCloseAll();
+});
+document.addEventListener('scroll', ()=>{
+  const drop = document.getElementById('acDropGlobal');
+  if(!drop || !drop.classList.contains('open') || _acActiveSaal===null) return;
+  const inp = document.getElementById('acInput'+_acActiveSaal);
+  if(inp) acPositionDrop(inp, drop);
+}, true);
+
+/* Drag & Drop */
+function dstart(e,id){ dragId=id; e.currentTarget.classList.add('dragging'); e.dataTransfer.setData('type','pool'); e.dataTransfer.effectAllowed='copy'; }
+function dend(e){ e.currentTarget.classList.remove('dragging'); dragId=null; document.querySelectorAll('.sp-body').forEach(el=>el.classList.remove('dov')); }
+function dover(e,s){ e.preventDefault(); document.getElementById('sb'+s).classList.add('dov'); }
+function dleave(e,s){ document.getElementById('sb'+s).classList.remove('dov'); }
+function ddrop(e,s){
+  e.preventDefault();
+  document.getElementById('sb'+s).classList.remove('dov');
+  const type = e.dataTransfer.getData('type');
+  if(type==='slot'){
+    // Slot von einem Saal in einen anderen verschieben
+    const fromSaal=parseInt(e.dataTransfer.getData('fromSaal'));
+    const fromIdx=parseInt(e.dataTransfer.getData('fromIdx'));
+    const toSaal=parseInt(s);
+    if(fromSaal===toSaal) return;
+    const d=curData(); if(!d) return;
+    if(!d.saale[fromSaal]||fromIdx<0||fromIdx>=d.saale[fromSaal].length) return;
+    if(!d.saale[toSaal]) d.saale[toSaal]=[];
+    if(d.saale[toSaal].length>=10){ toast('Max. 10 Vorstellungen pro Saal!','err'); return; }
+    const slot=d.saale[fromSaal].splice(fromIdx,1)[0];
+    d.saale[toSaal].push(slot);
+    persistDB(); renderSaale();
+    toast(`Film nach Saal ${toSaal} verschoben ✓`,'ok');
+  } else {
+    // Aus Filmpool
+    if(!dragId||!curDay) return;
+    addFilmToSaal(s,dragId);
+  }
+}
+
+let _slotDragSaal=null, _slotDragIdx=null;
+function slotDragStart(e,saal,idx){
+  _slotDragSaal=saal; _slotDragIdx=idx;
+  e.dataTransfer.setData('type','slot');
+  e.dataTransfer.setData('fromSaal',saal);
+  e.dataTransfer.setData('fromIdx',idx);
+  e.dataTransfer.effectAllowed='move';
+  // Highlight alle anderen Säle als Ziel
+  setTimeout(()=>{ document.querySelectorAll('.sp-body').forEach((el,i)=>{ if(i+1!==saal) el.style.outline='2px dashed rgba(74,144,255,.4)'; }); },0);
+}
+function slotDragEnd(e){
+  _slotDragSaal=null; _slotDragIdx=null;
+  document.querySelectorAll('.sp-body').forEach(el=>{ el.classList.remove('dov'); el.style.outline=''; });
+}
+
+/* ══════════════════════════════════════════════
+   STEP 2 – ARCHIVE
+══════════════════════════════════════════════ */
+function saveCurrentDayToArchive(){
+  if(!curDay){ toast('Kein Tag ausgewählt!','err'); return; }
+  const d=curData(); if(!d){ toast('Keine Daten!','err'); return; }
+  const wKey=getWeekKey(curDay);
+  const existing=Object.values(DB.archive).find(a=>a.date===curDay);
+  if(existing){ if(!confirm(`${fmtDate(curDay)} bereits gespeichert. Überschreiben?`)) return; delete DB.archive[existing.id]; }
+  const id=uid();
+  DB.archive[id]={ id, date:curDay, label:fmtDateLong(curDay), weekKey:wKey, weekLabel:getWeekLabel(wKey), cleanup:d.cleanup||30, saale:JSON.parse(JSON.stringify(d.saale)), filmsSnapshot:JSON.parse(JSON.stringify(DB.films)), archivedAt:new Date().toISOString() };
+  persistDB(); toast(`${fmtDate(curDay)} gespeichert ✓`,'ok');
+}
+
+/* ══════════════════════════════════════════════
+   STEP 3 – BUILD TIMELINE DATA
+══════════════════════════════════════════════ */
+let _entries=[], _cleanup=30, _ovMap={};
+
+function buildEntries(saale,cleanup,filmList){
+  let entries=[], missing=[];
+  for(let s=1;s<=9;s++){
+    // Per-saal cleanup overrides global
+    const sCleanup = (DB.settings&&DB.settings.saale&&DB.settings.saale[s]&&DB.settings.saale[s].cleanup!=null)
+      ? DB.settings.saale[s].cleanup : cleanup;
+    (saale[s]||[]).forEach((sl,idx)=>{
+      const f=filmList.find(f=>f.id===sl.filmId); if(!f) return;
+      if(!sl.startzeit){ missing.push(`Saal ${s}: "${f.title}"`); return; }
+      const ads=sl.ads!=null?sl.ads:30;
+      const credits=f.credits||0;
+      const sm=t2m(sl.startzeit), fs=sm+ads, em=fs+f.len, ce=em+sCleanup;
+      const door = credits>0 ? em-credits : em;
+      entries.push({saal:s,idx,filmId:f.id,title:f.title,len:f.len,ads,credits,
+        sm,fs,em,ce,door,
+        smT:m2t(sm),fsT:m2t(fs),emT:m2t(em),ceT:m2t(ce),doorT:m2t(door),
+        sCleanup});
+    });
+  }
+  return {entries,missing};
+}
+function buildOvMap(entries){
+  const ovMap={};
+  for(let s=1;s<=9;s++){ const se=entries.filter(e=>e.saal===s); for(let a=0;a<se.length;a++) for(let b=a+1;b<se.length;b++) if(se[a].sm<se[b].em&&se[a].em>se[b].sm){ovMap[`${se[a].saal}_${se[a].idx}`]=true;ovMap[`${se[b].saal}_${se[b].idx}`]=true;} }
+  return ovMap;
+}
+function enrichEntries(entries,cleanup,ovMap){
+  for(let s=1;s<=9;s++){ const se=entries.filter(e=>e.saal===s).sort((a,b)=>a.sm-b.sm); se.forEach((e,i)=>{ const nx=se[i+1]; e.nextTitle=nx?nx.title:null; e.nextSmT=nx?nx.smT:null; e.nextFsT=nx?nx.fsT:null; e.gap=nx?nx.sm-e.em:null; e.isOv=!!ovMap[`${e.saal}_${e.idx}`]; e.isVVK=!!(DB.days[curDay]?.saale?.[s]?.[e.idx]?.vvk); }); }
+}
+
+function buildTimeline(){
+  resetColors();
+  const d=curData(); if(!d) return false;
+  const {entries,missing}=buildEntries(d.saale,d.cleanup,DB.films);
+  if(missing.length){ toast('Startzeit fehlt: '+missing[0],'err'); return false; }
+  if(!entries.length){ toast('Keine Vorstellungen geplant!','err'); return false; }
+  const ovMap=buildOvMap(entries); enrichEntries(entries,d.cleanup,ovMap);
+  _entries=entries; _cleanup=d.cleanup; _ovMap=ovMap;
+  document.getElementById('tlDate').textContent=fmtDateLong(curDay);
+  renderTlDayTabs();
+  renderTlView(); renderCleanupView(); renderBoxView(); renderBoxViewBW(); renderTableView();
+  applyStoredSaturation();
+  setView(activeView);
+  return true;
+}
+
+function setView(v){
+  activeView=v;
+  document.querySelectorAll('.tv-panel').forEach(p=>p.style.display='none');
+  document.getElementById('tv-'+v).style.display='block';
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick')===`setView('${v}')`));
+  // Titel anpassen
+  const titles={'timeline':'ZEITLEISTE','cleanup':'REINIGUNG','boxes':'SÄLE','boxes-bw':'SÄLE S/W','table':'AUSLASSZETTEL','week':'WOCHENÜBERSICHT'};
+  const t=document.getElementById('tlTitle');
+  if(t) t.textContent=titles[v]||v.toUpperCase();
+  if(v==='week') renderWeekView();
+  applyStoredSaturation();
+}
+
+/* ── VIEW 1: TIMELINE ── */
+function renderTlView(){
+  if(!_entries.length){ document.getElementById('tlContainer').innerHTML=''; return; }
+  const mn=Math.min(..._entries.map(e=>e.sm)), mx=Math.max(..._entries.map(e=>e.ce));
+  const hs=Math.floor(mn/60), he=Math.ceil(mx/60), total=(he-hs)*60;
+  const p=v=>(v/total)*100;
+  // Ruler — gleiche Prozent-Basis wie die Blöcke
+  let ruler=`<div class="ruler"><div class="r-lbl">Saal</div><div class="r-hrs" style="position:relative;height:30px;">`;
+  for(let h=hs;h<=he;h++) ruler+=`<div class="hm" style="left:${p((h-hs)*60)}%;"><span>${String(h).padStart(2,'0')}:00</span></div>`;
+  ruler+=`</div></div>`;
+  let rows='';
+  for(let s=1;s<=9;s++){
+    const se=_entries.filter(e=>e.saal===s); let blks='';
+    se.forEach(e=>{
+      const c=fc(e.filmId);
+      const canEdit = currentRole==='admin' || currentRole==='staff';
+      const dragAttr = (canEdit && !e.isVVK) ? `draggable="true" ondragstart="tlDragStart(event,'${e.saal}',${e.idx},${e.sm})" ondragend="tlDragEnd(event)"` : '';
+      const clickAttr = canEdit ? `ondblclick="tlClickEdit(event,'${e.saal}',${e.idx})"` : '';
+      const cursor = canEdit ? 'cursor:grab;' : '';
+      if(e.ads>0) blks+=`<div class="mb-ad" style="left:${p(e.sm-hs*60)}%;width:${p(e.ads)}%;background:repeating-linear-gradient(135deg,rgba(255,200,50,.18),rgba(255,200,50,.18) 4px,rgba(255,200,50,.08) 4px,rgba(255,200,50,.08) 8px);border:1px solid rgba(255,200,50,.5);border-radius:4px;${cursor}" ${clickAttr} title="Einlass ${e.smT} · Werbung ${e.ads} Min"><span style="font-size:.6rem;color:rgba(255,200,50,.9);font-weight:700;padding:0 4px;white-space:nowrap;">Werbung</span></div>`;
+      blks+=`<div class="mb${e.isOv?' ov':''}" style="left:${p(e.fs-hs*60)}%;width:${p(e.len)}%;background:linear-gradient(135deg,${c[0]},${c[1]});${cursor}" ${dragAttr} title="${esc(e.title)} · Einlass ${e.smT} · Film ${e.fsT}–${e.emT}${e.isOv?' · ⚠':''}">
+        <div class="mbt">${e.isOv?'⚠ ':''}${esc(e.title)}</div>
+        <div class="mbt2" style="display:flex;gap:4px;align-items:center;">
+          <span style="color:rgba(255,220,100,.9);">⏰${e.smT}</span>
+          <span style="color:rgba(255,255,255,.5);">·</span>
+          <span>${e.fsT}–${e.emT}</span>
+        </div>
+        <div class="mbl">${e.len} Min</div>
+      </div>`;
+      // Lücke zum nächsten Film anzeigen — farblich nach Aufräumzeit
+      if(e.nextTitle && e.gap !== null && e.gap > 0){
+        const gapColor = e.gap < 20 ? 'rgba(255,51,85,.55)' : e.gap < 30 ? 'rgba(232,184,0,.55)' : 'rgba(46,216,122,.55)';
+        const gapBg    = e.gap < 20 ? 'rgba(255,51,85,.08)'  : e.gap < 30 ? 'rgba(232,184,0,.08)'  : 'rgba(46,216,122,.08)';
+        blks+=`<div style="position:absolute;left:${p(e.em-hs*60)}%;width:${p(e.gap)}%;top:5px;height:calc(100% - 10px);background:${gapBg};border:1px dashed ${gapColor};border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;" title="Lücke: ${e.gap} Min"><span style="font-size:.56rem;font-weight:700;color:${gapColor};white-space:nowrap;padding:0 3px;">${e.gap}Min</span></div>`;
+      }
+    });
+    if(!se.length) blks=`<div style="position:absolute;top:50%;left:6px;transform:translateY(-50%);font-size:.64rem;color:var(--muted);">–</div>`;
+    const tlSeats=(DB.settings&&DB.settings.saale&&DB.settings.saale[s]&&DB.settings.saale[s].seats)?`<div style="font-size:.56rem;color:var(--muted2);">👥 ${esc(DB.settings.saale[s].seats)}</div>`:'';
+    rows+=`<div class="tl-row"><div class="tl-rl"><div class="tn">${s}</div><div class="ts">Saal</div>${tlSeats}</div><div class="tl-track" id="tltrack_${s}" style="--hw:${total}min;" ondragover="tlDragOver(event,'${s}',${hs},${total})" ondrop="tlDrop(event,'${s}',${hs},${total})" ondragleave="tlDragLeave(event)">${blks}</div></div>`;
+  }
+  document.getElementById('tlContainer').innerHTML=`<div class="tl-wrap"><div class="tl-inner">${ruler}${rows}</div></div>`;
+  const uF=[...new Map(_entries.map(e=>[e.filmId,e])).values()];
+  let leg=uF.map(e=>{const c=fc(e.filmId);return `<div class="li"><div class="lsw" style="background:linear-gradient(135deg,${c[0]},${c[1]});"></div><span>${esc(e.title)}</span></div>`;}).join('');
+  leg+=`<div class="li"><div class="lsw" style="background:repeating-linear-gradient(135deg,rgba(255,200,50,.3),rgba(255,200,50,.3) 4px,rgba(255,200,50,.1) 4px,rgba(255,200,50,.1) 8px);border:1px solid rgba(255,200,50,.5);"></div><span>Werbung</span></div>`;
+  leg+=`<div class="li"><div class="lsw" style="background:rgba(255,51,85,.1);border:1px dashed rgba(255,51,85,.5);"></div><span style="color:rgba(255,100,100,.9);">&lt;20 Min Lücke</span></div>`;
+  leg+=`<div class="li"><div class="lsw" style="background:rgba(232,184,0,.1);border:1px dashed rgba(232,184,0,.5);"></div><span style="color:rgba(232,184,0,.9);">20–29 Min Lücke</span></div>`;
+  leg+=`<div class="li"><div class="lsw" style="background:rgba(46,216,122,.1);border:1px dashed rgba(46,216,122,.5);"></div><span style="color:rgba(46,216,122,.9);">≥30 Min Lücke</span></div>`;
+  if(Object.keys(_ovMap).length) leg+=`<div class="li"><div class="lsw lov"></div><span>Überschneidung</span></div>`;
+  if(currentRole==='admin'||currentRole==='staff') leg+=`<div class="li" style="color:var(--muted);font-size:.68rem;">💡 Ziehen = Startzeit · Doppelklick auf Werbung = Einlasszeit ändern</div>`;
+  document.getElementById('tlLegend').innerHTML=leg;
+}
+
+/* ── TIMELINE DRAG & DROP ── */
+let _tlDrag = null; // { saal, filmId, origSm, origStart }
+
+function tlDragStart(event, saal, idx, origSm){
+  const e = _entries.find(e=>e.saal==saal&&e.idx===idx);
+  if(!e) return;
+  // VVK-Sperre: kein Drag wenn Vorverkauf aktiv
+  if(e.isVVK){ event.preventDefault(); toast('🔒 Gesperrt – Vorverkauf aktiv','err'); return; }
+  _tlDrag = { saal:parseInt(saal), filmId:e.filmId, origSm, slotIdx: e.idx };
+  event.dataTransfer.effectAllowed = 'move';
+  event.currentTarget.style.opacity = '.5';
+}
+function tlDragEnd(event){ event.currentTarget.style.opacity=''; _tlDrag=null; document.querySelectorAll('.tl-track').forEach(t=>t.classList.remove('tl-drop-over')); }
+function tlDragOver(event, saal, hs, total){
+  if(!_tlDrag) return;
+  event.preventDefault(); event.dataTransfer.dropEffect='move';
+  event.currentTarget.classList.add('tl-drop-over');
+}
+function tlDragLeave(event){ event.currentTarget.classList.remove('tl-drop-over'); }
+function tlDrop(event, saal, hs, total){
+  event.preventDefault();
+  event.currentTarget.classList.remove('tl-drop-over');
+  if(!_tlDrag) return;
+  const track = event.currentTarget;
+  const rect = track.getBoundingClientRect();
+  const pct = (event.clientX - rect.left) / rect.width;
+  const mins = Math.round((pct * total + hs*60) / 5) * 5;
+  const newStart = m2t(mins);
+  const d = curData(); if(!d) return;
+  const slot = d.saale[_tlDrag.saal] && d.saale[_tlDrag.saal][_tlDrag.slotIdx];
+  if(slot){
+    if(slot.vvk){ toast('🔒 Gesperrt – Vorverkauf aktiv','err'); _tlDrag=null; return; }
+    slot.startzeit = newStart; persistDB(); buildTimeline(); setView('timeline'); toast(`${newStart} Uhr gesetzt ✓`,'ok');
+  }
+  _tlDrag = null;
+}
+
+/* ── TIMELINE DOPPELKLICK BEARBEITEN ── */
+function tlClickEdit(event, saal, idx){
+  const e = _entries.find(e=>e.saal==saal&&e.idx===idx); if(!e) return;
+  if(e.isVVK){ toast('🔒 Gesperrt – Vorverkauf aktiv','err'); return; }
+  // smT = Einlasszeit (= startzeit in DB, also Beginn der Werbung)
+  const cur = e.smT ? e.smT.replace(':','') : '';
+  const inp = prompt(`Neue Einlasszeit für „${e.title}" (Saal ${saal}):\n(Einlass = Beginn der Werbung)`, cur);
+  if(inp===null) return;
+  const clean = inp.replace(':','').replace(/\D/g,'');
+  if(clean.length<3||clean.length>4){ toast('Ungültige Zeit!','err'); return; }
+  const h=clean.length===4?clean.slice(0,2):('0'+clean.slice(0,1)), m=clean.slice(-2);
+  if(parseInt(m)>59){ toast('Ungültige Minuten!','err'); return; }
+  const newStart = h+':'+m;
+  const d = curData(); if(!d) return;
+  const slot = d.saale[parseInt(saal)] && d.saale[parseInt(saal)][e.idx];
+  if(slot){ slot.startzeit = newStart; persistDB(); buildTimeline(); setView('timeline'); toast(`Einlass ${newStart} Uhr gesetzt ✓`,'ok'); }
+}
+
+/* ── VIEW 2: CLEANUP ── */
+function renderCleanupView(){ document.getElementById('cleanupContainer').innerHTML=buildCleanupHTML(_entries,_cleanup); }
+function buildCleanupHTML(entries,cleanup){
+  let h='<div class="clean-grid">';
+  for(let s=1;s<=9;s++){
+    const se=entries.filter(e=>e.saal===s).sort((a,b)=>a.sm-b.sm);
+    h+=`<div class="clean-card"><div class="clean-card-head"><span class="cc-num">${s}</span><span style="font-size:.66rem;color:var(--muted);letter-spacing:1px;">SAAL ${s}</span></div><div class="clean-card-body">`;
+    if(!se.length) h+=`<div style="color:var(--muted);font-size:.73rem;padding:4px 0;">Keine Vorstellungen</div>`;
+    se.forEach(e=>{
+      const cls=e.isOv?'ov-item':e.nextTitle?'has-next':'last-show';
+      const sc=e.sCleanup||cleanup;
+      const {low,high}=getCleanupThresholds();
+      const gc=e.gap===null?'':e.gap<low?'gp-r':e.gap<high?'gp-w':'gp-g';
+      h+=`<div class="cl-item ${cls}"><div class="cl-title">${e.isOv?'⚠ ':''}${esc(e.title)}</div><div class="cl-times">Einlass: ${e.smT} · Film: ${e.fsT}–${e.emT}</div>${e.credits>0?`<div class="cl-clean"><span style="background:rgba(46,216,122,.15);color:var(--green);border:1px solid rgba(46,216,122,.3);padding:1px 6px;border-radius:3px;font-size:.67rem;font-weight:700;">🚪 Auslass: ${e.doorT}</span><span style="font-size:.64rem;color:var(--muted);margin-left:3px;">Abspann ${e.credits} Min</span></div>`:''}<div class="cl-clean"><span class="clbadge">🧹 frei ab ${e.ceT}</span>${e.ads>0?`<span style="font-size:.64rem;color:var(--muted);margin-left:3px;">${e.ads}Min Wb.</span>`:''}</div>${e.nextTitle?`<div class="cl-next-info"><div class="nxt-title">▶ ${esc(e.nextTitle)}</div><div class="nxt-meta">Einlass ${e.nextSmT} · Film ${e.nextFsT} · <span class="gap-pill ${gc}">${e.gap} Min Aufräumzeit</span></div></div>`:''}</div>`;
+    });
+    h+=`</div></div>`;
+  }
+  return h+'</div>';
+}
+
+/* ── VIEW 3: BOXES ── */
+function renderBoxView(){ document.getElementById('boxContainer').innerHTML=buildBoxHTML(_entries,_cleanup,DB.films); }
+
+function renderBoxViewBW(){ document.getElementById('boxContainerBW').innerHTML=buildBoxBWHTML(_entries,_cleanup,DB.films); }
+
+function buildBoxBWHTML(entries,cleanup,filmList){
+  if(!filmList) filmList=DB.films;
+  let h='<div class="box-grid">';
+  for(let s=1;s<=9;s++){
+    const se=entries.filter(e=>e.saal===s).sort((a,b)=>a.sm-b.sm);
+    const seatsVal=(DB.settings&&DB.settings.saale&&DB.settings.saale[s]&&DB.settings.saale[s].seats)||'';
+    h+=`<div class="box-saal" style="background:#fff;border:3px solid #333;border-radius:5px;">
+      <div class="box-head" style="background:#e0e0e0;border-bottom:3px solid #333;">
+        <span class="box-num" style="color:#000;">SAAL ${s}</span>
+        ${saalBadgeHtml(s)}
+        ${seatsVal?`<span style="font-size:.72rem;color:#555;margin-left:auto;font-weight:600;">👥 ${esc(seatsVal)}</span>`:''}
+      </div>`;
+    if(!se.length) h+=`<div class="box-empty" style="color:#888;">Keine Vorstellungen</div>`;
+    else {
+      h+=`<div class="box-shows">`;
+      se.forEach(e=>{
+        const filmObj=filmList.find(f=>f.id===e.filmId)||{};
+        const fskLbl=filmObj.fsk!=null?fskBadge(filmObj.fsk):'';
+        const swLbl=filmObj.week?`<span style="background:#ddd;color:#333;font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:3px;">SW ${filmObj.week}</span>`:'';
+        h+=`<div class="box-show${e.isOv?' ov':''}" style="background:#fff;border:2px solid #555;border-left:5px solid #111;border-radius:3px;">
+          <div class="bs-title" style="color:#000;font-weight:700;">${e.isOv?'⚠ ':''}${esc(e.title)}</div>
+          <div class="bs-row" style="color:#444;"><span>Einlass</span><span style="color:#000;">${e.smT}</span></div>
+          ${e.ads>0?`<div class="bs-row" style="color:#444;"><span>Werbung</span><span style="color:#000;">${e.ads} Min</span></div>`:''}
+          <div class="bs-row" style="color:#444;"><span>Länge</span><span style="color:#000;">${e.len}Min</span></div>
+          <div class="bs-row" style="color:#444;"><span>Ende</span><span style="font-weight:700;color:#000;">${e.emT}</span></div>
+          ${fskLbl||swLbl?`<div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;">${fskLbl}${swLbl}</div>`:''}
+        </div>`;
+      });
+      h+=`</div>`;
+    }
+    h+=`</div>`;
+  }
+  return h+'</div>';
+}
+function buildBoxHTML(entries,cleanup,filmList){
+  // VVK info from current day slots
+  function isSlotVVK(saal, idx) {
+    return !!(DB.days[curDay]?.saale?.[saal]?.[idx]?.vvk);
+  }
+  if(!filmList) filmList=DB.films;
+  let h='<div class="box-grid">';
+  for(let s=1;s<=9;s++){
+    const se=entries.filter(e=>e.saal===s).sort((a,b)=>a.sm-b.sm);
+    h+=`<div class="box-saal"><div class="box-head"><span class="box-num">${s}</span>${saalBadgeHtml(s)}<span style="font-size:.66rem;color:var(--muted);letter-spacing:1px;">SAAL ${s}</span>${(DB.settings&&DB.settings.saale&&DB.settings.saale[s]&&DB.settings.saale[s].seats)?`<span style="font-size:.72rem;color:var(--muted2);margin-left:auto;font-weight:600;">👥 ${esc(DB.settings.saale[s].seats)}</span>`:''}</div>`;
+    if(!se.length) h+=`<div class="box-empty">Keine Vorstellungen</div>`;
+    else{ h+=`<div class="box-shows">`;
+      se.forEach(e=>{ const c=fc(e.filmId);
+        const filmObj=filmList.find(f=>f.id===e.filmId)||{};
+        const fskLbl=filmObj.fsk!=null?fskBadge(filmObj.fsk):'';
+        const swLbl=filmObj.week?`<span style="background:rgba(0,0,0,.3);color:rgba(255,255,255,.85);font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:3px;">SW ${filmObj.week}</span>`:'';
+        const _vvk = isSlotVVK(s, e.idx);
+        h+=`<div class="box-show${e.isOv?' ov':''}" style="background:linear-gradient(160deg,${c[0]}f0,${c[1]}e0);border-left:3px solid ${c[1]}cc;${_vvk?'border:2px solid var(--accent);':''}" ><div class="bs-title">${e.isOv?'⚠ ':''} ${_vvk?'🔒 ':''} ${esc(e.title)}</div><div class="bs-row"><span>Einlass</span><span>${e.smT}</span></div>${e.ads>0?`<div class="bs-row"><span>Werbung</span><span>${e.ads} Min</span></div>`:''}<div class="bs-row"><span>Länge</span><span>${e.len}Min</span></div><div class="bs-row"><span>Ende</span><span style="font-weight:700;color:#fff;">${e.emT}</span></div>${fskLbl||swLbl?`<div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;">${fskLbl}${swLbl}</div>`:''}</div>`;
+      });
+      h+=`</div>`; }
+    h+=`</div>`;
+  }
+  return h+'</div>';
+}
+
+/* ── VIEW 5: WOCHENÜBERSICHT ── */
+let _weekFrom='', _weekTo='';
+
+function renderWeekView(){
+  const el=document.getElementById('weekContainer'); if(!el) return;
+
+  // Standard: aktuelle Kinowoche Do–Mi
+  if(!_weekFrom||!_weekTo){
+    const today=new Date();
+    const dow=today.getDay()||7; // Mo=1..So=7
+    // Letzten Donnerstag finden
+    const diffThu = (dow>=4) ? dow-4 : dow+3;
+    const thu=new Date(today); thu.setDate(today.getDate()-diffThu);
+    const wed=new Date(thu); wed.setDate(thu.getDate()+6);
+    _weekFrom=thu.toISOString().slice(0,10);
+    _weekTo=wed.toISOString().slice(0,10);
+  }
+
+  // Tage im Bereich sammeln
+  const days=[];
+  const cur=new Date(_weekFrom+'T12:00:00');
+  const end=new Date(_weekTo+'T12:00:00');
+  while(cur<=end){ days.push(cur.toISOString().slice(0,10)); cur.setDate(cur.getDate()+1); }
+
+  const DOW=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const MONATE=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+  // Controls
+  let html=`<div class="week-controls">
+    <div class="field" style="display:flex;align-items:center;gap:8px;">
+      <label style="font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Von</label>
+      <input type="date" id="weekFrom" value="${_weekFrom}" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:5px 8px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.82rem;" onchange="_weekFrom=this.value;renderWeekView()">
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:8px;">
+      <label style="font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Bis</label>
+      <input type="date" id="weekTo" value="${_weekTo}" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:5px 8px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.82rem;" onchange="_weekTo=this.value;renderWeekView()">
+    </div>
+    <button class="btn btn-s btn-sm" onclick="weekNav(-7)">← Woche zurück</button>
+    <button class="btn btn-s btn-sm" onclick="weekNav(7)">Woche vor →</button>
+    <span style="font-size:.72rem;color:var(--muted);">${days.length} Tag${days.length!==1?'e':''} · ${days.filter(d=>DB.days[d]).length} mit Spielplan</span>
+  </div>`;
+
+  // Tabelle: Zeilen = Tage, Spalten = Säle 1–9
+  const todayStr = new Date().toISOString().slice(0,10);
+  html+=`<div class="week-table-wrap"><table class="week-table"><thead><tr>
+    <th class="wt-day-header" style="background:var(--s2);border-right:2px solid var(--border2);">Tag</th>`;
+  for(let s=1;s<=9;s++){
+    const typeBadge=saalBadgeHtml(s);
+    html+=`<th class="wt-saal"><span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;">${s}</span>${typeBadge?` ${typeBadge}`:''}</th>`;
+  }
+  html+=`</tr></thead><tbody>`;
+
+  days.forEach(d=>{
+    const dt=new Date(d+'T12:00:00');
+    const hasData=!!DB.days[d];
+    const isToday=d===todayStr;
+    html+=`<tr class="${isToday?'wt-today':''}">
+      <td class="wt-day-label">
+        <div class="wc-day" style="color:${isToday?'var(--accent)':hasData?'var(--text)':'var(--muted)'}">${DOW[dt.getDay()]}${isToday?' ◀':''}</div>
+        <div class="wc-date">${dt.getDate()}. ${MONATE[dt.getMonth()]}</div>
+      </td>`;
+    for(let s=1;s<=9;s++){
+      const dayData=DB.days[d];
+      if(!dayData||!dayData.saale||!dayData.saale[s]||!dayData.saale[s].length){
+        html+=`<td><span class="wc-empty">–</span></td>`;
+        continue;
+      }
+      const slots=[...dayData.saale[s]].sort((a,b)=>{
+        if(!a.startzeit&&!b.startzeit) return 0;
+        if(!a.startzeit) return 1; if(!b.startzeit) return -1;
+        return t2m(a.startzeit)-t2m(b.startzeit);
+      });
+      html+=`<td>`;
+      slots.forEach(sl=>{
+        const f=DB.films.find(f=>f.id===sl.filmId); if(!f) return;
+        const c=fc(f.id);
+        html+=`<div class="wc-show" style="border-left-color:${c[1]};">
+          <div class="wc-title" title="${esc(f.title)}">${esc(f.title)}</div>
+          <div class="wc-time">${sl.startzeit||'–'}</div>
+        </div>`;
+      });
+      html+=`</td>`;
+    }
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  el.innerHTML=html;
+}
+
+function weekNav(days){
+  const from=new Date(_weekFrom+'T12:00:00');
+  const to=new Date(_weekTo+'T12:00:00');
+  from.setDate(from.getDate()+days);
+  to.setDate(to.getDate()+days);
+  _weekFrom=from.toISOString().slice(0,10);
+  _weekTo=to.toISOString().slice(0,10);
+  renderWeekView();
+}
+
+/* ── VIEW 4: TABLE ── */
+function renderTableView(){
+  const ovCount=Object.keys(_ovMap).length;
+  const sorted=[..._entries].filter(e=>e.nextTitle!==null).sort((a,b)=>{
+    const da=a.credits>0?a.door:a.em;
+    const db=b.credits>0?b.door:b.em;
+    if(da!==db) return da-db;
+    return a.saal-b.saal;
+  });
+
+  let h=ovCount?`<div style="background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.35);border-radius:4px;padding:8px 12px;margin-bottom:9px;color:var(--red);font-size:.8rem;">⚠ <strong>${ovCount} Überschneidung${ovCount>1?'en':''}</strong> erkannt!</div>`:'';
+  h+=`
+  <table id="vorstellungTable" style="width:100%;">
+    <thead><tr>
+      <th style="width:20px;color:var(--muted);">⠿</th>
+      <th>Filmtitel</th>
+      <th style="width:1%;white-space:nowrap;">Nächste Vorstellung</th>
+      <th style="width:1%;white-space:nowrap;text-align:right;">Saal</th>
+      <th style="width:1%;white-space:nowrap;text-align:right;color:var(--green);">Auslass</th>
+      <th style="width:1%;white-space:nowrap;text-align:right;">Besucher</th>
+    </tr></thead>
+    <tbody id="vorstellungTbody">
+    ${sorted.map((e,ri)=>{
+      const {low,high}=getCleanupThresholds();
+      const gc=e.gap===null?'':e.gap<low?'gp-r':e.gap<high?'gp-w':'gp-g';
+      const auslassT = e.credits>0 ? e.door : e.em;
+      const auslassLabel = e.credits>0
+        ? `${e.doorT} <span style="font-size:.62rem;color:rgba(46,216,122,.7);display:block;margin-top:1px;">Ende: ${e.emT}</span>`
+        : `${e.emT}`;
+      const titleShort = e.title.length>20 ? e.title.slice(0,20)+'…' : e.title;
+      // Großer Abstand zur nächsten Auslasszeit — Trennlinie wenn >45 Min
+      const nextAuslass = sorted[ri+1] ? (sorted[ri+1].credits>0?sorted[ri+1].door:sorted[ri+1].em) : null;
+      const auslassGap = nextAuslass!==null ? nextAuslass - auslassT : null;
+      const separator = auslassGap!==null && auslassGap>45
+        ? `<tr class="tbl-separator"><td colspan="6" style="padding:0;border:none;"><div style="border-top:3px solid var(--border2);margin:2px 0;"></div></td></tr>`
+        : '';
+      return `<tr draggable="true" data-ri="${ri}" ondragstart="tblDragStart(event,${ri})" ondragover="tblDragOver(event,${ri})" ondrop="tblDrop(event,${ri})" ondragleave="tblDragLeave(event)" style="cursor:grab;">
+      <td style="color:var(--muted);font-size:.78rem;text-align:center;">⠿</td>
+      <td>
+        <strong style="font-size:.84rem;" title="${esc(e.title)}">${esc(titleShort)}${e.isOv?` <span class="tg tg-o">⚠</span>`:''}</strong>
+      </td>
+      <td>${e.nextTitle
+        ?`<div style="display:flex;flex-direction:column;gap:3px;">
+            <span style="font-size:.68rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;display:block;">${esc(e.nextTitle.length>20?e.nextTitle.slice(0,20)+'…':e.nextTitle)}</span>
+            ${e.gap!==null?`<span class="gap-pill ${gc}" style="font-size:.6rem;">${e.gap} Min Aufräumzeit</span>`:''}
+          </div>`
+        :`<span style="color:var(--muted);font-size:.7rem;">Letzte</span>`}
+      </td>
+      <td style="white-space:nowrap;text-align:right;"><span class="tg tg-s">SAAL ${e.saal}</span></td>
+      <td class="tn" style="color:var(--green);font-weight:700;font-size:.9rem;white-space:nowrap;text-align:right;">${auslassLabel}</td>
+      <td style="text-align:right;"><input type="text" placeholder="" style="width:52px;background:transparent;border:1px solid var(--muted2);color:var(--text);padding:3px 5px;border-radius:3px;font-size:.78rem;font-family:'Outfit',sans-serif;text-align:center;" title="Besucherzahl eintragen"></td>
+    </tr>${separator}`;
+    }).join('')}
+    </tbody>
+  </table>`;
+  document.getElementById('tableContainer').innerHTML=h;
+}
+
+/* Table drag-reorder */
+let tblDragIdx=null;
+function tblDragStart(e,ri){ tblDragIdx=ri; e.currentTarget.style.opacity='.4'; e.dataTransfer.effectAllowed='move'; }
+function tblDragOver(e,ri){ e.preventDefault(); e.dataTransfer.dropEffect='move'; document.querySelectorAll('#vorstellungTbody tr').forEach((r,i)=>r.style.borderTop=i===ri&&ri!==tblDragIdx?'2px solid var(--accent)':''); }
+function tblDragLeave(e){ document.querySelectorAll('#vorstellungTbody tr').forEach(r=>r.style.borderTop=''); }
+function tblDrop(e,ri){
+  e.preventDefault();
+  document.querySelectorAll('#vorstellungTbody tr').forEach(r=>{r.style.opacity='';r.style.borderTop='';});
+  if(tblDragIdx===null||tblDragIdx===ri) return;
+  // Re-render with swapped order — just visually move rows
+  const tbody=document.getElementById('vorstellungTbody'); if(!tbody) return;
+  const rows=[...tbody.querySelectorAll('tr')];
+  const draggedRow=rows[tblDragIdx];
+  if(ri<tblDragIdx) tbody.insertBefore(draggedRow, rows[ri]);
+  else tbody.insertBefore(draggedRow, rows[ri].nextSibling);
+  tblDragIdx=null;
+}
+
+function saveCurrentDay(){ saveToServer(); }
+
+/* ── PRINT ── */
+function printActive(){
+  // Inject creator into print header
+  const creator=(DB.settings&&DB.settings.general&&DB.settings.general.creator)||'';
+  const hdr=document.getElementById('printCreatorLine');
+  if(hdr) hdr.textContent=creator?`Erstellt von: ${creator} · ${new Date().toLocaleDateString('de-DE')}`:'';
+  document.querySelectorAll('.tv-panel').forEach(p=>p.classList.remove('print-active'));
+  document.getElementById('tv-'+activeView).classList.add('print-active');
+  document.getElementById('sumWrapAlways').style.display='none';
+  window.print();
+}
+
+/* ══════════════════════════════════════════════
+   STEP 4 – ARCHIVE
+══════════════════════════════════════════════ */
+function renderArchive(){
+  const el=document.getElementById('archContent');
+  const entries=Object.values(DB.archive).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!entries.length){ el.innerHTML='<div class="arch-empty">📁 Noch keine gespeicherten Programme.<br><span style="font-size:.78rem;opacity:.6;">Im Reiter „Planung" auf „💾 Speichern" klicken, um einen Tag zu archivieren.</span></div>'; return; }
+  const weeks={};
+  entries.forEach(e=>{ if(!weeks[e.weekKey]) weeks[e.weekKey]={label:e.weekLabel||getWeekLabel(e.weekKey),entries:[]}; weeks[e.weekKey].entries.push(e); });
+  const wKeys=Object.keys(weeks).sort().reverse();
+  el.innerHTML=`<div class="arch-weeks">${wKeys.map(wk=>{
+    const w=weeks[wk];
+    return `<div class="week-group"><div class="week-head" onclick="toggleWeek(this)"><div><div class="week-title">${esc(w.label)}</div><div class="week-meta">${w.entries.length} Tag${w.entries.length!==1?'e':''} gespeichert</div></div><div style="display:flex;align-items:center;gap:8px;"><span class="week-badge">${w.entries.length} Tag${w.entries.length!==1?'e':''}</span><span class="week-chev open">▶</span></div></div>
+    <div class="week-body">${w.entries.map(e=>{
+      let tot=0,sn=0; for(const s in e.saale){const sl=e.saale[s];if(sl&&sl.length){sn++;tot+=sl.length;}}
+      const ts=new Date(e.archivedAt).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      return `<div class="arch-card"><div class="arch-date">${esc(e.label)}</div><div class="arch-meta">${tot} Vorstellung${tot!==1?'en':''} in ${sn} Saal${sn!==1?'en':''}<br><span style="font-size:.67rem;opacity:.55;">Gespeichert: ${ts}</span></div><div class="arch-actions"><button class="btn btn-s btn-sm" onclick="previewArchEntry('${e.id}')">👁 Ansehen</button><button class="btn btn-b btn-sm" onclick="restoreArchEntryById('${e.id}')">↩ Laden</button><button class="btn btn-p btn-sm" onclick="pdfArchEntry('${e.id}')">📄 PDF</button><button class="btn btn-d btn-sm btn-ic" onclick="delArchEntry('${e.id}')" title="Löschen">🗑</button></div></div>`;
+    }).join('')}</div></div>`;
+  }).join('')}</div>`;
+}
+
+function toggleWeek(h){ const b=h.nextElementSibling, c=h.querySelector('.week-chev'); b.classList.toggle('collapsed'); c.classList.toggle('open'); }
+function delArchEntry(id){ if(!confirm('Eintrag löschen?')) return; delete DB.archive[id]; persistDB(); renderArchive(); toast('Gelöscht','info'); }
+function clearArchive(){ if(!confirm('Gesamtes Archiv löschen?')) return; DB.archive={}; persistDB(); renderArchive(); toast('Archiv geleert','info'); }
+
+function previewArchEntry(id){
+  const entry=DB.archive[id]; if(!entry) return;
+  archPreviewId=id;
+  document.getElementById('archViewTitle').textContent=entry.label;
+  resetColors();
+  const filmList=entry.filmsSnapshot||DB.films;
+  const {entries}=buildEntries(entry.saale,entry.cleanup,filmList);
+  const ovMap=buildOvMap(entries); enrichEntries(entries,entry.cleanup,ovMap);
+  const boxH=buildBoxHTML(entries,entry.cleanup);
+  const cleanH=buildCleanupHTML(entries,entry.cleanup);
+  const sorted=[...entries].sort((a,b)=>a.sm-b.sm||a.saal-b.saal);
+  const tableH=`<table><thead><tr><th>Saal</th><th>Titel</th><th>Werbung</th><th>Einlass</th><th>Start</th><th>Ende</th><th>Frei ab</th><th>Dauer</th></tr></thead><tbody>${sorted.map(e=>`<tr><td><span class="tg tg-s">SAAL ${e.saal}</span></td><td><strong>${esc(e.title)}</strong></td><td>${e.ads?e.ads+' Min':'–'}</td><td class="tn">${e.smT}</td><td class="tn">${e.fsT}</td><td class="tn" style="color:var(--accent2);font-weight:600">${e.emT}</td><td class="tn" style="color:var(--muted)">${e.ceT}</td><td>${e.len} Min</td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('archViewContent').innerHTML=`
+    <div style="display:flex;gap:4px;margin-bottom:12px;background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:2px;width:fit-content;">
+      <button class="vtab active" onclick="switchATab(this,'av-boxes')">🎬 Säle</button>
+      <button class="vtab" onclick="switchATab(this,'av-cleanup')">🧹 Reinigung</button>
+      <button class="vtab" onclick="switchATab(this,'av-table')">📋 Vorstellungen</button>
+    </div>
+    <div id="av-boxes">${boxH}</div>
+    <div id="av-cleanup" style="display:none;">${cleanH}</div>
+    <div id="av-table" style="display:none;"><div class="sum-title" style="margin-top:4px;">AUSLASSZETTEL</div>${tableH}</div>`;
+  openModal('archViewModal');
+}
+function switchATab(btn,showId){ ['av-boxes','av-cleanup','av-table'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=id===showId?'block':'none'; }); btn.closest('[style]').querySelectorAll('.vtab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+function restoreArchiveDay(){ if(!archPreviewId) return; restoreArchEntryById(archPreviewId); closeModal('archViewModal'); }
+function restoreArchEntryById(id){
+  const entry=DB.archive[id]; if(!entry) return;
+  if(DB.days[entry.date]&&!confirm(`Spielplan für ${fmtDate(entry.date)} existiert. Überschreiben?`)) return;
+  DB.days[entry.date]={cleanup:entry.cleanup,saale:JSON.parse(JSON.stringify(entry.saale))};
+  curDay=entry.date; persistDB(); toast(`${fmtDate(entry.date)} in Planung geladen ✓`,'ok'); goStep(2);
+}
+function pdfArchEntry(id){
+  const entry=DB.archive[id]||DB.archive[archPreviewId]; if(!entry) return;
+  resetColors();
+  const filmList=entry.filmsSnapshot||DB.films;
+  const {entries}=buildEntries(entry.saale,entry.cleanup,filmList);
+  const ovMap=buildOvMap(entries); enrichEntries(entries,entry.cleanup,ovMap);
+  const creator=(DB.settings&&DB.settings.general&&DB.settings.general.creator)||'';
+
+  // Build inline timeline HTML for print
+  const mn=Math.min(...entries.map(e=>e.sm)), mx=Math.max(...entries.map(e=>e.ce));
+  const hs=Math.floor(mn/60), he=Math.ceil(mx/60), total=(he-hs)*60, HW=120;
+  let ruler=`<div class="ruler"><div class="r-lbl">Saal</div><div class="r-hrs">`;
+  for(let h=hs;h<=he;h++) ruler+=`<div class="hm" style="left:${(h-hs)*HW}px"><span>${String(h).padStart(2,'0')}:00</span></div>`;
+  ruler+=`</div></div>`;
+  let tlRows='';
+  for(let s=1;s<=9;s++){
+    const se=entries.filter(e=>e.saal===s); let blks='';
+    se.forEach(e=>{
+      const c=fc(e.filmId), p=v=>(v/total)*100;
+      blks+=`<div class="mb" style="left:${p(e.fs-hs*60)}%;width:${p(e.len)}%;background:linear-gradient(135deg,${c[0]},${c[1]});"><div class="mbt">${esc(e.title)}</div><div class="mbt2">${e.fsT}–${e.emT}</div></div>`;
+      blks+=`<div class="cl" style="left:${p(e.em-hs*60)}%;width:${p(e.sCleanup||entry.cleanup)}%;"><span class="ct">🧹${e.ceT}</span></div>`;
+    });
+    if(!se.length) blks=`<div style="position:absolute;top:50%;left:6px;transform:translateY(-50%);font-size:.6rem;color:#999;">–</div>`;
+    tlRows+=`<div class="tl-row"><div class="tl-rl"><div class="tn">${s}</div></div><div class="tl-track" style="--hw:${HW}px;">${blks}</div></div>`;
+  }
+
+  // Box HTML (reuse)
+  const boxH=buildBoxHTML(entries,entry.cleanup);
+
+  const pw=window.open('','_pdf_'+id);
+  pw.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>${entry.label}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+  @page{size:A4 landscape;margin:5mm;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{font-family:'Outfit',sans-serif;font-size:8px;background:#fff;color:#000;}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px;}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;}
+  .sub{font-size:.72rem;color:#555;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:2px;margin:8px 0 4px;color:#333;}
+  /* Timeline */
+  .tl-wrap{border:1px solid #ccc;border-radius:3px;overflow:visible;margin-bottom:8px;}
+  .tl-inner{width:100%;}
+  .ruler{display:flex;border-bottom:1px solid #ccc;background:#efefef;height:20px;}
+  .r-lbl{width:55px;min-width:55px;border-right:1px solid #ccc;display:flex;align-items:center;padding-left:6px;font-size:.55rem;letter-spacing:1px;color:#666;}
+  .r-hrs{flex:1;position:relative;height:20px;}
+  .hm{position:absolute;top:0;height:100%;border-left:1px solid #ddd;display:flex;align-items:center;padding-left:3px;}
+  .hm span{font-size:.56rem;color:#888;}
+  .tl-row{display:flex;border-bottom:1px solid #eee;min-height:32px;}
+  .tl-rl{width:55px;min-width:55px;border-right:1px solid #ddd;display:flex;align-items:center;padding:0 6px;background:#efefef;}
+  .tn{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:1px;color:#000;}
+  .tl-track{flex:1;position:relative;background:repeating-linear-gradient(90deg,transparent,transparent calc(var(--hw) - 1px),#e8e8e8 calc(var(--hw) - 1px),#e8e8e8 var(--hw));}
+  .mb{position:absolute;top:3px;height:calc(100% - 6px);border-radius:3px;display:flex;flex-direction:column;justify-content:center;padding:0 4px;overflow:hidden;border:1px solid rgba(0,0,0,.08);}
+  .mbt{font-weight:700;font-size:.6rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  .mbt2{font-size:.52rem;color:rgba(255,255,255,.8);}
+  .cl{position:absolute;top:3px;height:calc(100% - 6px);border-radius:3px;background:repeating-linear-gradient(45deg,rgba(255,120,40,.12),rgba(255,120,40,.12) 3px,transparent 3px,transparent 6px);border:1px dashed rgba(255,100,30,.5);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .ct{font-size:.5rem;color:rgba(200,70,10,.8);text-align:center;padding:0 2px;}
+  /* Boxes */
+  .box-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+  .box-saal{border:1px solid #ccc;border-radius:3px;overflow:hidden;}
+  .box-head{background:#efefef;padding:4px 8px;border-bottom:1px solid #ccc;display:flex;align-items:center;gap:5px;}
+  .box-num{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;}
+  .box-shows{padding:4px 6px;display:flex;gap:4px;flex-wrap:wrap;}
+  .box-show{border-radius:3px;padding:5px 7px;flex:1;min-width:90px;border:1px solid rgba(0,0,0,.1);}
+  .bs-title{font-weight:700;font-size:.7rem;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bs-row{font-size:.6rem;color:rgba(255,255,255,.8);display:flex;justify-content:space-between;margin-top:1px;}
+  .bs-row span:last-child{font-weight:600;color:#fff;}
+  .bs-end{font-size:.68rem;font-weight:700;color:#fff;margin-top:3px;}
+  .bs-clean{font-size:.58rem;color:rgba(255,220,180,.9);margin-top:1px;}
+  .box-empty{color:#999;font-size:.7rem;padding:7px 8px;font-style:italic;}
+  .saal-info-badge{font-size:.55rem;font-weight:700;padding:1px 4px;border-radius:2px;text-transform:uppercase;}
+  .badge-3d{background:#1a4d99;color:#fff;}
+  .badge-imax{background:#886600;color:#fff;}
+  .badge-3dimax{background:#551188;color:#fff;}
+  </style></head><body>
+  <div class="hdr">
+    <div><h1>${entry.label}</h1><div class="sub">Kinoprogramm · Reinigung: ${entry.cleanup} Min${creator?' · Erstellt von: '+esc(creator):''}</div></div>
+    <div class="sub">${new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+  </div>
+  <div class="section-title">ZEITLEISTE</div>
+  <div class="tl-wrap"><div class="tl-inner">${ruler}${tlRows}</div></div>
+  <div class="section-title">SÄLE-ÜBERSICHT</div>
+  ${boxH}
+  <script>window.onload=function(){window.print();window.close();};<\/script>
+  </body></html>`);
+  pw.document.close();
+}
+function printArchiveDay(){ if(archPreviewId) pdfArchEntry(archPreviewId); }
+
+/* ══════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════ */
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openModal(id){
+  // Force close dropdown before any modal opens
+  acCloseAll();
+  document.getElementById(id).classList.add('open');
+}
+function toast(msg,type='info'){ const t=document.getElementById('toastEl'); t.innerHTML=msg; t.className=`toast ${type} show`; clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),3000); }
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+/* ══════════════════════════════════════════════
+   STEP 4 – SETTINGS
+══════════════════════════════════════════════ */
+function switchSettingsTab(tab){
+  const tabs=['general','users','saale','reinigung','archiv'];
+  tabs.forEach(t=>{
+    const c=document.getElementById('stab-content-'+t), b=document.getElementById('stab-'+t);
+    if(c) c.style.display=t===tab?'block':'none';
+    if(b) b.classList.toggle('active',t===tab);
+  });
+  if(tab==='general') loadGeneralSettings();
+  if(tab==='saale') renderSettingsSaale();
+  if(tab==='reinigung') renderSettingsCleanup();
+  if(tab==='archiv') renderArchive();
+  if(tab==='users'){ if(currentRole!=='admin'){toast('Nur für Admins!','err');switchSettingsTab('general');return;} renderStaffPinList(); }
+}
+
+function loadGeneralSettings(){
+  ensureSettings();
+  const g=DB.settings.general||{};
+  const ci=document.getElementById('g_creator'); if(ci) ci.value=g.creator||'';
+  const sat=g.saturation!=null?g.saturation:100;
+  const si=document.getElementById('g_saturation'); if(si){ si.value=sat; applyColorSaturation(sat); }
+}
+
+function applyStoredSaturation(){
+  const sat=(DB.settings&&DB.settings.general&&DB.settings.general.saturation!=null)?DB.settings.general.saturation:100;
+  applyColorSaturation(sat);
+}
+
+function applyColorSaturation(val){
+  const pct = parseInt(val);
+  const safe = isNaN(pct)?100:pct;
+  // Nur Säle-Boxen-Ansicht
+  const el=document.querySelector('#tv-boxes');
+  if(el) el.style.filter=`saturate(${safe}%)`;
+  const prev=document.getElementById('satPreview');
+  if(prev){
+    const label = safe===0?'Graustufen':safe<=30?'Fast grau':safe<=60?'Dezent':safe<=80?'Mittel':'Voll';
+    prev.innerHTML=`<span style="font-size:.75rem;color:var(--muted2);">${safe}% — ${label}</span>`;
+  }
+}
+
+function saveGeneralSettings(){
+  ensureSettings();
+  if(!DB.settings.general) DB.settings.general={};
+  DB.settings.general.creator=document.getElementById('g_creator').value.trim();
+  const sat=document.getElementById('g_saturation');
+  if(sat) DB.settings.general.saturation=parseInt(sat.value)||100;
+  persistDB(); toast('Einstellungen gespeichert ✓','ok');
+  if(document.getElementById('step2').classList.contains('active')) renderSaale();
+}
+
+function ensureSettings(){
+  if(!DB.settings) DB.settings={saale:{}};
+  if(!DB.settings.saale) DB.settings.saale={};
+  for(let s=1;s<=9;s++){
+    if(!DB.settings.saale[s]) DB.settings.saale[s]={type:'normal',cleanup:null,seats:''};
+    else {
+      if(!DB.settings.saale[s].type) DB.settings.saale[s].type='normal';
+      if(DB.settings.saale[s].seats===undefined) DB.settings.saale[s].seats='';
+    }
+  }
+}
+
+function renderSettingsSaale(){
+  ensureSettings();
+  const el=document.getElementById('saalSettingsGrid'); if(!el) return;
+  const types=[['normal','Normal'],['3d','3D'],['imax','IMAX'],['3dimax','3D IMAX']];
+  el.innerHTML=Array.from({length:9},(_,i)=>{
+    const s=i+1, si=DB.settings.saale[s]||{}, cur=si.type||'normal', seats=si.seats||'';
+    const opts=types.map(([v,l])=>`<option value="${v}"${cur===v?' selected':''}>${l}</option>`).join('');
+    return `<div class="settings-card">
+      <div class="settings-card-head">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--accent);">${s}</span>
+        <span style="font-size:.66rem;color:var(--muted);letter-spacing:1px;">SAAL ${s}</span>
+      </div>
+      <div class="settings-card-body">
+        <div class="field"><label>Saal-Typ</label>
+          <select id="saal_type_${s}" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.84rem;">${opts}</select>
+        </div>
+        <div style="margin-top:2px;" id="badge_preview_${s}">${getBadgePreview(cur)}</div>
+        <div class="field"><label>Verfügbare Plätze</label>
+          <input type="text" id="saal_seats_${s}" value="${seats}" placeholder="z.B. 120"
+            style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.9rem;width:100%;">
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // Live badge preview listeners
+  for(let s=1;s<=9;s++){
+    const sel=document.getElementById('saal_type_'+s);
+    if(sel) sel.addEventListener('change',function(){
+      document.getElementById('badge_preview_'+s).innerHTML=getBadgePreview(this.value);
+    });
+  }
+}
+
+function getBadgePreview(type){
+  const map={normal:'<span style="color:var(--muted);font-size:.75rem;">Kein Badge</span>',imax:'<span class="saal-info-badge badge-imax">IMAX</span>','3d':'<span class="saal-info-badge badge-3d">3D</span>','3dimax':'<span class="saal-info-badge badge-3dimax">3D IMAX</span>'};
+  return map[type]||'';
+}
+
+function saveSaalSettings(){
+  if(!DB.settings) DB.settings={};
+  if(!DB.settings.saale) DB.settings.saale={};
+  let saved=0;
+  for(let s=1;s<=9;s++){
+    if(!DB.settings.saale[s]) DB.settings.saale[s]={};
+    const sel=document.getElementById('saal_type_'+s);
+    const inp=document.getElementById('saal_seats_'+s);
+    if(sel){ DB.settings.saale[s].type=sel.value; saved++; }
+    if(inp) DB.settings.saale[s].seats=inp.value.trim();
+    if(DB.settings.saale[s].cleanup===undefined) DB.settings.saale[s].cleanup=null;
+  }
+  if(saved===0){ toast('Felder nicht gefunden – bitte Tab neu öffnen','err'); return; }
+  persistDB();
+  toast('Saalinfos gespeichert ✓','ok');
+  if(document.getElementById('step2').classList.contains('active')) renderSaale();
+}
+
+function renderSettingsCleanup(){
+  ensureSettings();
+  const {low,high}=getCleanupThresholds();
+  const el=document.getElementById('cleanupSettingsGrid'); if(!el) return;
+  const desc=`<div style="font-size:.75rem;color:var(--muted);margin-bottom:10px;">Ampelfarben: <span style="color:var(--red);">🔴 unter ${low} Min</span> · <span style="color:#ffc107;">🟡 ${low}–${high} Min</span> · <span style="color:var(--green);">🟢 über ${high} Min</span></div>`;
+  const cards=Array.from({length:9},(_,i)=>{
+    const s=i+1, si=DB.settings.saale[s]||{};
+    const val=si.cleanup!=null?si.cleanup:30;
+    const cls=cleanupPillClass(val);
+    return `<div class="settings-card"><div class="settings-card-head"><span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--accent);">${s}</span><span style="font-size:.66rem;color:var(--muted);letter-spacing:1px;">SAAL ${s}</span></div><div class="settings-card-body"><div class="field"><label>Reinigungszeit (Min)</label><input type="number" id="saal_cleanup_${s}" value="${val}" min="1" max="120" oninput="updateCleanupPreview(${s},this.value)" style="background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:4px;font-family:'Outfit',sans-serif;font-size:.9rem;width:100%;"></div><div id="cleanup_preview_${s}"><span class="cleanup-pill ${cls}">${val} Min</span></div></div></div>`;
+  }).join('');
+  el.innerHTML=desc+`<div class="settings-grid">${cards}</div>`;
+}
+
+function updateCleanupPreview(s,val){
+  const mins=parseInt(val)||0, cls=cleanupPillClass(mins);
+  const el=document.getElementById('cleanup_preview_'+s);
+  if(el) el.innerHTML=`<span class="cleanup-pill ${cls}">${mins} Min</span>`;
+}
+
+function saveCleanupSettings(){
+  ensureSettings();
+  for(let s=1;s<=9;s++){
+    const inp=document.getElementById('saal_cleanup_'+s);
+    if(inp) DB.settings.saale[s].cleanup=parseInt(inp.value)||30;
+  }
+  persistDB(); toast('Reinigungszeiten gespeichert ✓','ok');
+  if(document.getElementById('step2').classList.contains('active')) renderSaale();
+}
+
+/* ══════════════════════════════════════════════
+   AUTH – PIN LOGIN
+══════════════════════════════════════════════ */
+let currentRole = 'admin'; // Immer admin – Auth via Supabase
+let loginRole = 'admin';
+let pinBuffer = '';
+
+function selectLoginRole(role){
+  loginRole = role;
+  pinBuffer = '';
+  updatePinDisplay();
+  document.getElementById('pinError').textContent = '';
+  document.getElementById('lrb-admin').classList.toggle('sel', role==='admin');
+  document.getElementById('lrb-staff').classList.toggle('sel', role==='staff');
+}
+
+function pinPress(d){
+  if(pinBuffer.length >= 8) return;
+  pinBuffer += d;
+  updatePinDisplay();
+  if(pinBuffer.length === 4) setTimeout(tryLogin, 300);
+}
+
+function pinDel(){
+  pinBuffer = pinBuffer.slice(0,-1);
+  updatePinDisplay();
+}
+
+function pinClear(){
+  pinBuffer = '';
+  updatePinDisplay();
+  document.getElementById('pinError').textContent = '';
+}
+
+function updatePinDisplay(){
+  for(let i=0;i<4;i++){
+    const dot = document.getElementById('pd'+i);
+    if(dot) dot.classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function tryLogin(){
+  const pin = pinBuffer;
+  pinBuffer = '';
+  updatePinDisplay();
+
+  if(loginRole === 'admin'){
+    if(pin === (DB.users.adminPin||'1234')){
+      loginSuccess('admin');
+    } else {
+      showPinError('Falscher Admin-PIN');
+    }
+  } else {
+    // Check staff PINs
+    const match = DB.users.staff.find(s=>s.pin===pin);
+    if(match){
+      loginSuccess('staff', match.name||'Mitarbeiter');
+    } else {
+      showPinError('Falscher Mitarbeiter-PIN');
+    }
+  }
+}
+
+function showPinError(msg){
+  const el = document.getElementById('pinError');
+  el.textContent = msg;
+  // Shake animation
+  const box = document.querySelector('.login-box');
+  box.style.animation = 'shake .4s ease';
+  setTimeout(()=>{ box.style.animation=''; el.textContent=''; }, 1500);
+}
+
+function loginSuccess(role, name){
+  currentRole = role;
+  document.getElementById('loginOverlay').style.display = 'none';
+  applyRoleUI();
+  const lbl = document.getElementById('roleLabel');
+  if(lbl){
+    if(role==='admin'){
+      lbl.textContent='Admin';
+      lbl.className='role-badge role-admin';
+    } else {
+      lbl.textContent=name||'Mitarbeiter';
+      lbl.className='role-badge role-staff';
+    }
+  }
+  toast(`Willkommen${name?' '+name:''}! Angemeldet als ${role==='admin'?'Admin':'Mitarbeiter'}.`,'ok');
+}
+
+function doLogout(){ sbLogout(); }
+function openImport(){
+  // Session als URL-Parameter übergeben falls localStorage nicht geteilt wird
+  const s = localStorage.getItem('csp_session');
+  if(s){
+    const enc = encodeURIComponent(s);
+    window.location.href = 'import.html?session=' + enc;
+  } else {
+    window.location.href = 'import.html';
+  }
+}
+function _unusedDoLogout_old(){
+  currentRole = null;
+  pinBuffer = '';
+  acCloseAll();
+  updatePinDisplay();
+  document.getElementById('pinError').textContent='';
+  /* loginOverlay disabled */;
+  selectLoginRole('admin');
+}
+
+function applyRoleUI(){
+  const isAdmin = currentRole === 'admin';
+  // Staff sees all tabs, but Einstellungen is admin only
+  document.getElementById('nav1').style.display = isAdmin ? '' : '';
+  document.getElementById('nav2').style.display = isAdmin ? '' : '';
+  document.getElementById('nav4').style.display = isAdmin ? '' : 'none';
+
+  if(!isAdmin){
+    // Staff: navigate to step 2 (Planung) – they can view & edit start/ads/credits
+    if(!Object.keys(DB.days).length){
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById('step3').classList.add('active');
+      document.getElementById('tlContainer').innerHTML='<div style="text-align:center;padding:60px;color:var(--muted);font-size:.9rem;">Noch kein Spielplan angelegt.</div>';
+    } else {
+      if(!curDay){ const s=Object.keys(DB.days).sort(); curDay=s[s.length-1]||''; }
+      goStepInternal(2);
+    }
+    // Hide admin-only controls in Planung
+    setTimeout(()=>{
+      // Hide: save file, day add/delete, clear day, copy day, archive day
+      document.querySelectorAll('.save-bar').forEach(b=>b.style.display='none');
+      document.querySelectorAll('.day-add-btn').forEach(b=>b.style.display='none');
+      document.querySelectorAll('.day-tab .drm').forEach(b=>b.style.display='none');
+      document.querySelectorAll('.btn-d').forEach(b=>b.style.display='none'); // clear day
+      // Hide admin buttons in day bar
+      const dayBar=document.querySelector('.day-bar');
+      if(dayBar){
+        [...dayBar.querySelectorAll('.btn')].forEach(b=>{
+          if(b.textContent.includes('Kopieren')) b.style.display='none';
+        });
+      }
+    },100);
+  } else {
+    // Restore all for admin
+    document.querySelectorAll('.save-bar').forEach(b=>b.style.display='');
+    document.querySelectorAll('.day-add-btn').forEach(b=>b.style.display='');
+    document.querySelectorAll('.day-tab .drm').forEach(b=>b.style.display='');
+    document.querySelectorAll('.btn-d').forEach(b=>b.style.display='');
+    goStepInternal(1);
+  }
+}
+
+function requireAdmin(){
+  if(currentRole !== 'admin'){ toast('Nur für Admins!','err'); return false; }
+  return true;
+}
+
+// Wrap goStep for role check
+function goStepInternal(n){ /* direct nav without role check */
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  document.querySelectorAll('.snb').forEach((b,i)=>{ b.classList.remove('active','done'); if(i<3&&i+1<n) b.classList.add('done'); if(i+1===n) b.classList.add('active'); });
+  window.scrollTo(0,0);
+  if(n===2){ syncCleanupInput(); renderDayTabs(); renderPool(); renderSaale(); }
+}
+
+/* ── USER MANAGEMENT ── */
+function renderStaffPinList(){
+  const el = document.getElementById('staffPinList'); if(!el) return;
+  const staff = DB.users.staff||[];
+  if(!staff.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:.78rem;padding:4px 0;">Noch keine Mitarbeiter-PINs angelegt</div>';
+    return;
+  }
+  el.innerHTML = staff.map((s,i)=>{
+    const dots='●'.repeat(s.pin.length);
+    return `<div class="user-item"><span class="role-badge role-staff">MA</span><div style="flex:1;"><div style="font-weight:600;font-size:.85rem;">${esc(s.name||'Mitarbeiter')}</div><div style="font-size:.72rem;color:var(--muted);">PIN: ${dots}</div></div><button class="btn btn-d btn-sm btn-ic" onclick="removeStaffPin(${i})" title="Entfernen">🗑</button></div>`;
+  }).join('');
+}
+
+function addStaffPin(){
+  const pin = document.getElementById('u_newStaff').value.trim();
+  const name = document.getElementById('u_newStaffName').value.trim();
+  if(!pin||pin.length<4){ toast('PIN muss mindestens 4 Ziffern haben!','err'); return; }
+  if(!/^\d+$/.test(pin)){ toast('Nur Ziffern erlaubt!','err'); return; }
+  if(pin === DB.users.adminPin){ toast('PIN schon als Admin-PIN vergeben!','err'); return; }
+  if((DB.users.staff||[]).find(s=>s.pin===pin)){ toast('PIN bereits vorhanden!','err'); return; }
+  if(!DB.users.staff) DB.users.staff=[];
+  DB.users.staff.push({pin,name}); persistDB(); renderStaffPinList();
+  document.getElementById('u_newStaff').value='';
+  document.getElementById('u_newStaffName').value='';
+  toast('Mitarbeiter-PIN hinzugefügt ✓','ok');
+}
+
+function removeStaffPin(i){
+  if(!confirm('Diesen PIN entfernen?')) return;
+  DB.users.staff.splice(i,1); persistDB(); renderStaffPinList();
+  toast('Entfernt','info');
+}
+
+function changeAdminPin(){
+  const old = document.getElementById('u_adminOld').value.trim();
+  const n1  = document.getElementById('u_adminNew').value.trim();
+  const n2  = document.getElementById('u_adminNew2').value.trim();
+  if(old !== DB.users.adminPin){ toast('Aktueller PIN falsch!','err'); return; }
+  if(!n1||n1.length<4){ toast('Neuer PIN muss min. 4 Ziffern haben!','err'); return; }
+  if(!/^\d+$/.test(n1)){ toast('Nur Ziffern erlaubt!','err'); return; }
+  if(n1!==n2){ toast('PINs stimmen nicht überein!','err'); return; }
+  DB.users.adminPin=n1; persistDB();
+  document.getElementById('u_adminOld').value='';
+  document.getElementById('u_adminNew').value='';
+  document.getElementById('u_adminNew2').value='';
+  toast('Admin-PIN geändert ✓','ok');
+}
+
+// Add shake animation CSS dynamically
+const shakeStyle=document.createElement('style');
+shakeStyle.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}';
+document.head.appendChild(shakeStyle);
+
+/* INIT */
+resetColors();
+renderFilmList();
+if(curDay) renderDayTabs();
+
+// Zeige Datei-Aktualitäts-Check beim Öffnen
+(function(){
+  const box = document.getElementById('dataFreshnessBox');
+  const dateEl = document.getElementById('dataFreshnessDate');
+  if(!box||!dateEl) return;
+  if(DB._savedAt){
+    const d = new Date(DB._savedAt);
+    const ageH = (Date.now() - d.getTime()) / 3600000;
+    const fmt = d.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    dateEl.textContent = fmt;
+    if(ageH < 1){
+      dateEl.style.color = 'var(--green)';
+      box.style.borderColor = 'rgba(46,216,122,.4)';
+    } else if(ageH < 24){
+      dateEl.style.color = 'var(--accent)';
+      box.style.borderColor = 'rgba(240,192,64,.4)';
+    } else {
+      dateEl.style.color = 'var(--red)';
+      box.style.borderColor = 'rgba(255,51,85,.4)';
+    }
+  } else {
+    dateEl.textContent = 'Keine lokalen Daten — bitte Datei laden';
+    dateEl.style.color = 'var(--muted)';
+  }
+  box.style.display = 'block';
+})();
+
+// Show login overlay on start
+/* loginOverlay disabled */;
+
+// ── PRESENCE BEIM SCHLIESSEN DES TABS/BROWSERS LÖSCHEN ──────────────────
+// Strategie: sendBeacon (zuverlässigste Methode beim Tab-Schließen)
+// + keepalive fetch als Fallback
+// + visibilitychange als zusätzlicher Trigger
+function clearPresenceBeacon() {
+  const sess = JSON.parse(localStorage.getItem('csp_session') || 'null');
+  const token = sess?.token || _sbSess?.token;
+  const rolle = sess?.rolle || _sbSess?.rolle;
+  if (!token || rolle !== 'programmplanung') return;
+
+  const expiredAt = new Date(Date.now() - 1000).toISOString();
+
+  fetch(`${_SB_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+    method: 'PATCH',
+    keepalive: true,
+    headers: {
+      'apikey': _SB_KEY,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ expires_at: expiredAt })
+  }).catch(() => {});
+
+  localStorage.removeItem('csp_session');
+}
+
+window.addEventListener('pagehide', (e) => {
+  if (!e.persisted) clearPresenceBeacon();
+});
+
+// Presence erneuern wenn Tab wieder sichtbar wird
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const token2 = _sbSess?.token;
+    if (token2 && _sbSess?.rolle === 'programmplanung') {
+      const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+      fetch(`${_SB_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': _SB_KEY,
+          'Authorization': `Bearer ${token2}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ last_seen: new Date().toISOString(), expires_at: expiresAt })
+      }).catch(() => {});
+    }
+  }
+});
+
+// ── PRESENCE ALLE 10 MIN ERNEUERN ────────────────────────────────────────
+setInterval(async () => {
+  const token = _sbSess?.token;
+  if (!token || _sbSess?.rolle !== 'programmplanung') return;
+  const now = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+  try {
+    await fetch(`${_SB_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': _SB_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ last_seen: now, expires_at: expiresAt })
+    });
+  } catch(e) {}
+}, 10 * 60 * 1000);
+
+// ── INAKTIVITÄT MESSEN + SPERRE-DIALOG nach 30 Min ───────────────────────
+let _lastActivityTime = Date.now();
+['click','keydown','mousemove','scroll','touchstart'].forEach(ev =>
+  document.addEventListener(ev, () => { _lastActivityTime = Date.now(); }, { passive: true })
+);
+
+setInterval(async () => {
+  if (!_sbSess?.token || _sbSess?.rolle !== 'programmplanung') return;
+  if (document.getElementById('lockDialog')) return;
+  const inactiveMins = (Date.now() - _lastActivityTime) / 60000;
+  if (inactiveMins < 30) return;
+
+  // Presence in DB prüfen — ist ein anderer aktiv?
+  try {
+    const res = await fetch(
+      `${_SB_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung&select=user_name,last_seen,ip`,
+      { headers: { 'apikey': _SB_KEY, 'Authorization': `Bearer ${_sbSess.token}` } }
+    );
+    const data = await res.json();
+    const p = data?.[0];
+    const lastSeen = p?.last_seen ? new Date(p.last_seen) : null;
+    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const andererAktiv = lastSeen && lastSeen > thirtyMinAgo && p.user_name !== (_sbSess.name || 'Programmplanung');
+    showLockDialog(andererAktiv ? p : null);
+  } catch(e) {}
+}, 60 * 1000);
+
+function showLockDialog(andererNutzer) {
+  if (document.getElementById('lockDialog')) return;
+  const wer = andererNutzer
+    ? `⚠️ ${andererNutzer.user_name || 'Jemand'}${andererNutzer.ip ? ' (IP: '+andererNutzer.ip+')' : ''} ist eingeloggt.`
+    : '⏱ Du warst 30 Minuten inaktiv.';
+  const info = andererNutzer
+    ? 'Ein anderer Nutzer könnte die Programmplanung übernommen haben.'
+    : 'Die Sperre wurde für andere Nutzer aufgehoben.';
+  const el = document.createElement('div');
+  el.id = 'lockDialog';
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  el.innerHTML = `<div style="background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:28px 32px;max-width:420px;width:90%;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:10px;">🔒</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--accent);margin-bottom:10px;">SITZUNG INAKTIV</div>
+    <div style="font-size:.84rem;color:var(--muted2);margin-bottom:6px;">${wer}</div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:24px;">${info}</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="resumeSession()" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:10px 24px;font-weight:700;cursor:pointer;font-size:.9rem;">▶ Weiter arbeiten</button>
+      <button onclick="sbLogout()" style="background:var(--s3);color:var(--muted);border:1px solid var(--border2);border-radius:6px;padding:10px 24px;cursor:pointer;font-size:.9rem;">Abmelden</button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+}
+
+async function resumeSession() {
+  document.getElementById('lockDialog')?.remove();
+  _lastActivityTime = Date.now();
+  try {
+    const expiresAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
+    await fetch(`${_SB_URL}/rest/v1/cineschedule_presence`, {
+      method: 'POST',
+      headers: {
+        'apikey': _SB_KEY,
+        'Authorization': `Bearer ${_sbSess.token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ rolle:'programmplanung', user_name:_sbSess.name||'Programmplanung', expires_at:expiresAt, last_seen:new Date().toISOString() })
+    });
+    toast('Sitzung fortgesetzt ✓','ok');
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
