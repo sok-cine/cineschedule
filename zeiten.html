@@ -224,6 +224,26 @@ function renderDayTabs(){
 
 function switchDay(d){ curDay=d; renderDayTabs(); renderSaale(); }
 
+function focusNext(el) {
+  const all = [...document.querySelectorAll('input.tif:not([disabled])')];
+  const idx = all.indexOf(el);
+  if (idx >= 0 && idx < all.length - 1) {
+    const next = all[idx + 1];
+    next.focus();
+    if (next.select) next.select();
+  }
+}
+
+function handleTifKey(e, el, day, saal, slotIdx, type) {
+  if (e.key === 'Tab' || e.key === 'Enter') {
+    e.preventDefault();
+    // Für alle Typen: Daten still speichern, dann nächstes Feld fokussieren
+    // renderSaale wird NICHT aufgerufen — das würde den DOM zerstören
+    saveTimeQuiet(el, day, saal, slotIdx);
+    focusNext(el);
+  }
+}
+
 function renderSaale(){
   const el=document.getElementById('saaleGrid'); if(!el) return;
   if(!curDay||!DB.days[curDay]){ el.innerHTML='<div style="color:var(--muted);padding:20px;">Kein Tag ausgewählt</div>'; return; }
@@ -251,21 +271,23 @@ function renderSaale(){
             <span class="ss-lbl">Start:</span>
             <input class="tif" type="text" value="${sl.startzeit||''}" placeholder="1300" maxlength="5"
               oninput="fmtTime(this)"
-              onblur="saveTime(this,'${curDay}',${s},${slots.indexOf(sl)})"
-              onkeydown="if(event.key==='Enter')this.blur()"
+              onblur="saveTimeQuiet(this,'${curDay}',${s},${slots.indexOf(sl)})"
+              onkeydown="handleTifKey(event,this,'${curDay}',${s},${slots.indexOf(sl)},'time')"
               ${sl.vvk?'readonly disabled title="🔒 Gesperrt – Vorverkauf aktiv" style=\"opacity:.5;cursor:not-allowed;\"':''}>
             ${sl.vvk?'<span style=\"font-size:.6rem;color:var(--accent);\">🔒 VVK</span>':''}
           </div>
           <div style="display:flex;align-items:center;gap:3px;">
             <span class="ss-lbl">Werb.:</span>
             <input class="tif tif-ads" type="number" value="${ads}" min="0" max="90"
-              onchange="saveAds(this,'${curDay}',${s},${slots.indexOf(sl)})">
+              onchange="saveAds(this,'${curDay}',${s},${slots.indexOf(sl)})"
+              onkeydown="handleTifKey(event,this,'${curDay}',${s},${slots.indexOf(sl)},'ads')">
             <span class="ss-lbl">Min</span>
           </div>
           <div style="display:flex;align-items:center;gap:3px;">
             <span class="ss-lbl">Absp.:</span>
             <input class="tif tif-ads" type="number" value="${cr}" min="0" max="30"
-              onchange="saveCredits(this,'${f.id}')">
+              onchange="saveCredits(this,'${f.id}')"
+              onkeydown="handleTifKey(event,this,'${curDay}',${s},${slots.indexOf(sl)},'credits')">
             <span class="ss-lbl">Min</span>
           </div>
           <div style="display:flex;align-items:center;gap:3px;">
@@ -294,22 +316,71 @@ function fmtTime(inp){
   else inp.value=v;
 }
 
-function saveTime(inp,day,saal,idx){
+// Speichert Zeit ohne renderSaale (für onblur — verhindert DOM-Zerstörung bei Tab)
+function saveTimeQuiet(inp, day, saal, idx){
+  if(DB.days[day]?.saale[saal]?.[idx]?.vvk){ inp.value=DB.days[day].saale[saal][idx].startzeit||''; return; }
+  const v=inp.value.trim(); if(!v) return;
+  let clean=v.replace(':','').replace(/\D/g,'');
+  if(clean.length<3||clean.length>4) return;
+  const h=clean.length===4?clean.slice(0,2):('0'+clean.slice(0,1)), m=clean.slice(-2);
+  if(parseInt(m)>59) return;
+  const t=h+':'+m;
+  if(DB.days[day]?.saale?.[saal]?.[idx]) {
+    DB.days[day].saale[saal][idx].startzeit=t;
+    inp.value=t;
+    // Zeile im UI aktualisieren ohne volles renderSaale
+    const ssDiv=inp.closest('.ss');
+    if(ssDiv){
+      const f=DB.films.find(f=>f.id===DB.days[day].saale[saal][idx].filmId);
+      const ads=DB.days[day].saale[saal][idx].ads??30;
+      const endMin=f?t2m(t)+ads+f.len:null;
+      const endT=endMin?m2t(endMin):'–';
+      const ti=ssDiv.querySelector('.ss-ti');
+      if(ti) ti.innerHTML=`${t} → <strong style="color:var(--accent);">${endT}</strong>`;
+    }
+  }
+}
+
+function saveTime(inp, day, saal, idx, doFocusNext=false){
   if(DB.days[day]?.saale[saal]?.[idx]?.vvk){
     const orig=DB.days[day].saale[saal][idx].startzeit||'';
     inp.value=orig;
+    if(doFocusNext) focusNext(inp);
     return;
   }
   const v=inp.value.trim();
-  if(!v){ return; }
+  if(!v){
+    if(doFocusNext) focusNext(inp);
+    return;
+  }
   let clean=v.replace(':','').replace(/\D/g,'');
-  if(clean.length<3||clean.length>4){ toast('Ungültige Zeit!','err'); return; }
+  if(clean.length<3||clean.length>4){
+    toast('Ungültige Zeit!','err');
+    if(doFocusNext) focusNext(inp);
+    return;
+  }
   const h=clean.length===4?clean.slice(0,2):('0'+clean.slice(0,1)), m=clean.slice(-2);
-  if(parseInt(m)>59){ toast('Ungültige Minuten!','err'); return; }
+  if(parseInt(m)>59){
+    toast('Ungültige Minuten!','err');
+    if(doFocusNext) focusNext(inp);
+    return;
+  }
   const t=h+':'+m;
   if(DB.days[day]&&DB.days[day].saale&&DB.days[day].saale[saal]&&DB.days[day].saale[saal][idx]){
     DB.days[day].saale[saal][idx].startzeit=t;
-    inp.value=t; renderSaale();
+    inp.value=t;
+    if(doFocusNext){
+      // Index vor renderSaale merken
+      const allBefore=[...document.querySelectorAll('input.tif:not([disabled])')];
+      const curIdx=allBefore.indexOf(inp);
+      renderSaale();
+      // Nach renderSaale nächstes Element fokussieren
+      const allAfter=[...document.querySelectorAll('input.tif:not([disabled])')];
+      const next=allAfter[curIdx+1];
+      if(next){ next.focus(); if(next.type==='text') next.select(); }
+    } else {
+      renderSaale();
+    }
   }
 }
 
