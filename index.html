@@ -165,9 +165,36 @@ async function doLogin() {
           const isActive = expires > new Date() && lastSeen && lastSeen > thirtyMinAgo;
           if (isActive) {
             const who  = p.user_name || rolle;
-            const until = expires.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
             const ipInfo = p.ip ? ` · IP: ${p.ip}` : '';
-            showErr(`⚠️ Programmplanung ist bereits eingeloggt (${who}${ipInfo}) · zuletzt aktiv: ${lastSeen.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}.\n\nBitte den anderen Nutzer bitten sich abzumelden.`);
+            const lastSeenStr = lastSeen.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+            const minutesAgo = Math.round((Date.now() - lastSeen.getTime()) / 60000);
+            showErr(`⚠️ Programmplanung ist bereits eingeloggt (${who}${ipInfo}) · zuletzt aktiv: ${lastSeenStr} (vor ${minutesAgo} Min).\n\nFalls die Verbindung unterbrochen wurde, kannst du die Sperre aufheben.`);
+            // Notfall-Entsperren Button anzeigen
+            const errEl = document.getElementById('errMsg');
+            if (errEl && !document.getElementById('forceUnlockBtn')) {
+              const btn = document.createElement('button');
+              btn.id = 'forceUnlockBtn';
+              btn.textContent = '🔓 Sperre aufheben & einloggen';
+              btn.style.cssText = 'margin-top:10px;padding:8px 16px;background:rgba(255,51,85,.15);border:1px solid rgba(255,51,85,.4);color:#ff3355;border-radius:6px;cursor:pointer;font-size:.8rem;width:100%;';
+              btn.onclick = async () => {
+                btn.disabled = true;
+                btn.textContent = '⏳ Wird aufgehoben...';
+                try {
+                  // Presence-Eintrag löschen mit aktuellem Login-Token
+                  await fetch(`${SUPABASE_URL}/rest/v1/cineschedule_presence?rolle=eq.programmplanung`, {
+                    method: 'DELETE',
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${auth.access_token}` }
+                  });
+                  errEl.style.display = 'none';
+                  // Nochmal einloggen
+                  doLogin();
+                } catch(e) {
+                  btn.textContent = '❌ Fehler — bitte nochmal versuchen';
+                  btn.disabled = false;
+                }
+              };
+              errEl.appendChild(btn);
+            }
             return;
           }
         }
