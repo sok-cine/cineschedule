@@ -466,8 +466,9 @@ function renderTableView(){
   });
   let h=`<table id="vorstellungTable" style="width:100%;">
     <thead><tr>
-      <th>Filmtitel</th>
-      <th style="width:1%;white-space:nowrap;">Nächste Vorstellung</th>
+      <th>Filmtitel<div style="font-size:.6rem;font-weight:400;color:var(--muted);">Einlass · Werbung</div></th>
+      <th style="width:1%;white-space:nowrap;">Nächste Vorstellung<div style="font-size:.6rem;font-weight:400;color:var(--muted);">Einlass · Werbung</div></th>
+      <th style="width:1%;white-space:nowrap;text-align:center;">Aufräumzeit</th>
       <th style="width:1%;white-space:nowrap;text-align:right;">Saal</th>
       <th style="width:1%;white-space:nowrap;text-align:right;color:var(--green);">Auslass</th>
       <th style="width:1%;white-space:nowrap;text-align:right;">Besucher</th>
@@ -478,20 +479,36 @@ function renderTableView(){
     const auslassLbl=e.credits>0
       ?`${e.doorT}<span style="font-size:.62rem;color:rgba(46,216,122,.7);display:block;">Ende: ${e.emT}</span>`
       :e.emT;
-    const titleShort=e.title.length>20?e.title.slice(0,20)+'…':e.title;
+    const titleShort=e.title.length>22?e.title.slice(0,22)+'…':e.title;
+
+    // Einlasszeit + Werbung für aktuellen Film
+    const curEinlass = e.smT || '–';
+    const curWerbung = e.ads > 0 ? `${e.ads} Min` : '–';
+
+    // Nächste Vorstellung — nextSmT ist bereits in entry gesetzt
+    const nextEntry = _entries.find(x => x.title === e.nextTitle && x.saal === e.saal && x.sm > e.sm);
+    const nextEinlass = nextEntry ? (nextEntry.smT || '–') : '–';
+    const nextWerbung = nextEntry && nextEntry.ads > 0 ? `${nextEntry.ads} Min` : '–';
+
     const nextAuslass=sorted[ri+1]?(sorted[ri+1].credits>0?sorted[ri+1].door:sorted[ri+1].em):null;
     const auslassGap=nextAuslass!==null?nextAuslass-auslassT:null;
     const separator=auslassGap!==null&&auslassGap>45
-      ?`<tr><td colspan="5" style="padding:1px 0;border:none;"><div style="border-top:3px solid #555;margin:2px 0;"></div></td></tr>`
+      ?`<tr><td colspan="6" style="padding:1px 0;border:none;"><div style="border-top:3px solid #555;margin:2px 0;"></div></td></tr>`
       :'';
     h+=`<tr style="background:var(--s1);">
-      <td><strong style="font-size:.84rem;" title="${esc(e.title)}">${esc(titleShort)}</strong></td>
+      <td>
+        <strong style="font-size:.84rem;" title="${esc(e.title)}">${esc(titleShort)}</strong>
+        <div style="font-size:.65rem;color:var(--muted);margin-top:2px;">⏰ ${curEinlass} · Werb: ${curWerbung}</div>
+      </td>
       <td>${e.nextTitle
-        ?`<div style="display:flex;flex-direction:column;gap:3px;">
+        ?`<div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:.68rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;display:block;">${esc(e.nextTitle.length>20?e.nextTitle.slice(0,20)+'…':e.nextTitle)}</span>
-            ${e.gap!==null?`<span class="gap-pill ${gc}" style="font-size:.6rem;">${e.gap} Min Aufräumzeit</span>`:''}
+            <span style="font-size:.65rem;color:var(--muted);">⏰ ${nextEinlass} · Werb: ${nextWerbung}</span>
           </div>`
         :`<span style="color:var(--muted);font-size:.7rem;">Letzte</span>`}
+      </td>
+      <td style="text-align:center;white-space:nowrap;">
+        ${e.gap!==null?`<span class="gap-pill ${gc}" style="display:block;width:100%;box-sizing:border-box;text-align:center;">${e.gap} Min</span>`:'<span style="color:var(--muted);font-size:.7rem;">–</span>'}
       </td>
       <td style="white-space:nowrap;text-align:right;"><span class="tg tg-s">SAAL ${e.saal}</span></td>
       <td class="tn" style="color:var(--green);font-weight:700;font-size:.9rem;white-space:nowrap;text-align:right;">${auslassLbl}</td>
