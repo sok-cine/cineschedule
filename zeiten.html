@@ -197,16 +197,64 @@ async function loadFromServer(){
 
 async function saveToServer(){
   try{
-    DB._savedAt=new Date().toISOString();
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main`,{
+    // Erst aktuelle Daten vom Server laden
+    const getR = await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main&select=data`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${session.token}`}
+    });
+    if (!getR.ok) { toast('Fehler beim Laden!','err'); return; }
+    const serverData = await getR.json();
+    const serverDB = serverData[0]?.data || {};
+
+    // Nur Zeiten, Werbung, Abspann, FSK mergen — Filme NIEMALS überschreiben
+    // days aus lokalem DB nehmen (Zeiten wurden bearbeitet)
+    // films, settings, users vom Server nehmen (unberührt lassen)
+    const mergedDB = {
+      ...serverDB,           // Server-Stand als Basis
+      days: DB.days,         // Nur Spieltage (Zeiten) aus lokalem Stand
+      _savedAt: new Date().toISOString()
+    };
+    // Sicherheitscheck: Filme müssen vorhanden sein
+    if (!mergedDB.films || mergedDB.films.length === 0) {
+      toast('⚠️ Keine Filme auf Server — Speichern abgebrochen!','err');
+      return;
+    }
+
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/cineschedule?id=eq.main`,{
       method:'PATCH',
       headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${session.token}`,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({data:DB,updated_at:DB._savedAt})
+      body:JSON.stringify({data:mergedDB, updated_at:mergedDB._savedAt})
     });
     if(r.ok) toast('Gespeichert ✓','ok');
     else toast('Fehler beim Speichern!','err');
   } catch(e){ toast('Verbindungsfehler!','err'); }
 }
+
+// ── AUTO-LOGOUT nach 30 Min Inaktivität ──────────────────────────────────
+let _lastActivity = Date.now();
+['click','keydown','mousemove','scroll','touchstart'].forEach(ev =>
+  document.addEventListener(ev, () => { _lastActivity = Date.now(); }, { passive: true })
+);
+
+setInterval(() => {
+  if ((Date.now() - _lastActivity) / 60000 >= 30) {
+    // Warnung anzeigen
+    if (!document.getElementById('autoLogoutDlg')) {
+      const el = document.createElement('div');
+      el.id = 'autoLogoutDlg';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99999;display:flex;align-items:center;justify-content:center;';
+      el.innerHTML = `<div style="background:#1a1a2e;border:1px solid #333;border-radius:10px;padding:28px 32px;max-width:380px;width:90%;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:10px;">⏱</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:#f0c040;margin-bottom:10px;">SITZUNG INAKTIV</div>
+        <div style="font-size:.82rem;color:#aaa;margin-bottom:20px;">Du warst 30 Minuten inaktiv.<br>Bitte speichere und melde dich ab.</div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button onclick="document.getElementById('autoLogoutDlg').remove();_lastActivity=Date.now();" style="background:#f0c040;color:#000;border:none;border-radius:6px;padding:10px 20px;font-weight:700;cursor:pointer;">▶ Weiter arbeiten</button>
+          <button onclick="doLogout()" style="background:#111;color:#888;border:1px solid #333;border-radius:6px;padding:10px 20px;cursor:pointer;">Abmelden</button>
+        </div>
+      </div>`;
+      document.body.appendChild(el);
+    }
+  }
+}, 60 * 1000);
 
 function renderDayTabs(){
   const el=document.getElementById('dayTabs'); if(!el) return;
@@ -432,16 +480,6 @@ async function refreshToken() {
 // Alle 45 Minuten erneuern
 setInterval(refreshToken, 45 * 60 * 1000);
 
-
-// ── AUTO-LOGOUT nach 1 Stunde Inaktivität ──────────────────
-let _lastActivity = Date.now();
-['click','keydown','mousemove','touchstart'].forEach(ev =>
-  document.addEventListener(ev, () => { _lastActivity = Date.now(); }, { passive: true })
-);
-setInterval(() => {
-  if (!session?.token) return;
-  if (Date.now() - _lastActivity > 60 * 60 * 1000) doLogout();
-}, 60 * 1000);
 
 
 
